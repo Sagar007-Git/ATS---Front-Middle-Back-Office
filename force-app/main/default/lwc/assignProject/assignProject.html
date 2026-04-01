@@ -1,0 +1,47 @@
+<template>
+    <lightning-quick-action-panel header="Assign Project">
+        
+        <template if:true={isLoading}>
+            <div class="slds-is-relative slds-p-around_large">
+                <lightning-spinner alternative-text="Loading Configuration..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="slds-notify slds-notify_alert slds-theme_error slds-m-bottom_medium">
+                <h2>{errorMessage}</h2>
+            </div>
+        </template>
+
+        <template if:true={config}>
+            <lightning-record-edit-form 
+                object-api-name={config.targetObjectName} 
+                onsuccess={handleSuccess}
+                onerror={handleError}> 
+                
+                <lightning-messages></lightning-messages>
+                
+                <div class="slds-p-around_medium">
+                    <lightning-layout multiple-rows="true">
+                        <template for:each={dynamicFields} for:item="f">
+                            <lightning-layout-item key={f.uId} size="12" class="slds-m-bottom_small">
+                                <lightning-input-field
+                                    field-name={f.fieldApiName}
+                                    value={f.defaultValue}
+                                    required={f.isRequired}
+                                    disabled={f.isReadOnly}>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </div>
+
+                <div class="slds-m-top_medium slds-text-align_right">
+                    <lightning-button label="Cancel" onclick={closeAction} class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="brand" type="submit" label="Assign Project"></lightning-button>
+                </div>
+            </lightning-record-edit-form>
+        </template>
+        
+    </lightning-quick-action-panel>
+</template>

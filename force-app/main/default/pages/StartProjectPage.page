@@ -1,0 +1,99 @@
+<apex:page standardController="Placement__c" extensions="StartProjectController" lightningStylesheets="true">
+    <apex:slds />
+    <apex:pageMessages id="messages"/> 
+    
+    <div class="slds-page-header slds-m-bottom_small">
+        <div class="slds-media">
+            <div class="slds-media__body">
+                <h1 class="slds-page-header__title slds-truncate slds-align-middle">
+                    Create Project from Placement
+                </h1>
+                <span class="slds-text-body_small slds-line-height_reset">
+                    {!Placement__c.Name}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <apex:form >
+        <div class="slds-card slds-p-around--large">
+            
+            <apex:outputPanel rendered="{!hasExistingProject}">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning slds-m-bottom_medium" role="alert">
+                    <h2>A Project has already been created for this Placement!</h2>
+                </div>
+                <div class="slds-text-align_center">
+                    <apex:commandButton styleClass="slds-button slds-button_brand"
+                                        value="View Project"
+                                        action="{!viewExistingProject}" />
+                    <apex:commandLink styleClass="slds-button slds-button_neutral slds-m-left_small"
+                                      onclick="navigateToRecord('{!Placement__c.Id}'); return false;"
+                                      value="Cancel"/>
+                </div>
+            </apex:outputPanel>
+            
+            <apex:outputPanel rendered="{!NOT(hasExistingProject)}">
+                <p class="slds-m-bottom_medium">Please review the details pulled from the Placement. You can edit them before submitting.</p>
+                
+                <div class="slds-form slds-form_stacked slds-m-bottom_large">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">Project Name</label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField value="{!newProject.Name}" styleClass="slds-input"/>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label">Client</label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField value="{!newProject.Client__c}" styleClass="slds-input"/>
+                        </div>
+                    </div>
+
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label">Start Date</label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField value="{!newProject.Start_Date__c}" styleClass="slds-input"/>
+                        </div>
+                    </div>
+
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label">End Date</label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField value="{!newProject.End_Date__c}" styleClass="slds-input"/>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label">Timesheet Approver</label>
+                        <div class="slds-form-element__control">
+                            <apex:inputField value="{!newProject.Timesheet_Approver__c}" styleClass="slds-input"/>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-text-align_center">
+                    <apex:commandButton styleClass="slds-button slds-button_brand"
+                                        value="Submit"
+                                        action="{!submitNewProject}" 
+                                        reRender="messages"/>
+                    
+                    <apex:commandLink styleClass="slds-button slds-button_neutral slds-m-left_small"
+                                      onclick="navigateToRecord('{!Placement__c.Id}'); return false;"
+                                      value="Cancel"/>
+                </div>
+            </apex:outputPanel>
+
+        </div>
+    </apex:form>
+    
+    <script>
+        function navigateToRecord(recordId) {
+            if ((typeof sforce != 'undefined') && sforce && (!!sforce.one)) {
+                sforce.one.navigateToSObject(recordId);
+            } else {
+                window.location.href = '/' + recordId;
+            }
+        }
+    </script>
+</apex:page>

@@ -1,0 +1,62 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-is-relative slds-p-around_large slds-m-top_xx-large">
+            <lightning-spinner alternative-text="Loading Placement Configuration..." size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        <div class="slds-page-header slds-m-bottom_medium slds-text-align_center">
+            <h1 class="slds-page-header__title slds-truncate">Convert to Placement</h1>
+        </div>
+
+        <template if:true={isAlreadyPlaced}>
+            <div class="slds-notify slds-notify_alert slds-theme_warning slds-m-bottom_large slds-p-around_small" role="alert">
+                <lightning-icon icon-name="utility:warning" variant="inverse" size="small" class="slds-m-right_x-small"></lightning-icon>
+                <h2>A Placement has already been created for this Candidate!</h2>
+            </div>
+            <div class="slds-text-align_center slds-p-around_medium">
+                <lightning-button variant="neutral" label="Cancel" onclick={closeAction} class="slds-m-right_small"></lightning-button>
+                <lightning-button variant="brand" label="View Placement" icon-name="utility:preview" onclick={viewExistingPlacement}></lightning-button>
+            </div>
+        </template>
+
+        <template if:false={isAlreadyPlaced}>
+            <lightning-record-edit-form 
+                object-api-name={targetObjectApiName} 
+                onsuccess={handleSuccess} 
+                onsubmit={handleSubmit}
+                onerror={handleError}>
+                
+                <lightning-messages></lightning-messages>
+                
+                <div class="slds-section slds-is-open slds-m-top_small">
+                    <h3 class="slds-section__title slds-theme_shade slds-p-horizontal_small slds-m-bottom_small">
+                        <span class="slds-truncate" title="Placement Details">Placement Details</span>
+                    </h3>
+                </div>
+
+                <template if:true={dynamicFields}>
+                    <lightning-layout multiple-rows="true">
+                        <template for:each={dynamicFields} for:item="field">
+                            <lightning-layout-item key={field.uId} size="6" padding="horizontal-small" class="slds-m-bottom_small">
+                                <lightning-input-field 
+                                    field-name={field.fieldApiName} 
+                                    value={field.defaultValue}
+                                    required={field.isRequired}
+                                    disabled={field.isReadOnly}> 
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </template>
+
+                <div class="slds-m-top_medium slds-p-top_medium slds-border_top slds-text-align_center">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeAction} class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="brand" type="submit" label="Create Placement"></lightning-button>
+                </div>
+
+            </lightning-record-edit-form>
+        </template>
+    </template>
+</template>

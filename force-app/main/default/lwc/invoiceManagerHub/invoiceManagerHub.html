@@ -1,0 +1,81 @@
+<template>
+    <lightning-card title="Invoice Management Hub" icon-name="standard:invoice">
+        
+        <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
+            <template if:false={isDrillDownMode}>
+                <div class="slds-m-right_medium" style="width: 300px;">
+                    <lightning-input 
+                        type="search" 
+                        placeholder="Search Clients, Projects, or Candidates..." 
+                        variant="label-hidden"
+                        onchange={handleSearch}
+                        value={searchTerm}>
+                    </lightning-input>
+                </div>
+            </template>
+            <lightning-button label="Refresh Data" icon-name="utility:refresh" onclick={loadTimesheets}></lightning-button>
+        </div>
+
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading Data" size="medium"></lightning-spinner>
+        </template>
+
+        <div class="slds-p-around_medium">
+            
+            <template if:true={isDrillDownMode}>
+                <div class="slds-box slds-theme_default">
+                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                        <div class="slds-text-heading_medium">
+                            Pending Timesheets for: <strong>{drillDownTitle}</strong>
+                        </div>
+                        <lightning-button variant="neutral" label="Back to Dashboard" icon-name="utility:back" onclick={handleBack}></lightning-button>
+                    </div>
+
+                    <lightning-datatable
+                        key-field="timesheetId"
+                        data={drillDownData}
+                        columns={timesheetColumns}
+                        onrowselection={handleRowSelection}>
+                    </lightning-datatable>
+
+                    <div class="slds-m-top_medium slds-text-align_right">
+                        <lightning-button label="Generate Selected Invoices" variant="brand" onclick={handleGenerate} disabled={isGenerateDisabled}></lightning-button>
+                    </div>
+                </div>
+            </template>
+
+            <template if:false={isDrillDownMode}>
+                <lightning-tabset variant="scoped">
+                    
+                    <lightning-tab label="By Client" icon-name="standard:account">
+                        <c-invoice-entity-dashboard 
+                            entity-type="Account" 
+                            pending-data={accountGroups} 
+                            search-term={appliedSearchTerm} 
+                            ondrilldown={handleDrillDown}>
+                        </c-invoice-entity-dashboard>
+                    </lightning-tab>
+
+                    <lightning-tab label="By Project" icon-name="standard:service_territory_location">
+                        <c-invoice-entity-dashboard 
+                            entity-type="Project" 
+                            pending-data={projectGroups} 
+                            search-term={appliedSearchTerm} 
+                            ondrilldown={handleDrillDown}>
+                        </c-invoice-entity-dashboard>
+                    </lightning-tab>
+
+                    <lightning-tab label="By Candidate" icon-name="standard:user">
+                        <c-invoice-entity-dashboard 
+                            entity-type="Candidate" 
+                            pending-data={candidateGroups} 
+                            search-term={appliedSearchTerm} 
+                            ondrilldown={handleDrillDown}>
+                        </c-invoice-entity-dashboard>
+                    </lightning-tab>
+
+                </lightning-tabset>
+            </template>
+        </div>
+    </lightning-card>
+</template>

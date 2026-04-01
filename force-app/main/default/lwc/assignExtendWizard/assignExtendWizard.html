@@ -1,0 +1,30 @@
+<template>
+    <div class="slds-box slds-theme_default">
+        
+        <template if:true={isStep1}>
+            <div class="slds-text-heading_medium slds-m-bottom_medium">Step 1: Project Details</div>
+            
+            <c-assign-project 
+                record-id={recordId} 
+                onstepcomplete={handleProjectAssigned}>
+            </c-assign-project>
+        </template>
+
+        <template if:true={isStep2}>
+            <div class="slds-text-heading_medium slds-m-bottom_medium">Step 2: Financials</div>
+            
+            <c-create-deal-sheet-action 
+                record-id={recordId}
+                prefilled-project-id={capturedProjectId}
+                prefilled-start-date={capturedStartDate}
+                prefilled-end-date={capturedEndDate}
+                ondealsheetsaved={handleWizardComplete}>
+            </c-create-deal-sheet-action>
+            
+            <div class="slds-m-top_small slds-text-align_left">
+                <lightning-button variant="base" label="← Back to Dates" onclick={goBackToStep1}></lightning-button>
+            </div>
+        </template>
+
+    </div>
+</template>

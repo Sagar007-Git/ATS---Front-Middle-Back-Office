@@ -1,0 +1,46 @@
+<template>
+    <div class="slds-is-relative slds-p-around_small">
+        
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <div class="slds-page-header slds-m-bottom_medium slds-text-align_center">
+            <h1 class="slds-page-header__title slds-truncate">Create Deal Sheet</h1>
+        </div>
+
+        <lightning-record-edit-form 
+            object-api-name={targetObjectApiName} 
+            onsuccess={handleSuccess} 
+            onsubmit={handleSubmit}
+            onerror={handleError}>
+            
+            <lightning-messages></lightning-messages>
+            
+            <div class="slds-section slds-is-open slds-m-top_small">
+                <h3 class="slds-section__title slds-theme_shade slds-p-horizontal_small slds-m-bottom_small">
+                    <span class="slds-truncate" title="Deal Sheet Details">Deal Sheet Details</span>
+                </h3>
+            </div>
+
+            <lightning-layout multiple-rows="true">
+                <template for:each={dynamicFields} for:item="field">
+                    <lightning-layout-item key={field.uId} size="6" padding="horizontal-small" class="slds-m-bottom_small">
+                        <lightning-input-field 
+                            field-name={field.fieldApiName} 
+                            value={field.defaultValue}
+                            required={field.isRequired}
+                            disabled={field.isReadOnly}> 
+                        </lightning-input-field>
+                    </lightning-layout-item>
+                </template>
+            </lightning-layout>
+
+            <div class="slds-m-top_medium slds-p-top_medium slds-border_top slds-text-align_center">
+                <lightning-button variant="neutral" label="Cancel" onclick={closeAction}></lightning-button>
+                <lightning-button variant="brand" type="submit" label="Generate Deal Sheet" class="slds-m-left_x-small"></lightning-button>
+            </div>
+        </lightning-record-edit-form>
+        
+    </div>
+</template>

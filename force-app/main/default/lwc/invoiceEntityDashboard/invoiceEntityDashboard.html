@@ -1,0 +1,58 @@
+<template>
+    <div class="slds-grid slds-wrap slds-gutters">
+        
+        <div class="slds-col slds-size_1-of-1 slds-m-bottom_large">
+            <div class="slds-box slds-theme_default">
+                <div class="slds-text-heading_small slds-p-bottom_small slds-text-color_error">
+                    <strong>Action Required: Pending Invoices</strong>
+                </div>
+                
+                <template if:true={hasPendingData}>
+                    <lightning-datatable
+                        key-field="id"
+                        data={pendingData} 
+                        columns={pendingColumns}
+                        hide-checkbox-column
+                        onrowaction={handlePendingAction}> </lightning-datatable>
+                </template>
+
+                <template if:false={hasPendingData}>
+                    <div class="slds-p-around_medium slds-text-align_center slds-text-color_success">
+                        <i>No pending invoices found matching your search.</i>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="slds-col slds-size_1-of-1">
+            <div class="slds-box slds-theme_shade slds-is-relative">
+                
+                <template if:true={isDirectoryLoading}>
+                    <lightning-spinner alternative-text="Loading Directory..." size="small"></lightning-spinner>
+                </template>
+
+                <div class="slds-text-heading_small slds-p-bottom_small slds-text-color_weak">
+                    <strong>Directory: All Active {entityType}s</strong>
+                </div>
+                
+                <template if:true={hasActiveData}>
+                    <div class="slds-scrollable_y" style="max-height: 250px;">
+                        <lightning-datatable
+                            key-field="entityId"
+                            data={filteredActiveData} 
+                            columns={activeColumns}
+                            hide-checkbox-column
+                            onrowaction={handleDirectoryAction}> </lightning-datatable>
+                    </div>
+                </template>
+
+                <template if:false={hasActiveData}>
+                    <div class="slds-p-around_medium slds-text-align_center slds-text-color_weak">
+                        <i>No active {entityType}s found matching "{searchTerm}".</i>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+</template>

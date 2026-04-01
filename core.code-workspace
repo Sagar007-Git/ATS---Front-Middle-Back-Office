@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "d:/ATS-ShiftScheduling/ShiftScheduling"
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      "d:/ATS-ShiftScheduling/ShiftScheduling"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.options": {
+      "overrideConfigFile": "d:\\ATS-ShiftScheduling\\ShiftScheduling\\.eslintrc.json"
+    }
+  }
+}

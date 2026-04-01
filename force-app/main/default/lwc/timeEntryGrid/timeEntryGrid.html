@@ -1,0 +1,68 @@
+<template>
+    <lightning-card title="Daily Time Entry" icon-name="custom:custom95">
+        
+        <div class="slds-p-around_medium">
+            <div class="slds-scrollable_x">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width: 100px;"><div class="slds-truncate">Date</div></th>
+                            <th scope="col" style="width: 120px;"><div class="slds-truncate">Start Time</div></th>
+                            <th scope="col" style="width: 120px;"><div class="slds-truncate">End Time</div></th>
+                            <th scope="col" style="width: 90px;"><div class="slds-truncate">Break (Hrs)</div></th>
+                            <th scope="col" style="width: 90px;"><div class="slds-truncate">Total Hrs</div></th>
+                            <th scope="col" style="width: 130px;"><div class="slds-truncate">Type</div></th>
+                            <th scope="col" style="width: 200px;"><div class="slds-truncate">Task</div></th>
+                            <th scope="col"><div class="slds-truncate">Comments</div></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={rows} for:item="row">
+                            <tr key={row.date}>
+                                <td>
+                                    <div class="slds-text-heading_small slds-p-top_small">
+                                        <strong>{row.dayName}</strong><br/>
+                                        <span class="slds-text-body_small slds-text-color_weak">{row.date}</span>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <lightning-input type="time" name="startTime" data-id={row.date} value={row.startTime} disabled={isLocked} onchange={handleChange} variant="label-hidden"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="time" name="endTime" data-id={row.date} value={row.endTime} disabled={isLocked} onchange={handleChange} variant="label-hidden"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="number" step="0.1" name="breakTime" data-id={row.date} value={row.breakTime} disabled={isLocked} onchange={handleChange} variant="label-hidden"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="number" step="0.1" name="hours" data-id={row.date} value={row.hours} disabled={isLocked} onchange={handleChange} variant="label-hidden"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox name="shift" data-id={row.date} value={row.shift} options={shiftOptions} disabled={isLocked} onchange={handleChange} variant="label-hidden"></lightning-combobox>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox name="taskId" data-id={row.date} value={row.taskId} options={taskOptions} disabled={isLocked} onchange={handleChange} variant="label-hidden" placeholder="Select Task..."></lightning-combobox>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="text" name="comments" data-id={row.date} value={row.comments} disabled={isLocked} onchange={handleChange} variant="label-hidden" placeholder="Optional notes..."></lightning-input>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="slds-m-top_medium slds-text-align_right">
+                <lightning-button variant="brand" label="Submit Timesheet" onclick={handleSubmit} disabled={isLocked} icon-name="utility:save"></lightning-button>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>
