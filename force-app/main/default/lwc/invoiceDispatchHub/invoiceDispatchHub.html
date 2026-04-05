@@ -1,0 +1,71 @@
+<template>
+    <lightning-card title="Invoice Dispatch Hub" icon-name="standard:drafts">
+        
+        <div slot="actions">
+            <lightning-button label="Refresh All Data" icon-name="utility:refresh" onclick={loadAllData}></lightning-button>
+        </div>
+
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+        </template>
+
+        <div class="slds-p-around_medium">
+            <lightning-tabset variant="scoped">
+                
+                <lightning-tab label="Ready for Dispatch" icon-name="utility:send">
+                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                        <div class="slds-box slds-theme_shade slds-size_2-of-3">
+                            <p class="slds-text-body_regular">
+                                <strong>Instructions:</strong> Select Draft invoices below. The system will automatically generate the PDF, attach it to the record, email the client, and update the status to "Sent".
+                            </p>
+                        </div>
+                        <div style="width: 250px;">
+                            <lightning-input type="search" placeholder="Search Drafts..." variant="label-hidden" onchange={handleDraftSearch}></lightning-input>
+                        </div>
+                    </div>
+
+                    <div style="height: 400px;" class="slds-scrollable_y slds-border_top slds-border_bottom">
+                        <lightning-datatable
+                            key-field="Id"
+                            data={filteredDraftData}
+                            columns={draftColumns}
+                            onrowselection={handleRowSelection}>
+                        </lightning-datatable>
+                    </div>
+
+                    <div class="slds-m-top_medium slds-text-align_right">
+                        <lightning-button 
+                            label="Generate PDFs & Send to Clients" 
+                            variant="brand" 
+                            icon-name="utility:send" 
+                            onclick={handleDispatch} 
+                            disabled={isDispatchDisabled}>
+                        </lightning-button>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Dispatch History" icon-name="utility:history">
+                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                        <div class="slds-text-heading_small slds-align-middle slds-text-color_weak">
+                            <strong>Track Sent, Paid, and Overdue Invoices</strong>
+                        </div>
+                        <div style="width: 300px;">
+                            <lightning-input type="search" placeholder="Search Sent Invoices..." variant="label-hidden" onchange={handleTrackedSearch}></lightning-input>
+                        </div>
+                    </div>
+
+                    <div style="height: 450px;" class="slds-scrollable_y slds-border_top slds-border_bottom">
+                        <lightning-datatable
+                            key-field="Id"
+                            data={filteredTrackedData}
+                            columns={trackedColumns}
+                            hide-checkbox-column="true"
+                            onrowaction={handleRowAction}>
+                        </lightning-datatable>
+                    </div>
+                </lightning-tab>
+
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</template>

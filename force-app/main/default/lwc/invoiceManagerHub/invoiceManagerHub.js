@@ -4,6 +4,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 // Importing from our fully bulletproofed controller
 import getBillableTimesheets from '@salesforce/apex/InvoiceConsoleController.getBillableTimesheets';
 import generateInvoices from '@salesforce/apex/InvoiceConsoleController.generateInvoices';
+// 🟢 NEW IMPORT FOR PDF GENERATION 🟢
+import massGenerateTimesheetPDFs from '@salesforce/apex/InvoiceConsoleController.massGenerateTimesheetPDFs';
 
 export default class InvoiceManagerHub extends LightningElement {
     @track isLoading = true;
@@ -139,8 +141,31 @@ export default class InvoiceManagerHub extends LightningElement {
     }
 
     // ==========================================
-    // 4. INVOICE GENERATION EXECUTION
+    // 4. ACTION EXECUTIONS
     // ==========================================
+    
+    // 🟢 NEW METHOD: Handles the PDF Button Click 🟢
+    handleGeneratePDFs() {
+        if (this.selectedRows.length === 0) return;
+        this.isLoading = true;
+        
+        const ids = this.selectedRows.map(row => row.timesheetId);
+        
+        massGenerateTimesheetPDFs({ timesheetIds: ids })
+            .then(message => {
+                this.showToast('Background Job Queued', message, 'success');
+                // Uncheck the boxes so the user doesn't accidentally click it again
+                this.template.querySelector('lightning-datatable').selectedRows = [];
+                this.selectedRows = [];
+            })
+            .catch(error => {
+                this.showToast('PDF Generation Failed', this.extractErrorMessage(error), 'error');
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
     handleGenerate() {
         if (this.selectedRows.length === 0) return;
         this.isLoading = true;
@@ -167,9 +192,6 @@ export default class InvoiceManagerHub extends LightningElement {
         return this.selectedRows.length === 0;
     }
 
-    /**
-     * Extracts the deepest, most human-readable error from the Salesforce payload
-     */
     extractErrorMessage(error) {
         if (error?.body?.message) {
             return error.body.message;
@@ -188,7 +210,7 @@ export default class InvoiceManagerHub extends LightningElement {
             title: title, 
             message: message, 
             variant: variant,
-            mode: variant === 'error' ? 'sticky' : 'dismissable' // Keep errors on screen until dismissed
+            mode: variant === 'error' ? 'sticky' : 'dismissable'
         }));
     }
 }

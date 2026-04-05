@@ -2,7 +2,7 @@ import { LightningElement, api, wire, track } from 'lwc';
 import { CloseActionScreenEvent } from 'lightning/actions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
-import { NotifyRecordUpdateAvailable } from 'lightning/uiRecordApi';
+import { notifyRecordUpdateAvailable } from 'lightning/uiRecordApi'; // Fixed capitalization
 
 import getPopupConfiguration from '@salesforce/apex/DynamicCMDTController.getPopupConfiguration';
 
@@ -27,7 +27,7 @@ export default class CreateDealSheetAction extends NavigationMixin(LightningElem
             let uniqueFields = [];
             let index = 0;
 
-            // 🛡️ THE DUPLICATE KILLER (Now with uId generation!)
+            // 🛡️ THE DUPLICATE KILLER
             data.fields.forEach(field => {
                 if (!seenFields.has(field.fieldApiName)) {
                     seenFields.add(field.fieldApiName);
@@ -59,24 +59,39 @@ export default class CreateDealSheetAction extends NavigationMixin(LightningElem
         this.template.querySelector('lightning-record-edit-form').submit(fields);
     }
 
-    // 3. SHOW SUCCESS AND NAVIGATE
+    // 3. SHOW SUCCESS AND NAVIGATE (FIXED RACE CONDITION)
     handleSuccess(event) {
         this.isLoading = false;
-        this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: 'Deal Sheet Created!', variant: 'success' }));
         
-        // Refresh the Placement page data
-        NotifyRecordUpdateAvailable([{ recordId: this.recordId }]);
-        this.dispatchEvent(new CloseActionScreenEvent());
+        // 1. Show the success message immediately
+        this.dispatchEvent(new ShowToastEvent({ 
+            title: 'Success', 
+            message: 'Deal Sheet Created!', 
+            variant: 'success' 
+        }));
         
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: { recordId: event.detail.id, objectApiName: this.targetObjectApiName, actionName: 'view' }
-        });
+        // 2. Notify the framework to refresh the background data
+        notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        
+        // 3. THE FIX: Delay the close and navigation by 100ms 
+        // This gives lightning-record-edit-form time to finish its internal promises
+        setTimeout(() => {
+            this.dispatchEvent(new CloseActionScreenEvent());
+            
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: { 
+                    recordId: event.detail.id, 
+                    objectApiName: this.targetObjectApiName, 
+                    actionName: 'view' 
+                }
+            });
+        }, 100);
     }
 
-    // 4. THE FIX: CATCH ERRORS SO IT DOESN'T SPIN FOREVER
+    // 4. CATCH ERRORS SO IT DOESN'T SPIN FOREVER
     handleError(event) {
-        this.isLoading = false; // Turn off the spinner!
+        this.isLoading = false; 
         
         const message = event.detail.detail || event.detail.message || 'Check your required fields or validation rules.';
         
@@ -84,7 +99,7 @@ export default class CreateDealSheetAction extends NavigationMixin(LightningElem
             title: 'Error Saving Deal Sheet',
             message: message,
             variant: 'error',
-            mode: 'sticky' // Keep it on screen so you can read it
+            mode: 'sticky' 
         }));
     }
 

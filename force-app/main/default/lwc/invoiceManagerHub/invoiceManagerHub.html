@@ -39,6 +39,7 @@
                     </lightning-datatable>
 
                     <div class="slds-m-top_medium slds-text-align_right">
+                        <lightning-button label="Generate Timesheet PDFs" variant="neutral" icon-name="utility:pdf_ext" onclick={handleGeneratePDFs} disabled={isGenerateDisabled} class="slds-m-right_small"></lightning-button>
                         <lightning-button label="Generate Selected Invoices" variant="brand" onclick={handleGenerate} disabled={isGenerateDisabled}></lightning-button>
                     </div>
                 </div>
@@ -72,6 +73,10 @@
                             search-term={appliedSearchTerm} 
                             ondrilldown={handleDrillDown}>
                         </c-invoice-entity-dashboard>
+                    </lightning-tab>
+
+                    <lightning-tab label="Dispatch & Tracking" icon-name="standard:drafts">
+                        <c-invoice-dispatch-hub></c-invoice-dispatch-hub>
                     </lightning-tab>
 
                 </lightning-tabset>

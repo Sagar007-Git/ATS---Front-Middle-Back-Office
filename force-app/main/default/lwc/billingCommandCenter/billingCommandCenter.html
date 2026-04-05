@@ -1,0 +1,26 @@
+<template>
+    <lightning-card title="Timesheet PDF Generation Hub" icon-name="standard:timesheet">
+        
+        <div class="slds-p-around_medium slds-border_bottom slds-theme_shade slds-grid slds-grid_align-spread">
+            <div class="slds-col">
+                <lightning-input type="search" placeholder="Search Candidate or Client..." onchange={handleSearch} class="slds-m-bottom_small" style="max-width: 300px;"></lightning-input>
+            </div>
+            <div class="slds-col">
+                <lightning-button label="Generate Selected PDFs" variant="brand" icon-name="utility:pdf_ext" onclick={handleGenerate} disabled={isGenerateDisabled}></lightning-button>
+            </div>
+        </div>
+
+        <div class="slds-p-around_medium" style="height: 500px;">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+            
+            <lightning-datatable
+                key-field="Id"
+                data={filteredData}
+                columns={columns}
+                onrowselection={handleRowSelection}>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+</template>

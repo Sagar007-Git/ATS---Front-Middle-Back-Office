@@ -1,7 +1,7 @@
 public with sharing class InvoiceConsoleController {
 
     // ==========================================
-    // 1. DATA WRAPPER
+    // 1. DATA WRAPPERS
     // ==========================================
     public class InvoiceDataWrapper {
         @AuraEnabled public Id timesheetId { get; set; }
@@ -19,8 +19,15 @@ public with sharing class InvoiceConsoleController {
         @AuraEnabled public Boolean hasAttachments { get; set; }
     }
 
+    public class EntitySummaryWrapper {
+        @AuraEnabled public Id entityId { get; set; }
+        @AuraEnabled public String entityName { get; set; }
+        @AuraEnabled public String entityType { get; set; }
+        @AuraEnabled public String status { get; set; }
+    }
+
     // ==========================================
-    // 2. METADATA ENGINE (Safe Fetching)
+    // 2. METADATA HELPERS (Safe Fetching)
     // ==========================================
     private static String getTargetStatus() {
         Invoice_Setting__mdt setting = Invoice_Setting__mdt.getInstance('Default');
@@ -38,16 +45,15 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 3. READ TRANSACTIONS (Data Fetching)
+    // 3. TIMESHEET HUB: READ TRANSACTIONS
     // ==========================================
     @AuraEnabled(cacheable=true)
     public static List<InvoiceDataWrapper> getBillableTimesheets() {
         try {
             String targetStatus = getTargetStatus();
 
-            // SOQL: Added Task__r.Account__c, Client__c, and Client__r.Name for Account Waterfall
             List<Timesheet__c> timesheets = [
-                SELECT Id, Name, Start_Date__c, End_Date__c, Reporting_Week__c, Total_Hours__c,
+                SELECT Id, Name, Start_Date__c, End_Date__c, Reporting_Week__c, Total_Time_Hours__c,
                    Task__c, Task__r.Name, Task__r.Account__c, 
                    Client__c, Client__r.Name,
                    Project_Resource__r.Project__c, 
@@ -78,7 +84,7 @@ public with sharing class InvoiceConsoleController {
                 // ACCOUNT WATERFALL LOGIC for UI Display
                 if (ts.Task__r?.Account__c != null) {
                     wrapper.accountId = ts.Task__r.Account__c;
-                    wrapper.accountName = 'Task Account'; // Or query Task__r.Account__r.Name if available
+                    wrapper.accountName = 'Task Account'; 
                 } else if (ts.Client__c != null) {
                     wrapper.accountId = ts.Client__c;
                     wrapper.accountName = ts.Client__r?.Name;
@@ -90,9 +96,7 @@ public with sharing class InvoiceConsoleController {
                 wrapper.candidateName = ts.Project_Resource__r?.Candidate_Employee__r?.Name;
                 wrapper.reportingWeek = ts.Reporting_Week__c;
                 wrapper.hasAttachments = (ts.ContentDocumentLinks != null && !ts.ContentDocumentLinks.isEmpty()); 
-                
-                // Safe Decimal Cast for Hours
-                wrapper.totalHours = (ts.Total_Hours__c != null) ? Decimal.valueOf(String.valueOf(ts.Total_Hours__c)) : 0.0;
+                wrapper.totalHours = (ts.Total_Time_Hours__c != null) ? Decimal.valueOf(String.valueOf(ts.Total_Time_Hours__c)) : 0.0;
                 
                 // Aggregate Expenses
                 Decimal expSum = 0.0;
@@ -113,7 +117,7 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 4. WRITE TRANSACTIONS (Generating Invoices)
+    // 4. TIMESHEET HUB: GENERATE INVOICES
     // ==========================================
     @AuraEnabled
     public static String generateInvoices(List<Id> timesheetIds) {
@@ -127,27 +131,28 @@ public with sharing class InvoiceConsoleController {
             String invoicedStatus = getInvoicedStatus();
             Integer dueOffset = getDueDateOffset();
             
-            // SOQL: Included Client__c and Task__r.Account__c for the Waterfall
             List<Timesheet__c> timesheetsToBill = [
-                SELECT Id, Name, Start_Date__c, End_Date__c, Total_Hours__c, Timesheet_Status__c, Reporting_Week__c,
+                SELECT Id, Name, Start_Date__c, End_Date__c, Total_Time_Hours__c, Timesheet_Status__c, Reporting_Week__c,
                        Task__c, Task__r.Name, Task__r.Bill_Rate__c, Task__r.Account__c,
                        Client__c,
+                       Project_Resource__r.Bill_Rate__c,
                        Project_Resource__r.Placement__r.Bill_Rate__c,
                        Project_Resource__r.Candidate_Employee__r.Name,
-                       (SELECT Amount__c FROM Expenses__r WHERE Status__c = 'Approved')
+                       (SELECT Amount__c FROM Expenses__r WHERE Status__c = 'Approved'),
+                       (SELECT Id, Date__c, Hours_Worked_Number_Format__c, Task__c, Task__r.Name, Task__r.Bill_Rate__c, Additional_Comments__c 
+                        FROM Time_Entries__r 
+                        WHERE Hours_Worked_Number_Format__c > 0)
                 FROM Timesheet__c
                 WHERE Id IN :timesheetIds
                 FOR UPDATE 
             ];
 
-            // Group by Account ID (Using the Waterfall)
             Map<Id, List<Timesheet__c>> accountToTimesheetsMap = new Map<Id, List<Timesheet__c>>();
             for (Timesheet__c ts : timesheetsToBill) {
                 if (ts.Timesheet_Status__c == invoicedStatus) {
                     throw new CustomException('Timesheet ' + ts.Name + ' has already been invoiced.');
                 }
                 
-                // THE ACCOUNT WATERFALL: Task > Timesheet Client
                 Id accId = (ts.Task__r?.Account__c != null) ? ts.Task__r.Account__c : ts.Client__c;
                 
                 if (accId == null) {
@@ -160,7 +165,6 @@ public with sharing class InvoiceConsoleController {
                 accountToTimesheetsMap.get(accId).add(ts);
             }
 
-            // Create Invoice Headers (UPDATED API NAMES)
             List<Invoice__c> invoicesToInsert = new List<Invoice__c>();
             Map<Id, Invoice__c> accountToInvoiceMap = new Map<Id, Invoice__c>();
             
@@ -169,14 +173,12 @@ public with sharing class InvoiceConsoleController {
                     Account__c = accId,
                     Invoice_Date__c = Date.today(),
                     Due_Date__c = Date.today().addDays(dueOffset)
-                    // Status omitted entirely so Salesforce uses the default picklist value (Draft)
                 );
                 invoicesToInsert.add(newInvoice);
                 accountToInvoiceMap.put(accId, newInvoice); 
             }
             insert invoicesToInsert;
 
-            // Create Invoice Lines & Update Timesheets (UPDATED API NAMES)
             List<Invoice_Line__c> linesToInsert = new List<Invoice_Line__c>();
             List<Timesheet__c> timesheetsToUpdate = new List<Timesheet__c>();
 
@@ -185,31 +187,52 @@ public with sharing class InvoiceConsoleController {
                 
                 for (Timesheet__c ts : accountToTimesheetsMap.get(accId)) {
                     
-                    // --- RATE CALCULATION (Safe String-to-Decimal Casting) ---
-                    Decimal safeRate = 0.0;
-                    if (ts.Task__r?.Bill_Rate__c != null) {
-                        safeRate = Decimal.valueOf(String.valueOf(ts.Task__r.Bill_Rate__c));
-                    } else if (ts.Project_Resource__r?.Placement__r?.Bill_Rate__c != null) {
-                        safeRate = Decimal.valueOf(String.valueOf(ts.Project_Resource__r.Placement__r.Bill_Rate__c));
-                    }
-                    
-                    Decimal hours = (ts.Total_Hours__c != null) ? Decimal.valueOf(String.valueOf(ts.Total_Hours__c)) : 0.0;
-                    String taskName = (String.isNotBlank(ts.Task__r?.Name)) ? ts.Task__r.Name : 'General Labor';
-                    String candidateName = (String.isNotBlank(ts.Project_Resource__r?.Candidate_Employee__r?.Name)) ? ts.Project_Resource__r.Candidate_Employee__r.Name : 'Unknown Resource';
+                    Decimal resourceRate = (ts.Project_Resource__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Project_Resource__r.Bill_Rate__c)) : 0.0;
+                    Decimal placementRate = (ts.Project_Resource__r?.Placement__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Project_Resource__r.Placement__r.Bill_Rate__c)) : 0.0;
+                    Decimal baseRate = (resourceRate > 0) ? resourceRate : placementRate;
+                    String candidateName = String.isNotBlank(ts.Project_Resource__r?.Candidate_Employee__r?.Name) ? ts.Project_Resource__r.Candidate_Employee__r.Name : 'Unknown Resource';
 
-                    // --- 1. GENERATE LABOR LINE (UPDATED API NAMES) ---
-                    if (hours > 0) {
+                    // Detailed Daily Lines
+                    if (ts.Time_Entries__r != null && !ts.Time_Entries__r.isEmpty()) {
+                        for (Time_Entry__c te : ts.Time_Entries__r) {
+                            Decimal dailyHours = Decimal.valueOf(String.valueOf(te.Hours_Worked_Number_Format__c));
+                            Decimal dailyRate = baseRate;
+                            if (te.Task__r?.Bill_Rate__c != null) {
+                                dailyRate = Decimal.valueOf(String.valueOf(te.Task__r.Bill_Rate__c));
+                            } else if (ts.Task__r?.Bill_Rate__c != null) {
+                                dailyRate = Decimal.valueOf(String.valueOf(ts.Task__r.Bill_Rate__c));
+                            }
+
+                            String taskName = String.isNotBlank(te.Task__r?.Name) ? te.Task__r.Name : (String.isNotBlank(ts.Task__r?.Name) ? ts.Task__r.Name : 'Labor');
+                            String comments = String.isNotBlank(te.Additional_Comments__c) ? ' | Notes: ' + te.Additional_Comments__c : '';
+                            String dateStr = (te.Date__c != null) ? String.valueOf(te.Date__c) : '';
+
+                            linesToInsert.add(new Invoice_Line__c(
+                                Pxm_Invoice__c = parentInvoice.Id,
+                                Timesheet__c = ts.Id,
+                                Hours__c = dailyHours,      
+                                Bill_Rate__c = dailyRate,        
+                                Name = (taskName + ' (' + dateStr + ')').left(80), 
+                                Line_Description__c = ('Candidate: ' + candidateName + comments).left(255)
+                            ));
+                        }
+                    } 
+                    // Fallback Summary Line
+                    else if (ts.Total_Time_Hours__c != null && ts.Total_Time_Hours__c > 0) {
+                        Decimal totalHours = Decimal.valueOf(String.valueOf(ts.Total_Time_Hours__c));
+                        Decimal fallbackRate = (ts.Task__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Task__r.Bill_Rate__c)) : baseRate;
+
                         linesToInsert.add(new Invoice_Line__c(
                             Pxm_Invoice__c = parentInvoice.Id,
                             Timesheet__c = ts.Id,
-                            Hours__c = hours,      
-                            Bill_Rate__c = safeRate,        
-                            Name = taskName.left(80), 
+                            Hours__c = totalHours,      
+                            Bill_Rate__c = fallbackRate,        
+                            Name = 'Standard Labor'.left(80), 
                             Line_Description__c = ('Candidate: ' + candidateName + ' | Week: ' + ts.Reporting_Week__c).left(255)
                         ));
                     }
 
-                    // --- 2. GENERATE EXPENSE LINE (UPDATED API NAMES) ---
+                    // Expense Lines
                     Decimal expSum = 0.0;
                     if (ts.Expenses__r != null) {
                         for (Expense__c exp : ts.Expenses__r) {
@@ -228,7 +251,6 @@ public with sharing class InvoiceConsoleController {
                         ));
                     }
 
-                    // Mark Timesheet as processed
                     ts.Timesheet_Status__c = invoicedStatus;
                     timesheetsToUpdate.add(ts);
                 }
@@ -246,15 +268,73 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 5. DIRECTORY TRANSACTIONS
+    // 5. TIMESHEET HUB: BACKGROUND PDF GENERATION
     // ==========================================
-    public class EntitySummaryWrapper {
-        @AuraEnabled public Id entityId { get; set; }
-        @AuraEnabled public String entityName { get; set; }
-        @AuraEnabled public String entityType { get; set; }
-        @AuraEnabled public String status { get; set; }
+    @AuraEnabled
+    public static String massGenerateTimesheetPDFs(List<Id> timesheetIds) {
+        if (timesheetIds == null || timesheetIds.isEmpty()) {
+            throw createAuraException('No records selected.');
+        }
+
+        List<Timesheet__c> tsList = [
+            SELECT Id, Name, Project_Resource__r.Candidate_Employee__r.Name 
+            FROM Timesheet__c 
+            WHERE Id IN :timesheetIds
+        ];
+
+        Map<Id, String> idToFileNameMap = new Map<Id, String>();
+        for (Timesheet__c ts : tsList) {
+            String candName = String.isNotBlank(ts.Project_Resource__r?.Candidate_Employee__r?.Name) 
+                              ? ts.Project_Resource__r.Candidate_Employee__r.Name : 'Consultant';
+            idToFileNameMap.put(ts.Id, 'Timesheet - ' + candName + ' - ' + ts.Name);
+        }
+
+        // 🛑 REPLACE WITH YOUR ACTUAL TIMESHEET VF PAGE NAME
+        String targetVfPage = 'YOUR_TIMESHEET_VF_PAGE_NAME'; 
+
+        try {
+            System.enqueueJob(new PDFGeneratorQueueable(idToFileNameMap, targetVfPage));
+            return 'PDF Generation started in the background for ' + timesheetIds.size() + ' records.';
+        } catch (Exception e) {
+            throw createAuraException('Error starting PDF job: ' + e.getMessage());
+        }
     }
 
+    // ==========================================
+    // 6. INVOICE DISPATCH HUB: DRAFTS & EMAIL
+    // ==========================================
+    @AuraEnabled(cacheable=true)
+    public static List<Invoice__c> getDraftInvoices() {
+        try {
+            return [
+                SELECT Id, Name, Account__c, Account__r.Name, Account__r.Billing_Email__c,
+                       Invoice_Date__c, Due_Date__c, Status__c 
+                FROM Invoice__c
+                WHERE Status__c = 'Draft'
+                ORDER BY Invoice_Date__c ASC
+                LIMIT 500
+            ];
+        } catch (Exception e) {
+            throw createAuraException('Error fetching draft invoices: ' + e.getMessage());
+        }
+    }
+
+    @AuraEnabled
+    public static String dispatchInvoices(List<Id> invoiceIds) {
+        if (invoiceIds == null || invoiceIds.isEmpty()) {
+            throw createAuraException('No invoices selected.');
+        }
+        try {
+            System.enqueueJob(new InvoiceDispatchQueueable(invoiceIds));
+            return 'Dispatch initiated! ' + invoiceIds.size() + ' invoices are being generated and emailed in the background.';
+        } catch (Exception e) {
+            throw createAuraException('Failed to start dispatch: ' + e.getMessage());
+        }
+    }
+
+    // ==========================================
+    // 7. DIRECTORY TRANSACTIONS (Entity Fetching)
+    // ==========================================
     @AuraEnabled(cacheable=true)
     public static List<EntitySummaryWrapper> getActiveEntities(String entityType) {
         List<EntitySummaryWrapper> results = new List<EntitySummaryWrapper>();
@@ -284,6 +364,22 @@ public with sharing class InvoiceConsoleController {
         }
     }
 
+    @AuraEnabled(cacheable=true)
+    public static List<Invoice__c> getTrackedInvoices() {
+        try {
+            return [
+                SELECT Id, Name, Account__c, Account__r.Name, Account__r.Billing_Email__c,
+                       Invoice_Date__c, Due_Date__c, Status__c 
+                FROM Invoice__c
+                WHERE Status__c != 'Draft' 
+                ORDER BY CreatedDate DESC
+                LIMIT 1000
+            ];
+        } catch (Exception e) {
+            throw createAuraException('Error fetching tracked invoices: ' + e.getMessage());
+        }
+    }
+
     private static EntitySummaryWrapper createEntityWrapper(Id recId, String recName, String recType, String status) {
         EntitySummaryWrapper wrap = new EntitySummaryWrapper();
         wrap.entityId = recId;
@@ -294,7 +390,7 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 6. EXCEPTION HANDLING UTILITIES
+    // 8. EXCEPTION HANDLING UTILITIES
     // ==========================================
     public class CustomException extends Exception {}
 
@@ -303,4 +399,6 @@ public with sharing class InvoiceConsoleController {
         e.setMessage(message); 
         return e;
     }
+
+
 }
