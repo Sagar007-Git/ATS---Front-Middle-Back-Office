@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reason_for_Termination__c</fullName>
+    <label>Reason for Termination</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Voluntary Resignation</fullName>
+                <default>false</default>
+                <label>Voluntary Resignation</label>
+            </value>
+            <value>
+                <fullName>Termination for Cause</fullName>
+                <default>false</default>
+                <label>Termination for Cause</label>
+            </value>
+            <value>
+                <fullName>Layoff / Downsizing</fullName>
+                <default>false</default>
+                <label>Layoff / Downsizing</label>
+            </value>
+            <value>
+                <fullName>End of Contract</fullName>
+                <default>false</default>
+                <label>End of Contract</label>
+            </value>
+            <value>
+                <fullName>Retirement</fullName>
+                <default>false</default>
+                <label>Retirement</label>
+            </value>
+            <value>
+                <fullName>Performance Issues</fullName>
+                <default>false</default>
+                <label>Performance Issues</label>
+            </value>
+            <value>
+                <fullName>Better Opportunity</fullName>
+                <default>false</default>
+                <label>Better Opportunity</label>
+            </value>
+            <value>
+                <fullName>Relocation</fullName>
+                <default>false</default>
+                <label>Relocation</label>
+            </value>
+            <value>
+                <fullName>Mutual Agreement</fullName>
+                <default>false</default>
+                <label>Mutual Agreement</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

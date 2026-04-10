@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fill_INP_appointment_dates</fullName>
+    <active>true</active>
+    <description>when the Stage field is changed to “In Person Interview” and the In-Person Appointment field is blank.Displays validation message</description>
+    <errorConditionFormula>/* Moving INTO In-Person stage, appointment must be set */
+AND(
+ISCHANGED(Stage__c),
+ISPICKVAL(Stage__c, &quot;In Person Interview&quot;),
+ISBLANK(INP_Appointment__c)
+)</errorConditionFormula>
+    <errorMessage>Please Fill out &quot;INP Appointment&quot; field if stage is In Person</errorMessage>
+</ValidationRule>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>COVID_Policy__c</fullName>
+    <label>COVID Policy</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Must be vaccinated</fullName>
+                <default>false</default>
+                <label>Must be vaccinated</label>
+            </value>
+            <value>
+                <fullName>Must have booster</fullName>
+                <default>false</default>
+                <label>Must have booster</label>
+            </value>
+            <value>
+                <fullName>Accepting Medical Exemptions - Centra Form</fullName>
+                <default>false</default>
+                <label>Accepting Medical Exemptions - Centra Form</label>
+            </value>
+            <value>
+                <fullName>Accepting Medical Exemptions - Client Form</fullName>
+                <default>false</default>
+                <label>Accepting Medical Exemptions - Client Form</label>
+            </value>
+            <value>
+                <fullName>Accepting Religious Exemptions - Centra Form</fullName>
+                <default>false</default>
+                <label>Accepting Religious Exemptions - Centra Form</label>
+            </value>
+            <value>
+                <fullName>Accepting Religious Exemptions - Client Form</fullName>
+                <default>false</default>
+                <label>Accepting Religious Exemptions - Client Form</label>
+            </value>
+            <value>
+                <fullName>Accepting Declinations</fullName>
+                <default>false</default>
+                <label>Accepting Declinations</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

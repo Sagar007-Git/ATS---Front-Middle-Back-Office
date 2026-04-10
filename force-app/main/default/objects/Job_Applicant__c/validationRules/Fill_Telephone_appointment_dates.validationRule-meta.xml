@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fill_Telephone_appointment_dates</fullName>
+    <active>true</active>
+    <description>When the Stage field is changed to “Phone Interview” and the Telephone Appointment field is blank. Displays validation message</description>
+    <errorConditionFormula>/* Moving INTO Telephone stage, appointment must be set */
+AND(
+ISCHANGED(Stage__c),
+ISPICKVAL(Stage__c, &quot;Phone Interview&quot;),
+ISBLANK(TEL_Appointment__c)
+)</errorConditionFormula>
+    <errorMessage>Please Fill out &quot;TEL Appointment&quot; field if stage is Telephone</errorMessage>
+</ValidationRule>

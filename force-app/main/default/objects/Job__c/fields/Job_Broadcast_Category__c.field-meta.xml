@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Broadcast_Category__c</fullName>
+    <label>Job Broadcast Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Administrative/Clerical</fullName>
+                <default>false</default>
+                <label>Administrative/Clerical</label>
+            </value>
+            <value>
+                <fullName>Education/Training</fullName>
+                <default>false</default>
+                <label>Education/Training</label>
+            </value>
+            <value>
+                <fullName>Engineering</fullName>
+                <default>false</default>
+                <label>Engineering</label>
+            </value>
+            <value>
+                <fullName>Human Resources</fullName>
+                <default>false</default>
+                <label>Human Resources</label>
+            </value>
+            <value>
+                <fullName>Legal</fullName>
+                <default>false</default>
+                <label>Legal</label>
+            </value>
+            <value>
+                <fullName>Sales/Retail/Business Development</fullName>
+                <default>false</default>
+                <label>Sales/Retail/Business Development</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Food Services/Hospitality</fullName>
+                <default>false</default>
+                <label>Food Services/Hospitality</label>
+            </value>
+            <value>
+                <fullName>Manufacturing/Production/Operations</fullName>
+                <default>false</default>
+                <label>Manufacturing/Production/Operations</label>
+            </value>
+            <value>
+                <fullName>Building Construction/Skilled Trades</fullName>
+                <default>false</default>
+                <label>Building Construction/Skilled Trades</label>
+            </value>
+            <value>
+                <fullName>Customer Support/Client Care</fullName>
+                <default>false</default>
+                <label>Customer Support/Client Care</label>
+            </value>
+            <value>
+                <fullName>Installation/Maintenance/Repair</fullName>
+                <default>false</default>
+                <label>Installation/Maintenance/Repair</label>
+            </value>
+            <value>
+                <fullName>Security/Protective Services</fullName>
+                <default>false</default>
+                <label>Security/Protective Services</label>
+            </value>
+            <value>
+                <fullName>Biotech/R&amp;D/Science</fullName>
+                <default>false</default>
+                <label>Biotech/R&amp;D/Science</label>
+            </value>
+            <value>
+                <fullName>IT/Software Development</fullName>
+                <default>false</default>
+                <label>IT/Software Development</label>
+            </value>
+            <value>
+                <fullName>Business/Strategic Management</fullName>
+                <default>false</default>
+                <label>Business/Strategic Management</label>
+            </value>
+            <value>
+                <fullName>Medical/Health</fullName>
+                <default>false</default>
+                <label>Medical/Health</label>
+            </value>
+            <value>
+                <fullName>Editorial/Writing</fullName>
+                <default>false</default>
+                <label>Editorial/Writing</label>
+            </value>
+            <value>
+                <fullName>Logistics/Transportation</fullName>
+                <default>false</default>
+                <label>Logistics/Transportation</label>
+            </value>
+            <value>
+                <fullName>Marketing/Product</fullName>
+                <default>false</default>
+                <label>Marketing/Product</label>
+            </value>
+            <value>
+                <fullName>Project/Program Management</fullName>
+                <default>false</default>
+                <label>Project/Program Management</label>
+            </value>
+            <value>
+                <fullName>Creative/Design</fullName>
+                <default>false</default>
+                <label>Creative/Design</label>
+            </value>
+            <value>
+                <fullName>Quality Assurance/Safety</fullName>
+                <default>false</default>
+                <label>Quality Assurance/Safety</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Name_and_Account_view</fullName>
+    <columns>Job_Name__c</columns>
+    <columns>Client__c</columns>
+    <filterScope>Mine</filterScope>
+    <label>Job Name and Account view</label>
+</ListView>

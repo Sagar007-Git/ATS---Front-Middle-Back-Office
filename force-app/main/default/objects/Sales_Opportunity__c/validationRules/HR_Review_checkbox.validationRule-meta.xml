@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HR_Review_checkbox</fullName>
+    <active>true</active>
+    <description>Prevents stage change to Bid Won or Opportunity Won if Backoffice_Review_Sent__c is not null and HR_Review_Complete__c is not TRUE.</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c),
+NOT (ISNULL (Backoffice_Review_Sent__c)) ,
+OR(
+ISPICKVAL(Stage__c , &quot;Bid Won&quot;),
+ISPICKVAL(Stage__c , &quot;Opportunity Won&quot;)),
+HR_Review_Complete__c &lt;&gt; TRUE
+
+)</errorConditionFormula>
+    <errorMessage>HR review must be complete before moving forward to won stage</errorMessage>
+</ValidationRule>

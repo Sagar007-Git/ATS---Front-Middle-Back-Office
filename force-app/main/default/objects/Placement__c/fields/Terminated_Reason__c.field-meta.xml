@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Terminated_Reason__c</fullName>
+    <label>Terminated Reason</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Client Termed Early - Internal Hire</fullName>
+                <default>false</default>
+                <label>Client Termed Early - Internal Hire</label>
+            </value>
+            <value>
+                <fullName>Client Termed Early - Low Census</fullName>
+                <default>false</default>
+                <label>Client Termed Early - Low Census</label>
+            </value>
+            <value>
+                <fullName>Client Termed Early - Other</fullName>
+                <default>false</default>
+                <label>Client Termed Early - Other</label>
+            </value>
+            <value>
+                <fullName>Clinical Incident</fullName>
+                <default>false</default>
+                <label>Clinical Incident</label>
+            </value>
+            <value>
+                <fullName>Employee Termed - Did Not Sign Offer</fullName>
+                <default>false</default>
+                <label>Employee Termed - Did Not Sign Offer</label>
+            </value>
+            <value>
+                <fullName>Employee Termed Early - Other</fullName>
+                <default>false</default>
+                <label>Employee Termed Early - Other</label>
+            </value>
+            <value>
+                <fullName>Employee Termed Early - Personal Reasons</fullName>
+                <default>false</default>
+                <label>Employee Termed Early - Personal Reasons</label>
+            </value>
+            <value>
+                <fullName>Employee Termed - Prior to Start</fullName>
+                <default>false</default>
+                <label>Employee Termed - Prior to Start</label>
+            </value>
+            <value>
+                <fullName>Employee Termed Early - Took Another Job</fullName>
+                <default>false</default>
+                <label>Employee Termed Early - Took Another Job</label>
+            </value>
+            <value>
+                <fullName>Professional Counseling / Insubordination</fullName>
+                <default>false</default>
+                <label>Professional Counseling / Insubordination</label>
+            </value>
+            <value>
+                <fullName>Walked Off Job</fullName>
+                <default>false</default>
+                <label>Walked Off Job</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

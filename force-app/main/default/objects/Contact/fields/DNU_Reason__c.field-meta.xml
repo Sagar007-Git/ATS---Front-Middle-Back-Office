@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DNU_Reason__c</fullName>
+    <label>DNU Reason</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Clinical Incident</fullName>
+                <default>false</default>
+                <label>Clinical Incident</label>
+            </value>
+            <value>
+                <fullName>Professional Counseling</fullName>
+                <default>false</default>
+                <label>Professional Counseling</label>
+            </value>
+            <value>
+                <fullName>Walked Off Job</fullName>
+                <default>false</default>
+                <label>Walked Off Job</label>
+            </value>
+            <value>
+                <fullName>Backed Out of Job</fullName>
+                <default>false</default>
+                <label>Backed Out of Job</label>
+            </value>
+            <value>
+                <fullName>(get values)</fullName>
+                <default>false</default>
+                <label>(get values)</label>
+            </value>
+            <value>
+                <fullName>Unreliable</fullName>
+                <default>false</default>
+                <label>Unreliable</label>
+            </value>
+            <value>
+                <fullName>Not a Medical Professional</fullName>
+                <default>false</default>
+                <label>Not a Medical Professional</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

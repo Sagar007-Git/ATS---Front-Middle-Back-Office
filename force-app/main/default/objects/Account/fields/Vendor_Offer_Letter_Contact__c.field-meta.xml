@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vendor_Offer_Letter_Contact__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Vendor Offer Letter Contact</label>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Clients (Vendor Offer Letter Contact)</relationshipLabel>
+    <relationshipName>Clients4</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
+</CustomField>

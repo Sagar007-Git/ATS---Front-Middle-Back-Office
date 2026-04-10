@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Applicant Conversion - Client</label>
+    <protected>false</protected>
+    <values>
+        <field>Action_Name__c</field>
+        <value xsi:type="xsd:string">Prxm_Convert_To_Placement</value>
+    </values>
+    <values>
+        <field>Form_Title__c</field>
+        <value xsi:type="xsd:string">Convert Applicant to Placement</value>
+    </values>
+    <values>
+        <field>Is_Hidden_Background_Field__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Is_Read_Only__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Is_Required__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">15.0</value>
+    </values>
+    <values>
+        <field>Section_Name__c</field>
+        <value xsi:type="xsd:string">Core Details</value>
+    </values>
+    <values>
+        <field>Source_Field_API_Name__c</field>
+        <value xsi:type="xsd:string">Account__c</value>
+    </values>
+    <values>
+        <field>Source_Object__c</field>
+        <value xsi:type="xsd:string">Job_Applicant__c</value>
+    </values>
+    <values>
+        <field>Static_Default_Value__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Target_Field_API_Name__c</field>
+        <value xsi:type="xsd:string">Client__c</value>
+    </values>
+    <values>
+        <field>Target_Object__c</field>
+        <value xsi:type="xsd:string">Placement__c</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Approval_Gatekeeper</fullName>
+    <active>false</active>
+    <description>Prevents the Deal Sheet from being Approved unless the Placement is &apos;Confirmed&apos;, and all rates/dates are correctly filled.</description>
+    <errorConditionFormula>AND(
+    /* Only fire when someone tries to set Status to Approved */
+    ISPICKVAL(Status__c, &quot;Approved&quot;),
+    
+    OR(
+        /* Check 1: Is the Candidate/Contact missing? */
+        ISBLANK(Candidate__c),
+        
+        /* Check 2: Is the Client/Account missing? */
+        ISBLANK(Client__c),
+        
+        /* Check 3: Is the Placement missing? */
+        ISBLANK(Placement__c),
+        
+        /* Check 4: Is the Placement NOT &apos;Confirmed&apos;? */
+        NOT(ISPICKVAL(Placement__r.Placement_Status__c, &quot;Confirmed&quot;)),
+        
+        /* Check 5: Are the financial rates missing or zero? */
+        Regular_Bill_Rate__c &lt;= 0,
+        Regular_Pay_Rate__c &lt;= 0,
+        
+        /* Check 6: Is the Start Date missing? */
+        ISBLANK(Start_Date__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>CRITICAL ERROR: Cannot Approve this Deal Sheet. Please ensure: 1. Candidate and Client are linked. 2. Placement Status is &apos;Confirmed&apos;. 3. Bill/Pay Rates are greater than zero. 4. Start Date is filled.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Overall_Experience__c</fullName>
+    <label>Overall Experience</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>01-03 Years</fullName>
+                <default>false</default>
+                <label>01-03 Years</label>
+            </value>
+            <value>
+                <fullName>04-06 Years</fullName>
+                <default>false</default>
+                <label>04-06 Years</label>
+            </value>
+            <value>
+                <fullName>07-09 Years</fullName>
+                <default>false</default>
+                <label>07-09 Years</label>
+            </value>
+            <value>
+                <fullName>10+ Years</fullName>
+                <default>false</default>
+                <label>10+ Years</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

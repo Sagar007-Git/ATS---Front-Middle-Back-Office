@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type_of_Employment__c</fullName>
+    <label>Type of Employment</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Local Contract</fullName>
+                <default>false</default>
+                <label>Local Contract</label>
+            </value>
+            <value>
+                <fullName>Part Time / PRN</fullName>
+                <default>false</default>
+                <label>Part Time / PRN</label>
+            </value>
+            <value>
+                <fullName>Permanent</fullName>
+                <default>false</default>
+                <label>Permanent</label>
+            </value>
+            <value>
+                <fullName>Travel Contract</fullName>
+                <default>false</default>
+                <label>Travel Contract</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Timezone__c</fullName>
+    <label>Timezone</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Atlantic Standard Time (AST) - UTC−04:00 (Puerto Rico, U.S. Virgin Islands)</fullName>
+                <default>false</default>
+                <label>Atlantic Standard Time (AST) - UTC−04:00 (Puerto Rico, U.S. Virgin Islands)</label>
+            </value>
+            <value>
+                <fullName>Eastern Standard Time (EST) - UTC−05:00 (Eastern US states)</fullName>
+                <default>false</default>
+                <label>Eastern Standard Time (EST) - UTC−05:00 (Eastern US states)</label>
+            </value>
+            <value>
+                <fullName>Eastern Daylight Time (EDT) - UTC−04:00 (Eastern US, DST)</fullName>
+                <default>false</default>
+                <label>Eastern Daylight Time (EDT) - UTC−04:00 (Eastern US, DST)</label>
+            </value>
+            <value>
+                <fullName>Central Standard Time (CST) - UTC−06:00 (Central US states)</fullName>
+                <default>false</default>
+                <label>Central Standard Time (CST) - UTC−06:00 (Central US states)</label>
+            </value>
+            <value>
+                <fullName>Central Daylight Time (CDT) - UTC−05:00 (Central US, DST)</fullName>
+                <default>false</default>
+                <label>Central Daylight Time (CDT) - UTC−05:00 (Central US, DST)</label>
+            </value>
+            <value>
+                <fullName>Mountain Standard Time (MST) - UTC−07:00 (Mountain US states)</fullName>
+                <default>false</default>
+                <label>Mountain Standard Time (MST) - UTC−07:00 (Mountain US states)</label>
+            </value>
+            <value>
+                <fullName>Mountain Daylight Time (MDT) - UTC−06:00 (Mountain US, DST)</fullName>
+                <default>false</default>
+                <label>Mountain Daylight Time (MDT) - UTC−06:00 (Mountain US, DST)</label>
+            </value>
+            <value>
+                <fullName>Pacific Standard Time (PST) - UTC−08:00 (West Coast states)</fullName>
+                <default>false</default>
+                <label>Pacific Standard Time (PST) - UTC−08:00 (West Coast states)</label>
+            </value>
+            <value>
+                <fullName>Pacific Daylight Time (PDT) - UTC−07:00 (West Coast, DST)</fullName>
+                <default>false</default>
+                <label>Pacific Daylight Time (PDT) - UTC−07:00 (West Coast, DST)</label>
+            </value>
+            <value>
+                <fullName>Alaska Standard Time (AKST) - UTC−09:00 (Alaska)</fullName>
+                <default>false</default>
+                <label>Alaska Standard Time (AKST) - UTC−09:00 (Alaska)</label>
+            </value>
+            <value>
+                <fullName>Alaska Daylight Time (AKDT) - UTC−08:00 (Alaska, DST)</fullName>
+                <default>false</default>
+                <label>Alaska Daylight Time (AKDT) - UTC−08:00 (Alaska, DST)</label>
+            </value>
+            <value>
+                <fullName>Hawaii-Aleutian Standard Time (HAST) - UTC−10:00 (Hawaii, no DST)</fullName>
+                <default>false</default>
+                <label>Hawaii-Aleutian Standard Time (HAST) - UTC−10:00 (Hawaii, no DST)</label>
+            </value>
+            <value>
+                <fullName>Samoa Standard Time (SST) - UTC−11:00 (American Samoa)</fullName>
+                <default>false</default>
+                <label>Samoa Standard Time (SST) - UTC−11:00 (American Samoa)</label>
+            </value>
+            <value>
+                <fullName>Chamorro Standard Time (ChST) - UTC+10:00 (Guam, Northern Mariana Islands)</fullName>
+                <default>false</default>
+                <label>Chamorro Standard Time (ChST) - UTC+10:00 (Guam, Northern Mariana Islands)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

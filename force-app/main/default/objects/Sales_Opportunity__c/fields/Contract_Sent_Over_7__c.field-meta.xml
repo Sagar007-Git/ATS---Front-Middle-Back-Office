@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contract_Sent_Over_7__c</fullName>
+    <formula>IF (TODAY() - Contract_Sent_Date__c &gt; 7 ,TRUE,FALSE)</formula>
+    <label>Contract_Sent_Over_7</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

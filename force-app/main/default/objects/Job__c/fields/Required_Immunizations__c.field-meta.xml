@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Required_Immunizations__c</fullName>
+    <label>Required Immunizations</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>COVID-19 Vaccine</fullName>
+                <default>false</default>
+                <label>COVID-19 Vaccine</label>
+            </value>
+            <value>
+                <fullName>Influenza (Flu) Vaccine</fullName>
+                <default>false</default>
+                <label>Influenza (Flu) Vaccine</label>
+            </value>
+            <value>
+                <fullName>Hepatitis B Vaccine</fullName>
+                <default>false</default>
+                <label>Hepatitis B Vaccine</label>
+            </value>
+            <value>
+                <fullName>Measles, Mumps, Rubella (MMR) Vaccine</fullName>
+                <default>false</default>
+                <label>Measles, Mumps, Rubella (MMR) Vaccine</label>
+            </value>
+            <value>
+                <fullName>Varicella (Chickenpox) Vaccine</fullName>
+                <default>false</default>
+                <label>Varicella (Chickenpox) Vaccine</label>
+            </value>
+            <value>
+                <fullName>Tetanus, Diphtheria, Pertussis (Tdap) Vaccine</fullName>
+                <default>false</default>
+                <label>Tetanus, Diphtheria, Pertussis (Tdap) Vaccine</label>
+            </value>
+            <value>
+                <fullName>Tuberculosis (TB) Test</fullName>
+                <default>false</default>
+                <label>Tuberculosis (TB) Test</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

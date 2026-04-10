@@ -1,4 +1,4 @@
-public hide with sharing class PlacementProjectController {
+public with sharing class PlacementProjectController {
 
     @AuraEnabled(cacheable=true)
     public static Map<String, Object> checkActiveAssignments(Id placementId) {

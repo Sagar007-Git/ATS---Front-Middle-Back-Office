@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Candidate_Pool_Account_Name</fullName>
+    <active>true</active>
+    <description>If the name previously had “Candidate Pool” in it and the name is now being changed. Throw an validation message</description>
+    <errorConditionFormula>IF( CONTAINS(UPPER(PRIORVALUE(Name)),&quot;CANDIDATE POOL&quot;) &amp;&amp; PRIORVALUE(Name) != Name, TRUE,FALSE)</errorConditionFormula>
+    <errorMessage>Account Name cannot be modified</errorMessage>
+</ValidationRule>

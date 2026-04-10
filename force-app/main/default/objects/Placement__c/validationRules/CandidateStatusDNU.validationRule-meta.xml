@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CandidateStatusDNU</fullName>
+    <active>true</active>
+    <description>When the Candidate Status set to “Do Not Use.” Prevents creating placement</description>
+    <errorConditionFormula>TEXT( Candidate__r.Candidate_Status__c)=&apos;Do Not Use&apos;</errorConditionFormula>
+    <errorMessage>DNU candidates cannot have Placement. Please reach out to Director of Credentialing and Compliance.</errorMessage>
+</ValidationRule>

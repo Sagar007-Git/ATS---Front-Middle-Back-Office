@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Placement</fullName>
+    <active>true</active>
+    <description>Healthcare Recruitment</description>
+    <label>Placement</label>
+    <picklistValues>
+        <picklist>Background_Check_Status__c</picklist>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Backoffice_Approval_Status__c</picklist>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Process</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Cancellation_Reason__c</picklist>
+        <values>
+            <fullName>Backed out</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Candidate unresponsive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Didn%27t pass minimum standards for credentialing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Took another job</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Candidate_SC_Offer_Letter_Status__c</picklist>
+        <values>
+            <fullName>Delayed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>None</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Perm Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Received</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Requested</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sent</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Centra_Appproval_Status__c</picklist>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Process</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Approval</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Client_Offer_Letter_Status__c</picklist>
+        <values>
+            <fullName>Delayed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>None</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Perm Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Received</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Requested</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>User Upload Required</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Compensation_Type__c</picklist>
+        <values>
+            <fullName>Bonus</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Commission</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hourly</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Per Diem</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Piece Rate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Salary</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Compliance_Status__c</picklist>
+        <values>
+            <fullName>Compliant</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Exempt</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Non-Compliant</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Documents</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verification In Progress</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Contract_Type__c</picklist>
+        <values>
+            <fullName>Contract</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Freelance</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Full-Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internship</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Part-Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temporary</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Credentialing_Status__c</picklist>
+        <values>
+            <fullName>Approved w%2F Override</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Complete</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Progress</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Working Out of Compliance</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Current_Status_Legacy__c</picklist>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Interview</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>LINKNAME</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUT Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUT Match</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUT Nohire</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUT OthJob</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUT Unresp</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Out NLI</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PERM Acc</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pacific 1</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>TEMP ACC</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>License_Verification_Status__c</picklist>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Suspended</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Malpractice_Insurance__c</picklist>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Margin_Approval_Status__c</picklist>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Process</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Overall_Feedback__c</picklist>
+        <values>
+            <fullName>Average</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Below Average</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Excellent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Good</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Pay_Type__c</picklist>
+        <values>
+            <fullName>Corp to Corp</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>W-2 w%2Fbenefits</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>W-2 w%2Fo benefits</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Placed_Within_Contracted_Rate__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Placement_Status__c</picklist>
+        <values>
+            <fullName>Approved To Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cancelled Prior to Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Confirmed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Delayed Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>On Assignment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Confirmation</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Perm Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Terminated</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Reason_for_Termination__c</picklist>
+        <values>
+            <fullName>Better Opportunity</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>End of Contract</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Layoff %2F Downsizing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mutual Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Performance Issues</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Relocation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Retirement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Termination for Cause</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Voluntary Resignation</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Active</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cancelled</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Confirmed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>On Hold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Approval</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Terminated</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Terminated_Reason__c</picklist>
+        <values>
+            <fullName>Client Termed Early - Internal Hire</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Client Termed Early - Low Census</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Client Termed Early - Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Clinical Incident</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Termed - Did Not Sign Offer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Termed - Prior to Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Termed Early - Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Termed Early - Personal Reasons</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Termed Early - Took Another Job</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Professional Counseling %2F Insubordination</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Walked Off Job</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Timesheet_Frequency__c</picklist>
+        <values>
+            <fullName>Bi-Weekly</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Monthly</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Weekly</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Timesheet_Start_Day__c</picklist>
+        <values>
+            <fullName>1st of Month</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Friday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Monday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Saturday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sunday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thursday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tuesday</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Wednesday</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type__c</picklist>
+        <values>
+            <fullName>Contract Full Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Contract Part Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Contract Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Contract to Hire Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Contract%2FTemp</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Per Diem %2F PRN</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent Part Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Permanent Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temp To Perm</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

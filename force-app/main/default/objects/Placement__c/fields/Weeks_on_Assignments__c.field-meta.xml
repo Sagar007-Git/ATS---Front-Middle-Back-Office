@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Weeks_on_Assignments__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISPICKVAL ( Placement_Status__c  ,
+&quot;Pending Confirmation&quot;), 0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Centra Approval&quot;), 0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Approved to Start&quot;),0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Confirmed&quot;), 0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Not Approved to Start&quot;), 0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Cancelled Prior to Start&quot;), 0,
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;On Assignment&quot;),((ROUND((Today()- Start_Date__c )/7,0))),
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Completed&quot;),(ROUND((End_Date__c - Start_Date__c )/7,0)),
+IF(ISPICKVAL (Placement_Status__c ,
+&quot;Terminated&quot;),(ROUND((End_Date__c - Start_Date__c )/7,0)),
+0
+
+)))))))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Number of Weeks on Assignment, (TODAY-START-DATE/)7, different then expected week based on end date - start date</inlineHelpText>
+    <label># Weeks on Assignments</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

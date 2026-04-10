@@ -1,0 +1,46 @@
+<template>
+    
+    <template if:true={isStepSelectProject}>
+        <div class="slds-is-relative slds-theme_default slds-p-around_small" style="display: flex; flex-direction: column; height: 100%; min-height: 400px; max-height: 65vh;">
+            
+            <div class="slds-p-bottom_small slds-m-bottom_small slds-border_bottom">
+                <h2 class="slds-text-heading_medium slds-text-align_center">Assign to Project</h2>
+                
+                <div class="slds-m-top_medium slds-p-horizontal_large">
+                    <lightning-progress-indicator current-step="1" type="path" variant="base">
+                        <template for:each={wizardSteps} for:item="step">
+                            <lightning-progress-step key={step.value} label={step.label} value={step.value}></lightning-progress-step>
+                        </template>
+                    </lightning-progress-indicator>
+                </div>
+            </div>
+
+            <div class="slds-p-around_medium" style="flex-grow: 1; overflow: visible;">
+                <lightning-record-picker
+                    label="Select Target Project"
+                    placeholder="Type to search for projects..."
+                    object-api-name="Project__c"
+                    onchange={handleProjectChange}
+                    required>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-p-vertical_small slds-text-align_center slds-border_top" style="margin-top: auto;">
+                <lightning-button label="Next: Configure Resource" variant="brand" onclick={handleNext}></lightning-button>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={isStepCreateResource}>
+        <template if:true={defaultOverrides}>
+            <c-prxm-dynamic-record-creator 
+                action-name="Prxm_Create_Resource_From_Placement"
+                record-id={selectedProjectId} default-field-overrides={defaultOverrides}
+                wizard-steps={wizardSteps}
+                current-step-value="2"
+                onsavecomplete={handleResourceSaved}>
+            </c-prxm-dynamic-record-creator>
+        </template>
+    </template>
+
+</template>

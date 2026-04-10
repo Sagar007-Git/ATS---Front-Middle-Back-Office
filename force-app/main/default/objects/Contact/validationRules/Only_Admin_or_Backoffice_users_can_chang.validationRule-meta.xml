@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Only_Admin_or_Backoffice_users_can_chang</fullName>
+    <active>true</active>
+    <description>If Candidate Status is &quot;Do Not Use&quot; and is changed to any other value by users who are not in the Admin or Backoffice profiles, display a validation message.</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Candidate_Status__c),
+TEXT(PRIORVALUE(Candidate_Status__c))=&apos;Do Not Use&apos;,
+NOT(
+OR(
+$User.ProfileId = &apos;00e3h000001kGuG&apos;,
+$User.ProfileId = &apos;00e3h000000lpcL&apos;
+)))</errorConditionFormula>
+    <errorMessage>Only Admin or Backoffice users can change the Candidate Status once it is set to DNU</errorMessage>
+</ValidationRule>

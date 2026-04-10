@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VMS_Source__c</fullName>
+    <label>VMS Source</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Fyre - ayaconnect</fullName>
+                <default>false</default>
+                <label>Fyre - ayaconnect</label>
+            </value>
+            <value>
+                <fullName>Fyre - b4health</fullName>
+                <default>false</default>
+                <label>Fyre - b4health</label>
+            </value>
+            <value>
+                <fullName>Fyre - bluesky</fullName>
+                <default>false</default>
+                <label>Fyre - bluesky</label>
+            </value>
+            <value>
+                <fullName>Fyre - bountyjobs</fullName>
+                <default>false</default>
+                <label>Fyre - bountyjobs</label>
+            </value>
+            <value>
+                <fullName>Fyre - fieldglass</fullName>
+                <default>false</default>
+                <label>Fyre - fieldglass</label>
+            </value>
+            <value>
+                <fullName>Fyre - focusone</fullName>
+                <default>false</default>
+                <label>Fyre - focusone</label>
+            </value>
+            <value>
+                <fullName>Fyre - icims</fullName>
+                <default>false</default>
+                <label>Fyre - icims</label>
+            </value>
+            <value>
+                <fullName>Fyre - medefis</fullName>
+                <default>false</default>
+                <label>Fyre - medefis</label>
+            </value>
+            <value>
+                <fullName>Fyre - medefis5</fullName>
+                <default>false</default>
+                <label>Fyre - medefis5</label>
+            </value>
+            <value>
+                <fullName>Fyre - myworkday</fullName>
+                <default>false</default>
+                <label>Fyre - myworkday</label>
+            </value>
+            <value>
+                <fullName>Fyre - parallon</fullName>
+                <default>false</default>
+                <label>Fyre - parallon</label>
+            </value>
+            <value>
+                <fullName>Fyre - peoplefluent</fullName>
+                <default>false</default>
+                <label>Fyre - peoplefluent</label>
+            </value>
+            <value>
+                <fullName>Fyre - shiftrock</fullName>
+                <default>false</default>
+                <label>Fyre - shiftrock</label>
+            </value>
+            <value>
+                <fullName>Fyre - shiftwise</fullName>
+                <default>false</default>
+                <label>Fyre - shiftwise</label>
+            </value>
+            <value>
+                <fullName>Fyre - stafferlink</fullName>
+                <default>false</default>
+                <label>Fyre - stafferlink</label>
+            </value>
+            <value>
+                <fullName>Fyre - totalmsp</fullName>
+                <default>false</default>
+                <label>Fyre - totalmsp</label>
+            </value>
+            <value>
+                <fullName>Fyre - workpuddle</fullName>
+                <default>false</default>
+                <label>Fyre - workpuddle</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - ahsa</fullName>
+                <default>false</default>
+                <label>VMS Sync - ahsa</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - ayaconnect</fullName>
+                <default>false</default>
+                <label>VMS Sync - ayaconnect</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - b4health</fullName>
+                <default>false</default>
+                <label>VMS Sync - b4health</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - einstein2</fullName>
+                <default>false</default>
+                <label>VMS Sync - einstein2</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - fieldglass</fullName>
+                <default>false</default>
+                <label>VMS Sync - fieldglass</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - focusone</fullName>
+                <default>false</default>
+                <label>VMS Sync - focusone</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - icims</fullName>
+                <default>false</default>
+                <label>VMS Sync - icims</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - medefis</fullName>
+                <default>false</default>
+                <label>VMS Sync - medefis</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - medefis5</fullName>
+                <default>false</default>
+                <label>VMS Sync - medefis5</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - myworkday</fullName>
+                <default>false</default>
+                <label>VMS Sync - myworkday</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - parallon</fullName>
+                <default>false</default>
+                <label>VMS Sync - parallon</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - shiftrock</fullName>
+                <default>false</default>
+                <label>VMS Sync - shiftrock</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - shiftwise</fullName>
+                <default>false</default>
+                <label>VMS Sync - shiftwise</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - stafferlink</fullName>
+                <default>false</default>
+                <label>VMS Sync - stafferlink</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - staystaffed</fullName>
+                <default>false</default>
+                <label>VMS Sync - staystaffed</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - totalmsp</fullName>
+                <default>false</default>
+                <label>VMS Sync - totalmsp</label>
+            </value>
+            <value>
+                <fullName>VMS Sync - workpuddle</fullName>
+                <default>false</default>
+                <label>VMS Sync - workpuddle</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

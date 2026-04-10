@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Workweek__c</fullName>
+    <description>Preferred work week</description>
+    <label>Workweek</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Sat - Sun</fullName>
+                <default>false</default>
+                <label>Sat - Sun</label>
+            </value>
+            <value>
+                <fullName>Sun - Sat</fullName>
+                <default>false</default>
+                <label>Sun - Sat</label>
+            </value>
+            <value>
+                <fullName>Mon - Sun</fullName>
+                <default>false</default>
+                <label>Mon - Sun</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

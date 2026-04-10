@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shift__c</fullName>
+    <label>Shift</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Day</fullName>
+                <default>false</default>
+                <label>Day</label>
+            </value>
+            <value>
+                <fullName>Night</fullName>
+                <default>false</default>
+                <label>Night</label>
+            </value>
+            <value>
+                <fullName>Evening</fullName>
+                <default>false</default>
+                <label>Evening</label>
+            </value>
+            <value>
+                <fullName>1st Shift</fullName>
+                <default>false</default>
+                <label>1st Shift</label>
+            </value>
+            <value>
+                <fullName>2nd Shift</fullName>
+                <default>false</default>
+                <label>2nd Shift</label>
+            </value>
+            <value>
+                <fullName>3rd Shift</fullName>
+                <default>false</default>
+                <label>3rd Shift</label>
+            </value>
+            <value>
+                <fullName>Rotating</fullName>
+                <default>false</default>
+                <label>Rotating</label>
+            </value>
+            <value>
+                <fullName>Split</fullName>
+                <default>false</default>
+                <label>Split</label>
+            </value>
+            <value>
+                <fullName>Weekend</fullName>
+                <default>false</default>
+                <label>Weekend</label>
+            </value>
+            <value>
+                <fullName>Flexible</fullName>
+                <default>false</default>
+                <label>Flexible</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

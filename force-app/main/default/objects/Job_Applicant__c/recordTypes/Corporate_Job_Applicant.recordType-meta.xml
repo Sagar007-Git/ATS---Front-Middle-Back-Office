@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Corporate_Job_Applicant</fullName>
+    <active>true</active>
+    <compactLayoutAssignment>Applicant_Header_Layout</compactLayoutAssignment>
+    <label>Corporate Job Applicant</label>
+    <picklistValues>
+        <picklist>Application_Information_Source__c</picklist>
+        <values>
+            <fullName>Agency</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Billboards</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>College Recruiting</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Direct Recruiting</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Diversity Referral</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Employee Referral</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Ex-Employee</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internal Employee</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internet</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internet Job Boards</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Job Fair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Newspaper</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other Print Media</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Users Group</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Application_Status__c</picklist>
+        <values>
+            <fullName>Applied</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Interview Scheduled</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Offer Stage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Placed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Screening</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Shortlisted</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Ask_for_the_opportunity__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Backoffice_Approval__c</picklist>
+        <values>
+            <fullName>Approval Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Compliance_Status__c</picklist>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>On Hold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Desired_Pay_Type__c</picklist>
+        <values>
+            <fullName>test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Disability__c</picklist>
+        <values>
+            <fullName>Full Disability</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No Disability</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Partial Disability</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Prefer Not to Say</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temporary Disability</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Disposition_Qualifiers__c</picklist>
+        <values>
+            <fullName>Accepted a different position</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Accepted position but never started</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Applied for position previously</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cancelled or failed to show for interview</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Client Unresponsive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Current employer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Declined position</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Did not apply for a particular position</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Did not complete assessments</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Did not follow application process</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Did not meet basic requirements</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Did not pass credentialing stage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Distance was not favorable</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Does not qualify as a profession that we staff</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internal successful</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Lacks favorable references</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Lacks required VISA%2Fwork papers</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Lacks willingness for required travel</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No contact information</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No longer interested in the position</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No positions available</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not best qualified</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not rehireable by Client</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PLACEMENT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pay requested is too high</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Poor test results</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Position Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Retired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Salary requested is too high</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Start Date Too Far Out</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Underqualified for position</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Unfavorable interview</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Unresponsive candidate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Unsubscribed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Was not considered</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Withdrew application</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Experience__c</picklist>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Get_Managers_Contact_Info__c</picklist>
+        <values>
+            <fullName>test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Interview_Type__c</picklist>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Offer_Status__c</picklist>
+        <values>
+            <fullName>Accepted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Countered</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Declined</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Draft</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Expired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Withdrawn</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>PCR_Current_Status__c</picklist>
+        <values>
+            <fullName>test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Pay_Package_Response__c</picklist>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Priority__c</picklist>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Race_Ethnicity__c</picklist>
+        <values>
+            <fullName>Female</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Male</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Rejection_Reason__c</picklist>
+        <values>
+            <fullName>Candidate Declined</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Client Declined</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Ghosted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Qualified</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Over Budget</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Source__c</picklist>
+        <values>
+            <fullName>Consultancy</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Direct Walk-in</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internal Database</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>LinkedIn</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Naukri</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Referral</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Stage__c</picklist>
+        <values>
+            <fullName>Auto Matched</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Call Back</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Client Submission</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Person</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internal Submission</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New Application</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Offer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Out</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Placement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pre-Credentialing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>RA Presentation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reapplied By Candidate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Recruiter Matched</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>References</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Telephone</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Waiting to Submit</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Archived</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hired</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Interview</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Offer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Submitted</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type__c</picklist>
+        <values>
+            <fullName>Auto Match</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Online</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Recruiter</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Waiting_to_Submit_Reason__c</picklist>
+        <values>
+            <fullName>test</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Biz_Dev_Rep_List__c</fullName>
+    <externalId>false</externalId>
+    <formula>Biz_Dev_Perm_Administration__r.FirstName &amp;&apos; &apos;&amp; Biz_Dev_Perm_Administration__r.LastName &amp;&apos;,&apos;&amp;
+Biz_Dev_Perm_Nursing__r.FirstName  &amp;&apos; &apos;&amp;  Biz_Dev_Perm_Nursing__r.LastName &amp;&apos;,&apos;&amp;
+Biz_Dev_Perm_Physician__r.FirstName  &amp;&apos; &apos;&amp;  Biz_Dev_Perm_Physician__r.LastName &amp;&apos;,&apos;&amp;
+Biz_Dev_Perm_Therapy__r.FirstName &amp;&apos; &apos;&amp;  Biz_Dev_Perm_Therapy__r.LastName  &amp;&apos;,&apos;&amp;
+Biz_Dev_Temp_Administration__r.FirstName &amp;&apos; &apos;&amp; Biz_Dev_Temp_Administration__r.LastName &amp;&apos;,&apos;&amp;
+Biz_Dev_Temp_Nursing__r.FirstName &amp;&apos; &apos;&amp;  Biz_Dev_Temp_Nursing__r.LastName  &amp;&apos;,&apos;&amp;
+Biz_Dev_Temp_Therapy__r.FirstName  &amp;&apos; &apos;&amp;  Biz_Dev_Temp_Therapy__r.LastName</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Biz Dev Rep List</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

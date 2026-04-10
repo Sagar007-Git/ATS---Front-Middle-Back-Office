@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Min_Education__c</fullName>
+    <label>Min Education</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Associate Degree</fullName>
+                <default>false</default>
+                <label>Associate Degree</label>
+            </value>
+            <value>
+                <fullName>Bachelor&apos;s Degree</fullName>
+                <default>false</default>
+                <label>Bachelor&apos;s Degree</label>
+            </value>
+            <value>
+                <fullName>Certification</fullName>
+                <default>false</default>
+                <label>Certification</label>
+            </value>
+            <value>
+                <fullName>Doctorate Degree</fullName>
+                <default>false</default>
+                <label>Doctorate Degree</label>
+            </value>
+            <value>
+                <fullName>High School Not Completed</fullName>
+                <default>false</default>
+                <label>High School Not Completed</label>
+            </value>
+            <value>
+                <fullName>High School or equivalent</fullName>
+                <default>false</default>
+                <label>High School or equivalent</label>
+            </value>
+            <value>
+                <fullName>Master&apos;s Degree</fullName>
+                <default>false</default>
+                <label>Master&apos;s Degree</label>
+            </value>
+            <value>
+                <fullName>Some College Coursework</fullName>
+                <default>false</default>
+                <label>Some College Coursework</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Prevent_Creation_on_Invalid_Placement</fullName>
+    <active>false</active>
+    <description>Blocks the creation of a Deal Sheet if the parent Placement is not in &apos;Confirmed&apos; status or is missing a Project.</description>
+    <errorConditionFormula>AND(
+    ISNEW(),
+    OR(
+        NOT(ISPICKVAL(Placement__r.Placement_Status__c, &quot;Confirmed&quot;)),
+        ISBLANK(Placement__r.Current_Project__c),
+        ISBLANK(Placement__r.Candidate__c),
+        /* Use the API Name here, not the 00N ID! */
+        BLANKVALUE(Placement__r.Regular_Bill_Rate__c, 0) &lt;= 0
+    )
+)</errorConditionFormula>
+    <errorMessage>CANNOT CREATE DEAL SHEET: The source Placement must be in &apos;Confirmed&apos; status, have an assigned Project, and include valid Bill/Pay rates before a Deal Sheet can be generated.</errorMessage>
+</ValidationRule>

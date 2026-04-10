@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage_InPerson_Telephone_Debrief_Require</fullName>
+    <active>true</active>
+    <description>Prevents stage change from Phone Interview to In Person Interview / In Person / References / Offer if any fields in the Telephone Debrief Section are blank.</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+CASE(PRIORVALUE(Stage__c ),&quot;Phone Interview&quot;,1,0)=1,
+OR(
+ISPICKVAL(Stage__c , &quot;In Person Interview&quot;),
+ISPICKVAL(Stage__c , &quot;In Person&quot;),
+ISPICKVAL(Stage__c , &quot;References&quot;),
+ISPICKVAL(Stage__c , &quot;Offer&quot;)),
+
+OR (
+ISBLANK(Name_of_Facility__c),
+ISBLANK(Interviewing_Manager_Title__c),
+ISBLANK(Impression_of_Manager__c),
+ISBLANK (Experience_on_Call__c),
+ISBLANK (Comfortable_with_Expectations__c),
+ISBLANK(Interviewing_Anywhere_Else__c),
+ISBLANK (Factors_to_Accept__c),
+ISBLANK ( Rank_Other_Opportunities__c ),
+ISBLANK ( Any_issue_with_24hr_Decision__c )
+)
+)</errorConditionFormula>
+    <errorMessage>You must please complete the Telephone Debrief Section before moving to the new Stage</errorMessage>
+</ValidationRule>

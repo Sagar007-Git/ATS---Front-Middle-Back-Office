@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage_InPerson_Debrief_Require</fullName>
+    <active>true</active>
+    <description>We cannot move a candidate from “In Person Interview” to “References” or “Offer” until all required fields In Person Debrief Section are completed.</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+CASE(PRIORVALUE(Stage__c ),&quot;In Person Interview&quot;,1,0)=1,
+OR(
+ISPICKVAL(Stage__c , &quot;References&quot;),
+ISPICKVAL(Stage__c , &quot;Offer&quot;)),
+OR (
+ISBLANK(In_Person_Call_Experience__c),
+ISBLANK(In_Person_Facility_Aesthetics__c),
+ISBLANK(How_Was_The_Commute__c),
+ISBLANK (Receive_Mentorship__c),
+ISBLANK (Impression_of_Manager__c),
+ISBLANK(Comfortable_with_Expectations__c),
+ISBLANK (Does_Org_Stability_Match_Goals__c),
+ISBLANK (Forget_To_Ask_Questions__c ),
+ISBLANK (Discuss_Salary_and_Benefits__c ),
+ISBLANK (Do_you_need_followup_contact_info__c),
+ISBLANK (Interviewing_Anywhere_Else__c),
+ISBLANK (Where_Interviewing__c),
+ISBLANK (Rank_Your_Other_Opportunities__c),
+ISBLANK (Factors_to_Accept__c),
+ISBLANK (Anticipate_Decision_By__c)
+)
+)</errorConditionFormula>
+    <errorMessage>You must complete the In Person Debrief Section before moving to the next Stage. Any non applicable questions enter NA. Thank you</errorMessage>
+</ValidationRule>

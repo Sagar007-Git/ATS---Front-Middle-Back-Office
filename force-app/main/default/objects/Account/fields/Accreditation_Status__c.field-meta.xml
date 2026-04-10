@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Accreditation_Status__c</fullName>
+    <description>Certifications like JCAHO, CARF, CMS certification</description>
+    <label>Accreditation Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>JCAHO</fullName>
+                <default>false</default>
+                <label>JCAHO</label>
+            </value>
+            <value>
+                <fullName>CARF</fullName>
+                <default>false</default>
+                <label>CARF</label>
+            </value>
+            <value>
+                <fullName>CMS certification</fullName>
+                <default>false</default>
+                <label>CMS certification</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

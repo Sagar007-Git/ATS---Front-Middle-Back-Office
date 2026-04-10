@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage__c</fullName>
+    <label>Stage</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>New Application</fullName>
+                <default>false</default>
+                <label>New Application</label>
+            </value>
+            <value>
+                <fullName>Reapplied By Candidate</fullName>
+                <default>false</default>
+                <label>Reapplied By Candidate</label>
+            </value>
+            <value>
+                <fullName>Auto Matched</fullName>
+                <default>false</default>
+                <label>Auto Matched</label>
+            </value>
+            <value>
+                <fullName>Recruiter Matched</fullName>
+                <default>false</default>
+                <label>Recruiter Matched</label>
+            </value>
+            <value>
+                <fullName>Call Back</fullName>
+                <default>false</default>
+                <label>Call Back</label>
+            </value>
+            <value>
+                <fullName>RA Presentation</fullName>
+                <default>false</default>
+                <label>RA Presentation</label>
+            </value>
+            <value>
+                <fullName>References</fullName>
+                <default>false</default>
+                <label>References</label>
+            </value>
+            <value>
+                <fullName>Waiting to Submit</fullName>
+                <default>false</default>
+                <label>Waiting to Submit</label>
+            </value>
+            <value>
+                <fullName>Internal Submission</fullName>
+                <default>false</default>
+                <label>Internal Submission</label>
+            </value>
+            <value>
+                <fullName>Client Submission</fullName>
+                <default>false</default>
+                <label>Client Submission</label>
+            </value>
+            <value>
+                <fullName>Pre-Credentialing</fullName>
+                <default>false</default>
+                <label>Pre-Credentialing</label>
+            </value>
+            <value>
+                <fullName>Telephone</fullName>
+                <default>false</default>
+                <label>Telephone</label>
+            </value>
+            <value>
+                <fullName>In Person</fullName>
+                <default>false</default>
+                <label>In Person</label>
+            </value>
+            <value>
+                <fullName>Offer</fullName>
+                <default>false</default>
+                <label>Offer</label>
+            </value>
+            <value>
+                <fullName>Placement</fullName>
+                <default>false</default>
+                <label>Placement</label>
+            </value>
+            <value>
+                <fullName>Out</fullName>
+                <default>false</default>
+                <label>Out</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

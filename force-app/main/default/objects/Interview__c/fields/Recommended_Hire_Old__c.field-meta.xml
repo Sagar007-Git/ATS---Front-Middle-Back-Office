@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Recommended_Hire_Old__c</fullName>
+    <label>Recommended Hire (Old)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Champion Hire</fullName>
+                <default>false</default>
+                <label>Champion Hire</label>
+            </value>
+            <value>
+                <fullName>Support Hire</fullName>
+                <default>false</default>
+                <label>Support Hire</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

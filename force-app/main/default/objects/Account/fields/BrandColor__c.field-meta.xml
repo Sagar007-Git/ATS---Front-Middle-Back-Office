@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BrandColor__c</fullName>
+    <description>Stores the Hex code (e.g., #0056b3) for the primary branding color of the Timesheet PDF.</description>
+    <externalId>false</externalId>
+    <label>Brand Color</label>
+    <length>10</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

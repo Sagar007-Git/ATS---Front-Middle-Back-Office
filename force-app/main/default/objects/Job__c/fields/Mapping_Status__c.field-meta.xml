@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mapping_Status__c</fullName>
+    <label>Mapping Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not Located Yet</fullName>
+                <default>false</default>
+                <label>Not Located Yet</label>
+            </value>
+            <value>
+                <fullName>Located</fullName>
+                <default>false</default>
+                <label>Located</label>
+            </value>
+            <value>
+                <fullName>Problem with Address</fullName>
+                <default>false</default>
+                <label>Problem with Address</label>
+            </value>
+            <value>
+                <fullName>Google Error</fullName>
+                <default>false</default>
+                <label>Google Error</label>
+            </value>
+            <value>
+                <fullName>Google Exhausted</fullName>
+                <default>false</default>
+                <label>Google Exhausted</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

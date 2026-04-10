@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>EEO_Job_Category__c</fullName>
+    <label>EEO Job Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Professionals</fullName>
+                <default>false</default>
+                <label>Professionals</label>
+            </value>
+            <value>
+                <fullName>Technicians</fullName>
+                <default>false</default>
+                <label>Technicians</label>
+            </value>
+            <value>
+                <fullName>Sales Workers</fullName>
+                <default>false</default>
+                <label>Sales Workers</label>
+            </value>
+            <value>
+                <fullName>Administrative Support Workers</fullName>
+                <default>false</default>
+                <label>Administrative Support Workers</label>
+            </value>
+            <value>
+                <fullName>Craft Workers</fullName>
+                <default>false</default>
+                <label>Craft Workers</label>
+            </value>
+            <value>
+                <fullName>Operatives</fullName>
+                <default>false</default>
+                <label>Operatives</label>
+            </value>
+            <value>
+                <fullName>Laborers and Helpers</fullName>
+                <default>false</default>
+                <label>Laborers and Helpers</label>
+            </value>
+            <value>
+                <fullName>Service Workers</fullName>
+                <default>false</default>
+                <label>Service Workers</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

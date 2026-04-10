@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Required_Licenses__c</fullName>
+    <label>Required Licenses</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Registered Nurse (RN) License</fullName>
+                <default>false</default>
+                <label>Registered Nurse (RN) License</label>
+            </value>
+            <value>
+                <fullName>Licensed Practical Nurse (LPN) License</fullName>
+                <default>false</default>
+                <label>Licensed Practical Nurse (LPN) License</label>
+            </value>
+            <value>
+                <fullName>CNA Certification</fullName>
+                <default>false</default>
+                <label>CNA Certification</label>
+            </value>
+            <value>
+                <fullName>BLS Certification</fullName>
+                <default>false</default>
+                <label>BLS Certification</label>
+            </value>
+            <value>
+                <fullName>ACLS Certification</fullName>
+                <default>false</default>
+                <label>ACLS Certification</label>
+            </value>
+            <value>
+                <fullName>Board Certification (Medical)</fullName>
+                <default>false</default>
+                <label>Board Certification (Medical)</label>
+            </value>
+            <value>
+                <fullName>Pharmacy License</fullName>
+                <default>false</default>
+                <label>Pharmacy License</label>
+            </value>
+            <value>
+                <fullName>OSHA Certification</fullName>
+                <default>false</default>
+                <label>OSHA Certification</label>
+            </value>
+            <value>
+                <fullName>HIPAA Training</fullName>
+                <default>false</default>
+                <label>HIPAA Training</label>
+            </value>
+            <value>
+                <fullName>State License (specify state)</fullName>
+                <default>false</default>
+                <label>State License (specify state)</label>
+            </value>
+            <value>
+                <fullName>Other (custom)</fullName>
+                <default>false</default>
+                <label>Other (custom)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

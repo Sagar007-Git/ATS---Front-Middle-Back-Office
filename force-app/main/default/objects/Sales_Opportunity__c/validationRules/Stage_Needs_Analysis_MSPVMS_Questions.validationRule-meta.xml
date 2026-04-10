@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage_Needs_Analysis_MSPVMS_Questions</fullName>
+    <active>true</active>
+    <description>Before moving forward to another Stage,complete all the questions in the MSP/VMS Questionnaire Section</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+CASE(PRIORVALUE(Stage__c ),&quot;Needs Analysis&quot;,1,0)=1,
+ Account__r.RecordType.DeveloperName = &apos;MSP_VMS&apos;,
+OR(
+ISPICKVAL(Stage__c , &quot;Credit Check&quot;),
+ISPICKVAL(Stage__c , &quot;Contract Sent&quot;),
+ISPICKVAL(Stage__c , &quot;Negotiation&quot;),
+ISPICKVAL(Stage__c , &quot;Sent to Backoffice&quot;),
+ISPICKVAL(Stage__c , &quot;Bid Won&quot;),
+ISPICKVAL(Stage__c , &quot;Opportunity Won&quot;)),
+
+OR (
+ISBLANK(Statistical_data_on_client_response__c),
+ISBLANK(States_most_concentration_in__c),
+ISBLANK(Send_Master_Services_Agreement__c),
+ISBLANK (Reverse_billing_or_direct_billing__c),
+ISBLANK (If_owned_by_a_staffing_agency_which_one__c),
+ISBLANK(MSP_VMS_Name_of_Individual__c),
+ISBLANK (MSP_VMS_Individual_s_Title_Position__c ),
+ISBLANK ( MSP_VMS_Individual_s_Email__c),
+ISBLANK ( Involvement_when_client_unresponsive__c),
+ISBLANK ( Do_some_position_show_on_other_platforms__c),
+ISBLANK ( Breakdown_Allied_Jobs_vs_Nursing_Jobs__c),
+ISBLANK ( Are_you_a_vendor_neutral_MSP_VMS__c),
+ISBLANK ( Administrative_VMS_Fee_Percentage__c)
+
+
+)
+)</errorConditionFormula>
+    <errorMessage>You must complete all the questions in the MSP/VMS Questionnaire Section before moving forward to another Stage. If the question does not apply please respond with NA.</errorMessage>
+</ValidationRule>

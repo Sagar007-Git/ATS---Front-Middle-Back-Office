@@ -14,7 +14,8 @@ export default class InvoiceEntityDashboard extends NavigationMixin(LightningEle
     // Columns for Section 1 (Pending)
     pendingColumns = [
         { label: 'Name', fieldName: 'name', type: 'text' },
-        { label: 'Pending Timesheets', fieldName: 'count', type: 'number', cellAttributes: { alignment: 'left' } },
+        // ✅ Changed "Pending Timesheets" to "Unbilled Entries"
+        { label: 'Unbilled Entries', fieldName: 'count', type: 'number', cellAttributes: { alignment: 'left' } },
         { type: 'button', typeAttributes: { label: 'Review & Invoice', name: 'review', variant: 'brand' } }
     ];
 
@@ -70,6 +71,7 @@ export default class InvoiceEntityDashboard extends NavigationMixin(LightningEle
     // ==========================================
     
     // Handles clicks in Section 1 (Pending Invoices)
+    // Inside invoiceEntityDashboard.js
     handlePendingAction(event) {
         const actionName = event.detail.action.name;
         const selectedRow = event.detail.row;
@@ -79,7 +81,7 @@ export default class InvoiceEntityDashboard extends NavigationMixin(LightningEle
                 detail: { 
                     entityId: selectedRow.id, 
                     entityName: selectedRow.name, 
-                    timesheets: selectedRow.timesheets 
+                    records: selectedRow.records // ✅ Changed from timesheets to records
                 }
             }));
         }

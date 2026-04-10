@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Broadcast_Url__c</fullName>
+    <externalId>false</externalId>
+    <formula>HYPERLINK(&quot;https://dbsync.avankia.com/hrstaffing/ftp.get?config=&quot;&amp; SUBSTITUTE(TRIM(LOWER($Organization.Name)), &quot; &quot;, &quot;&quot;)&amp;&quot;&amp;jobId=&quot;&amp; Id , &quot;Broadcast URL&quot; )</formula>
+    <label>Broadcast Url</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

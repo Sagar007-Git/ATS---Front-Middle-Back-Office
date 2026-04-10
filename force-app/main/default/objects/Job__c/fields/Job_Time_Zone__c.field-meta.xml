@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Time_Zone__c</fullName>
+    <label>Job Time Zone</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>-CST</fullName>
+                <default>false</default>
+                <label>-CST</label>
+            </value>
+            <value>
+                <fullName>-EST</fullName>
+                <default>false</default>
+                <label>-EST</label>
+            </value>
+            <value>
+                <fullName>-GMT</fullName>
+                <default>false</default>
+                <label>-GMT</label>
+            </value>
+            <value>
+                <fullName>-MST</fullName>
+                <default>false</default>
+                <label>-MST</label>
+            </value>
+            <value>
+                <fullName>-PST</fullName>
+                <default>false</default>
+                <label>-PST</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Make_Terminated_Reason_required_when_up</fullName>
+    <active>true</active>
+    <description>When the Placement Status is “Terminated” and the Terminated Reason field is blank. Displays valdiation messgae</description>
+    <errorConditionFormula>AND(TEXT(Placement_Status__c) =&apos;Terminated&apos;,
+ISBLANK(TEXT(Terminated_Reason__c )))</errorConditionFormula>
+    <errorMessage>Please fill Terminated Reason</errorMessage>
+</ValidationRule>

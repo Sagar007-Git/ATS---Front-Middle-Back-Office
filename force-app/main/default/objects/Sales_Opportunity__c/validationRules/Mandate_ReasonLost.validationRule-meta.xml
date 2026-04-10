@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mandate_ReasonLost</fullName>
+    <active>true</active>
+    <description>Prevents stage change to Bid Lost or Opportunity Lost if Reasons_Lost__c is empty.</description>
+    <errorConditionFormula>TEXT(Reason_Lost__c)=Null &amp;&amp; ( TEXT(Stage__c)=&apos;Bid Lost&apos; || TEXT(Stage__c)=&apos;Opportunity Lost&apos;)</errorConditionFormula>
+    <errorMessage>Please choose a reason lost.</errorMessage>
+</ValidationRule>

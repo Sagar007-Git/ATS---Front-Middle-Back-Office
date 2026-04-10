@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Closed_Qualifiers__c</fullName>
+    <label>Closed Qualifiers</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Client closed</fullName>
+                <default>false</default>
+                <label>Client closed</label>
+            </value>
+            <value>
+                <fullName>Hired in-house</fullName>
+                <default>false</default>
+                <label>Hired in-house</label>
+            </value>
+            <value>
+                <fullName>Loss to competitor</fullName>
+                <default>false</default>
+                <label>Loss to competitor</label>
+            </value>
+            <value>
+                <fullName>Non-responsive</fullName>
+                <default>false</default>
+                <label>Non-responsive</label>
+            </value>
+            <value>
+                <fullName>Unfillable</fullName>
+                <default>false</default>
+                <label>Unfillable</label>
+            </value>
+            <value>
+                <fullName>Wrong Job Description</fullName>
+                <default>false</default>
+                <label>Wrong Job Description</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

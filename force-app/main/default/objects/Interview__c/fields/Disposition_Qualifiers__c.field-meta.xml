@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Disposition_Qualifiers__c</fullName>
+    <label>Disposition Qualifiers</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>TEST</fullName>
+                <default>false</default>
+                <label>TEST</label>
+            </value>
+            <value>
+                <fullName>Accepted a different position</fullName>
+                <default>false</default>
+                <label>Accepted a different position</label>
+            </value>
+            <value>
+                <fullName>Accepted position but never started</fullName>
+                <default>false</default>
+                <label>Accepted position but never started</label>
+            </value>
+            <value>
+                <fullName>Applied for position previously</fullName>
+                <default>false</default>
+                <label>Applied for position previously</label>
+            </value>
+            <value>
+                <fullName>Candidate</fullName>
+                <default>false</default>
+                <label>Candidate</label>
+            </value>
+            <value>
+                <fullName>Contract/Temp</fullName>
+                <default>false</default>
+                <label>Contract/Temp</label>
+            </value>
+            <value>
+                <fullName>Distance was not favorable</fullName>
+                <default>false</default>
+                <label>Distance was not favorable</label>
+            </value>
+            <value>
+                <fullName>Does not qualify as a profession that we staff</fullName>
+                <default>false</default>
+                <label>Does not qualify as a profession that we staff</label>
+            </value>
+            <value>
+                <fullName>No longer interested in the position</fullName>
+                <default>false</default>
+                <label>No longer interested in the position</label>
+            </value>
+            <value>
+                <fullName>Not rehireable by Client</fullName>
+                <default>false</default>
+                <label>Not rehireable by Client</label>
+            </value>
+            <value>
+                <fullName>Pay requested is too high</fullName>
+                <default>false</default>
+                <label>Pay requested is too high</label>
+            </value>
+            <value>
+                <fullName>PERM Acc</fullName>
+                <default>false</default>
+                <label>PERM Acc</label>
+            </value>
+            <value>
+                <fullName>Permanent-MIGRATE AS A PLACEMENT</fullName>
+                <default>false</default>
+                <label>Permanent-MIGRATE AS A PLACEMENT</label>
+            </value>
+            <value>
+                <fullName>PERM INP</fullName>
+                <default>false</default>
+                <label>PERM INP</label>
+            </value>
+            <value>
+                <fullName>PERM Res</fullName>
+                <default>false</default>
+                <label>PERM Res</label>
+            </value>
+            <value>
+                <fullName>PERM Tel</fullName>
+                <default>false</default>
+                <label>PERM Tel</label>
+            </value>
+            <value>
+                <fullName>Position Closed</fullName>
+                <default>false</default>
+                <label>Position Closed</label>
+            </value>
+            <value>
+                <fullName>TEMP ACC</fullName>
+                <default>false</default>
+                <label>TEMP ACC</label>
+            </value>
+            <value>
+                <fullName>TEMP INP</fullName>
+                <default>false</default>
+                <label>TEMP INP</label>
+            </value>
+            <value>
+                <fullName>TEMP OFFER</fullName>
+                <default>false</default>
+                <label>TEMP OFFER</label>
+            </value>
+            <value>
+                <fullName>TEMP RES</fullName>
+                <default>false</default>
+                <label>TEMP RES</label>
+            </value>
+            <value>
+                <fullName>TEMP TEL</fullName>
+                <default>false</default>
+                <label>TEMP TEL</label>
+            </value>
+            <value>
+                <fullName>T-OFF DECL</fullName>
+                <default>false</default>
+                <label>T-OFF DECL</label>
+            </value>
+            <value>
+                <fullName>T-OFF MADE</fullName>
+                <default>false</default>
+                <label>T-OFF MADE</label>
+            </value>
+            <value>
+                <fullName>Underqualified for position</fullName>
+                <default>false</default>
+                <label>Underqualified for position</label>
+            </value>
+            <value>
+                <fullName>Unfavorable interview</fullName>
+                <default>false</default>
+                <label>Unfavorable interview</label>
+            </value>
+            <value>
+                <fullName>Unresponsive candidate</fullName>
+                <default>false</default>
+                <label>Unresponsive candidate</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

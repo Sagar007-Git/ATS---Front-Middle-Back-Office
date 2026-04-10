@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resume__c</fullName>
+    <description>Links to the parent Resume record.</description>
+    <label>Resume</label>
+    <referenceTo>Resume__c</referenceTo>
+    <relationshipLabel>Resume Sections</relationshipLabel>
+    <relationshipName>Resume_Sections</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

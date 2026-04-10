@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Specialty_Role_Focus__c</fullName>
+    <label>Specialty / Role Focus</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Registered Nurse (RN)</fullName>
+                <default>false</default>
+                <label>Registered Nurse (RN)</label>
+            </value>
+            <value>
+                <fullName>Licensed Practical Nurse (LPN)</fullName>
+                <default>false</default>
+                <label>Licensed Practical Nurse (LPN)</label>
+            </value>
+            <value>
+                <fullName>Medical Assistant</fullName>
+                <default>false</default>
+                <label>Medical Assistant</label>
+            </value>
+            <value>
+                <fullName>Physician</fullName>
+                <default>false</default>
+                <label>Physician</label>
+            </value>
+            <value>
+                <fullName>Surgeon</fullName>
+                <default>false</default>
+                <label>Surgeon</label>
+            </value>
+            <value>
+                <fullName>Lab Technician</fullName>
+                <default>false</default>
+                <label>Lab Technician</label>
+            </value>
+            <value>
+                <fullName>Physical Therapist</fullName>
+                <default>false</default>
+                <label>Physical Therapist</label>
+            </value>
+            <value>
+                <fullName>Respiratory Therapist</fullName>
+                <default>false</default>
+                <label>Respiratory Therapist</label>
+            </value>
+            <value>
+                <fullName>Pharmacist</fullName>
+                <default>false</default>
+                <label>Pharmacist</label>
+            </value>
+            <value>
+                <fullName>CNA</fullName>
+                <default>false</default>
+                <label>CNA</label>
+            </value>
+            <value>
+                <fullName>Radiology Technician</fullName>
+                <default>false</default>
+                <label>Radiology Technician</label>
+            </value>
+            <value>
+                <fullName>ER Nurse</fullName>
+                <default>false</default>
+                <label>ER Nurse</label>
+            </value>
+            <value>
+                <fullName>ICU Nurse</fullName>
+                <default>false</default>
+                <label>ICU Nurse</label>
+            </value>
+            <value>
+                <fullName>Occupational Therapist</fullName>
+                <default>false</default>
+                <label>Occupational Therapist</label>
+            </value>
+            <value>
+                <fullName>Anesthesiologist</fullName>
+                <default>false</default>
+                <label>Anesthesiologist</label>
+            </value>
+            <value>
+                <fullName>Other Specialty</fullName>
+                <default>false</default>
+                <label>Other Specialty</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

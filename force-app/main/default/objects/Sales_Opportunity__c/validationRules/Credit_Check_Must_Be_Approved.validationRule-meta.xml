@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Check_Must_Be_Approved</fullName>
+    <active>true</active>
+    <description>Credit Check must be approved before moving status forward</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+CASE(PRIORVALUE(Stage__c ),&quot;Credit Check&quot;,1,0)=1,
+OR(
+ISPICKVAL(Stage__c , &quot;Contract Sent&quot;),
+ISPICKVAL(Stage__c , &quot;Negotiation&quot;),
+ISPICKVAL(Stage__c , &quot;Sent to Back Office&quot;),
+ISPICKVAL(Stage__c , &quot;Opportunity Won&quot;),
+ISPICKVAL(Stage__c , &quot;Bid Won&quot;)),
+
+OR (
+ISPICKVAL( Credit_Status__c , &quot;Rejected&quot;),
+ISPICKVAL( Credit_Status__c , &quot;Approval Pending&quot;),
+ISPICKVAL( Credit_Status__c , &quot;Approval Required&quot;),
+ISPICKVAL( Credit_Status__c , &quot;Approval In Process&quot;)
+)
+)</errorConditionFormula>
+    <errorMessage>Credit Check must be completed and approved before proceeding.</errorMessage>
+</ValidationRule>

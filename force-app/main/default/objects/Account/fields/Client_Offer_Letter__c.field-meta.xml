@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Offer_Letter__c</fullName>
+    <label>Client Offer Letter</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Centra Client Conf</fullName>
+                <default>false</default>
+                <label>Centra Client Conf</label>
+            </value>
+            <value>
+                <fullName>VMS Offer Upload</fullName>
+                <default>false</default>
+                <label>VMS Offer Upload</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

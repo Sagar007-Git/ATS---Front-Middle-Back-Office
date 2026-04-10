@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Setting__c</fullName>
+    <label>Setting</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Acute Care Hospital</fullName>
+                <default>false</default>
+                <label>Acute Care Hospital</label>
+            </value>
+            <value>
+                <fullName>Addiction Treatment Center</fullName>
+                <default>false</default>
+                <label>Addiction Treatment Center</label>
+            </value>
+            <value>
+                <fullName>Aquatic Therapy</fullName>
+                <default>false</default>
+                <label>Aquatic Therapy</label>
+            </value>
+            <value>
+                <fullName>Assisted Living Facility</fullName>
+                <default>false</default>
+                <label>Assisted Living Facility</label>
+            </value>
+            <value>
+                <fullName>Behavioral Health</fullName>
+                <default>false</default>
+                <label>Behavioral Health</label>
+            </value>
+            <value>
+                <fullName>Camp</fullName>
+                <default>false</default>
+                <label>Camp</label>
+            </value>
+            <value>
+                <fullName>Charter School</fullName>
+                <default>false</default>
+                <label>Charter School</label>
+            </value>
+            <value>
+                <fullName>Clinic</fullName>
+                <default>false</default>
+                <label>Clinic</label>
+            </value>
+            <value>
+                <fullName>Correctional</fullName>
+                <default>false</default>
+                <label>Correctional</label>
+            </value>
+            <value>
+                <fullName>Critical Illness Recovery Hospital</fullName>
+                <default>false</default>
+                <label>Critical Illness Recovery Hospital</label>
+            </value>
+            <value>
+                <fullName>Dialysis</fullName>
+                <default>false</default>
+                <label>Dialysis</label>
+            </value>
+            <value>
+                <fullName>Family Practice</fullName>
+                <default>false</default>
+                <label>Family Practice</label>
+            </value>
+            <value>
+                <fullName>Gymnastics</fullName>
+                <default>false</default>
+                <label>Gymnastics</label>
+            </value>
+            <value>
+                <fullName>Health Plan</fullName>
+                <default>false</default>
+                <label>Health Plan</label>
+            </value>
+            <value>
+                <fullName>Home Health</fullName>
+                <default>false</default>
+                <label>Home Health</label>
+            </value>
+            <value>
+                <fullName>Hospice</fullName>
+                <default>false</default>
+                <label>Hospice</label>
+            </value>
+            <value>
+                <fullName>Imaging</fullName>
+                <default>false</default>
+                <label>Imaging</label>
+            </value>
+            <value>
+                <fullName>Laboratory</fullName>
+                <default>false</default>
+                <label>Laboratory</label>
+            </value>
+            <value>
+                <fullName>Long Term Acute Care Hospital</fullName>
+                <default>false</default>
+                <label>Long Term Acute Care Hospital</label>
+            </value>
+            <value>
+                <fullName>Managed Care</fullName>
+                <default>false</default>
+                <label>Managed Care</label>
+            </value>
+            <value>
+                <fullName>Mobile Health</fullName>
+                <default>false</default>
+                <label>Mobile Health</label>
+            </value>
+            <value>
+                <fullName>Outpatient</fullName>
+                <default>false</default>
+                <label>Outpatient</label>
+            </value>
+            <value>
+                <fullName>Outpatient - Ortho</fullName>
+                <default>false</default>
+                <label>Outpatient - Ortho</label>
+            </value>
+            <value>
+                <fullName>Outpatient - Private Practice</fullName>
+                <default>false</default>
+                <label>Outpatient - Private Practice</label>
+            </value>
+            <value>
+                <fullName>Outpatient - Sports</fullName>
+                <default>false</default>
+                <label>Outpatient - Sports</label>
+            </value>
+            <value>
+                <fullName>Pediatrics</fullName>
+                <default>false</default>
+                <label>Pediatrics</label>
+            </value>
+            <value>
+                <fullName>Rehabilitation Hospital</fullName>
+                <default>false</default>
+                <label>Rehabilitation Hospital</label>
+            </value>
+            <value>
+                <fullName>Schools</fullName>
+                <default>false</default>
+                <label>Schools</label>
+            </value>
+            <value>
+                <fullName>SNF / LTC</fullName>
+                <default>false</default>
+                <label>SNF / LTC</label>
+            </value>
+            <value>
+                <fullName>Sub Acute Rehab</fullName>
+                <default>false</default>
+                <label>Sub Acute Rehab</label>
+            </value>
+            <value>
+                <fullName>Surgery Center</fullName>
+                <default>false</default>
+                <label>Surgery Center</label>
+            </value>
+            <value>
+                <fullName>Third Party Administrator</fullName>
+                <default>false</default>
+                <label>Third Party Administrator</label>
+            </value>
+            <value>
+                <fullName>Veterans Affairs</fullName>
+                <default>false</default>
+                <label>Veterans Affairs</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

@@ -1,0 +1,589 @@
+<template>
+    <!-- ==================== TOOLTIPS & OVERLAYS ==================== -->
+    <template if:true={resizeTooltip.visible}>
+        <div class="resize-tooltip" style={resizeTooltip.style}>{resizeTooltip.text}</div>
+    </template>
+
+    <template if:true={hoverCard.visible}>
+        <div class="shift-hover-card" style={hoverCard.style}>
+            <div class="hover-card-header" style={hoverCard.headerStyle}>
+                <div class="hover-card-title">{hoverCard.projectName}</div>
+                <span class={hoverCard.pillClass}>{hoverCard.status}</span>
+            </div>
+            <div class="hover-card-body">
+                <div class="hover-card-row">
+                    <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                    <span class="hover-label">Time</span>
+                    <span class="hover-value">{hoverCard.timeRange} ({hoverCard.hours}h)</span>
+                </div>
+                <div class="hover-card-row">
+                    <lightning-icon icon-name="utility:event" size="xx-small"></lightning-icon>
+                    <span class="hover-label">Date</span>
+                    <span class="hover-value">{hoverCard.displayDate}</span>
+                </div>
+                <div class="hover-card-row">
+                    <lightning-icon icon-name="utility:category" size="xx-small"></lightning-icon>
+                    <span class="hover-label">Task</span>
+                    <span class="hover-value">{hoverCard.taskType}</span>
+                </div>
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--div);">
+                    <strong style="font-size: 10px; color: var(--text-m); text-transform: uppercase;">Notes</strong>
+                    <p style="font-size: 12px; color: var(--text-p); margin-top: 4px; white-space: pre-wrap; word-wrap: break-word;">{hoverCard.notes}</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==================== MODALS ==================== -->
+    <template if:true={isDeleteConfirmOpen}>
+        <section role="alertdialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header delete-modal-header">
+                    <lightning-icon icon-name="utility:error" size="small" variant="inverse" class="slds-m-right_small"></lightning-icon>
+                    <h2 class="slds-modal__title" style="color:white;">Confirm Delete</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-media slds-media_center">
+                        <div class="slds-media__figure slds-m-right_medium"><lightning-icon icon-name="utility:warning" size="medium" variant="error"></lightning-icon></div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-heading_small slds-m-bottom_x-small">Are you sure you want to delete this record?</p>
+                            <p class="slds-text-color_weak" style="font-size:13px;">This action cannot be undone.</p>
+                        </div>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={cancelDelete} class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Delete" variant="destructive" onclick={confirmDelete}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={isEntryModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header entry-modal-header">
+                    <lightning-icon icon-name="utility:timesheet" size="small" variant="inverse" class="slds-m-right_small"></lightning-icon>
+                    <h2 class="slds-text-heading_medium" style="color:white;"><strong>{entryModalHeader}</strong></h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-form slds-form_stacked">
+                        <div class="modal-date-badge">
+                            <lightning-icon icon-name="utility:event" size="x-small" class="slds-m-right_xx-small"></lightning-icon>Logging time for <strong>{entryDate}</strong>
+                        </div>
+                        <lightning-combobox name="entryProjectId" label="Project" value={entryProjectId} options={projectOptions} onchange={handleEntryProjectChange} required placeholder="Select a Project..." class="slds-m-top_small"></lightning-combobox>
+                        <lightning-combobox name="entryType" label="Task" value={entryType} options={dynamicTaskOptions} disabled={isTaskDisabled} onchange={handleInputChange} class="slds-m-top_small" required></lightning-combobox>
+                        <div class="slds-grid slds-gutters slds-m-top_small">
+                            <div class="slds-col slds-size_1-of-3"><lightning-input type="time" name="entryStartTime" label="Start Time" value={entryStartTime} onchange={handleInputChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-3"><lightning-input type="time" name="entryEndTime" label="End Time" value={entryEndTime} onchange={handleInputChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-3"><lightning-input type="number" name="entryBreakTime" label="Break (hrs)" value={entryBreakTime} step="0.5" min="0" onchange={handleInputChange}></lightning-input></div>
+                        </div>
+                        <lightning-textarea name="entryComments" label="Notes / Description" value={entryComments} onchange={handleInputChange} class="slds-m-top_small" max-length="500" placeholder="What did you work on?"></lightning-textarea>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={closeEntryModal} class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Save Entry" variant="brand" icon-name="utility:save" onclick={saveEntryModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={isExpenseModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header expense-modal-header">
+                    <lightning-icon icon-name="utility:money" size="small" variant="inverse" class="slds-m-right_small"></lightning-icon>
+                    <h2 class="slds-text-heading_medium" style="color:white;">
+                        <strong><template if:true={isExpenseEdit}>Edit Expense</template><template if:false={isExpenseEdit}>Add Expense</template></strong>
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-form slds-form_stacked">
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox name="expenseProjectId" label="Project" value={expenseProjectId} options={expenseProjectOptions} onchange={handleInputChange} required placeholder="Select Project..."></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="date" name="expenseDate" label="Date" value={expenseDate} onchange={handleInputChange} required></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-gutters slds-m-top_small">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" name="expenseAmount" label="Amount ($)" value={expenseAmount} step="0.01" min="0" onchange={handleInputChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox name="expenseCategory" label="Category" value={expenseCategory} options={expenseCategoryOptions} onchange={handleInputChange} placeholder="Select Category..."></lightning-combobox>
+                            </div>
+                        </div>
+                        <lightning-input type="text" name="expenseDescription" label="Description" value={expenseDescription} onchange={handleInputChange} class="slds-m-top_small" placeholder="Brief description of expense..."></lightning-input>
+                        <lightning-textarea name="expenseComments" label="Notes" value={expenseComments} onchange={handleInputChange} class="slds-m-top_small" max-length="500"></lightning-textarea>
+                        
+                        <div class="slds-m-top_medium slds-p-top_small" style="border-top: 1px dashed var(--border-light);">
+                            <template if:false={attachedFileName}>
+                                <lightning-input type="file" label="Attach Receipt (Optional)" accept="image/png, image/jpeg, image/jpg, .pdf" onchange={handleFileChange}></lightning-input>
+                                <div class="slds-text-color_weak slds-m-top_xxx-small" style="font-size: 11px;">Max file size: 3MB (Images or PDF)</div>
+                            </template>
+                            
+                            <template if:true={attachedFileName}>
+                                <label class="slds-form-element__label">Attached Receipt</label>
+                                <div class="attachment-pill">
+                                    <lightning-icon icon-name="doctype:attachment" size="small" class="slds-m-right_small"></lightning-icon>
+                                    
+                                    <a href="javascript:void(0);" class="attachment-name" onclick={previewFile} title="Click to view file">
+                                        {attachedFileName}
+                                    </a>
+                                    
+                                    <template if:true={attachedFileId}>
+                                        <lightning-button-icon icon-name="utility:preview" variant="bare" onclick={previewFile} title="Preview File" class="slds-m-right_x-small"></lightning-button-icon>
+                                    </template>
+                                    
+                                    <template if:false={isExpenseReadOnly}>
+                                        <lightning-button-icon icon-name="utility:delete" variant="bare" onclick={removeAttachment} title="Permanently delete file" class="delete-icon-btn"></lightning-button-icon>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={closeExpenseModal} class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Save Expense" variant="brand" icon-name="utility:save" onclick={saveExpenseModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={isBulkModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                    <h2 class="slds-text-heading_medium" style="color:white;">Bulk Edit {selectedEntriesCount} Entries</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-combobox name="bulkType" label="Change Task Type To" value={bulkType} options={taskTypeOptions} onchange={handleInputChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={closeBulkModal} class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Apply" variant="brand" onclick={saveBulkEdit}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ==================== MAIN CARD ==================== -->
+    <lightning-card icon-name="standard:timesheet">
+        
+        <!-- Title Slot -->
+        <div slot="title" class="slds-grid slds-grid_vertical-align-center" style="gap:12px;">
+            <div>
+                <h1 class="slds-text-heading_small">Timesheet Portal</h1>
+                <p class="slds-text-color_weak" style="font-size:11px;font-weight:normal;">{contactName}<template if:true={contactTitle}> &nbsp;·&nbsp; {contactTitle}</template></p>
+            </div>
+            <div class="tab-switcher">
+                <button class={timesheetTabClass} onclick={switchToTimesheet}><lightning-icon icon-name="utility:timesheet" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>Timesheet</button>
+                <button class={expensesTabClass} onclick={switchToExpenses}><lightning-icon icon-name="utility:money" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>Expenses</button>
+            </div>
+        </div>
+
+
+        <!-- tool bar -->
+        <div slot="actions" class="enterprise-toolbar">
+            <template if:true={isTimesheetTab}>
+                
+                <div class="toolbar-group">
+                    <lightning-input type="search" placeholder="Search..." onchange={handleSearch} variant="label-hidden" class="toolbar-search"></lightning-input>
+                    <lightning-button-group>
+                        <lightning-button label="Weekly" variant={weeklyButtonVariant} onclick={switchToWeekly}></lightning-button>
+                        <lightning-button label="List" variant={listButtonVariant} onclick={switchToList}></lightning-button>
+                    </lightning-button-group>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="toolbar-group">
+                    <template if:true={isListView}>
+                        <lightning-combobox value={listTimeframe} options={timeframeOptions} onchange={handleTimeframeChange} variant="label-hidden" class="toolbar-timeframe"></lightning-combobox>
+                    </template>
+
+                    <template if:true={isWeeklyView}>
+                        <lightning-input type="date" value={formattedCurrentDate} onchange={handleDatePick} variant="label-hidden" class="toolbar-date"></lightning-input>
+                    </template>
+                    
+                    <lightning-button-group>
+                        <lightning-button-icon icon-name="utility:chevronleft" onclick={handlePrevious} title="Previous"></lightning-button-icon>
+                        <lightning-button label="Today" onclick={handleToday}></lightning-button>
+                        <lightning-button-icon icon-name="utility:chevronright" onclick={handleNext} title="Next"></lightning-button-icon>
+                    </lightning-button-group>
+                </div>
+
+                <template if:true={isWeeklyView}>
+                    <div class="toolbar-divider"></div>
+                    
+                    <div class="toolbar-group">
+                        <lightning-button-icon icon-name="utility:undo" onclick={handleUndo} disabled={isUndoDisabled} title="Undo Last Move" variant="border-filled"></lightning-button-icon>
+                        
+                        <template if:true={isEntryCopied}>
+                            <lightning-button icon-name="utility:clipboard" label="Clear Paste" variant="neutral" onclick={clearClipboard}></lightning-button>
+                        </template>
+                        <template if:true={isCutActive}>
+                            <lightning-button icon-name="utility:cut" label="Cancel Cut" variant="destructive-text" onclick={clearClipboard}></lightning-button>
+                        </template>
+                        
+                        <div class="slds-m-left_xx-small">
+                            <lightning-button label="Submit Week" variant="success" icon-name="utility:upload" onclick={handleSubmitWeek} title="Submit all draft entries"></lightning-button>
+                        </div>
+                    </div>
+                </template>
+
+            </template>
+
+            <template if:true={isExpensesTab}>
+                <div class="toolbar-group">
+                    <lightning-button label="Add Expense" variant="brand" icon-name="utility:add" onclick={openAddExpense}></lightning-button>
+                </div>
+            </template>
+            
+        </div>
+
+        <!-- ==================== TIMESHEET TAB CONTENT ==================== -->
+        <template if:true={isTimesheetTab}>
+            <template if:true={isWeeklyView}>
+                <template if:true={hasSelectedEntries}>
+                    <div class="slds-notify slds-notify_alert slds-theme_info slds-m-bottom_small slds-grid slds-grid_align-spread" style="padding:8px 12px;">
+                        <div class="slds-col slds-align-middle"><strong>{selectedEntriesCount} Entries Selected</strong></div>
+                        <div class="slds-col slds-grid slds-grid_vertical-align-center" style="gap:8px;">
+                            <lightning-button label="Bulk Edit" onclick={openBulkModal} variant="brand"></lightning-button>
+                            <lightning-button label="Clear Selection" onclick={clearSelection} variant="neutral"></lightning-button>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="week-summary-bar">
+                    <div class="week-label"><strong>{weekRangeLabel}</strong></div>
+                    <div class="week-total-chip"><strong>{weeklyTotalHours}h</strong>&nbsp;this week</div>
+                </div>
+
+                <div class="calendar-app-layout">
+                    <div class="project-sidebar">
+                        <div class="sidebar-header">My Projects</div>
+                        
+                        <div class="sidebar-scroll-area">
+                            <template for:each={sidebarProjects} for:item="proj">
+                                <div key={proj.id} class="sidebar-project-card" style={proj.cardStyle}>
+                                    
+                                    <div class="sidebar-top-row">
+                                        <span class="project-code">{proj.projectCode}</span>
+                                        <div class="sidebar-week-hrs">
+                                            <lightning-icon icon-name="utility:clock" size="xx-small" class="slds-m-right_xx-small" variant="inverse" style="--sds-c-icon-color-foreground-default: #706E6B;"></lightning-icon>
+                                            <span>{proj.weekHours}h</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="sidebar-project-name" title={proj.projectName}>
+                                        {proj.projectName}
+                                    </div>
+                                    
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="calendar-scroll-wrapper">
+                        <div class="calendar-container">
+                            <div class="calendar-header-row sticky-header-row">
+                                <div class="time-axis-header sticky-name-col corner-cell"><span style="font-size:10px;color:#706E6B;font-weight:600;">TIME</span></div>
+                                <template for:each={dateHeaders} for:item="dayHeader">
+                                    <div key={dayHeader.columnId} class={dayHeader.headerCellClass}><span class={dayHeader.todayLabelClass}>{dayHeader.display}</span></div>
+                                </template>
+                            </div>
+
+                            <div class="calendar-body">
+                                <div class="time-axis sticky-time-axis">
+                                    <template for:each={timeSlots} for:item="slot">
+                                        <div key={slot.value} class="time-slot-label" style={slot.style}>{slot.label}</div>
+                                    </template>
+                                </div>
+
+                                <div class="days-grid">
+                                    <template for:each={calendarColumns} for:item="col">
+                                        <div key={col.dateValue} class="day-column" data-date={col.dateValue}
+                                             ondragover={handleDragOver} ondrop={handleDrop}
+                                             onmousedown={handleCreateDragStart} onmouseup={handleDragMouseUp}
+                                             onmouseleave={handleDragMouseUp} oncontextmenu={preventDrag}>
+                                            
+                                            <template for:each={timeSlots} for:item="slot">
+                                                <div key={slot.value} class="hour-grid-line" style={slot.gridStyle}></div>
+                                            </template>
+                                            <template if:true={col.isWeekend}><div class="weekend-overlay"></div></template>
+                                            <template if:true={col.isDrawingGhost}><div class="ghost-shift" style={ghostStyle}></div></template>
+
+                                            <template if:true={isEntryCopied}>
+                                                <div class="paste-overlay" onclick={handlePaste} data-date={col.dateValue}>
+                                                    <lightning-button-icon icon-name="utility:paste" variant="brand" size="small" title="Paste entry here"></lightning-button-icon>
+                                                </div>
+                                            </template>
+
+                                            <template for:each={col.entries} for:item="entry">
+                                                <div key={entry.renderKey} 
+                                                     class={entry.cssClass} style={entry.dynamicStyle}
+                                                     data-id={entry.id} data-editable={entry.isEditable}
+                                                     ondblclick={handleCardDoubleClick} 
+                                                     onmouseenter={handleShiftMouseEnter} onmouseleave={handleShiftMouseLeave}
+                                                     onmousedown={handleCardMouseDown} onmouseup={handleCardMouseUp}
+                                                     ondragstart={handleDragStart} ondragend={handleDragEnd}>
+                                                    
+                                                    <div class="drag-handle" title="Drag Event">
+                                                        <lightning-icon icon-name="utility:rows" size="xx-small"></lightning-icon>
+                                                    </div>
+
+                                                    <template if:true={entry.showResizeTop}>
+                                                        <div class="resize-handle resize-handle-top" onmousedown={handleResizeStart} data-id={entry.id} data-direction="top" ondragstart={preventDrag} title="Adjust start"></div>
+                                                    </template>
+                                                    <template if:true={entry.showResizeBottom}>
+                                                        <div class="resize-handle resize-handle-bottom" onmousedown={handleResizeStart} data-id={entry.id} data-direction="bottom" ondragstart={preventDrag} title="Adjust end"></div>
+                                                    </template>
+
+                                                    <div class="card-content">
+                                                        <div class="card-top-area">
+                                                            <span class="color-dot-sm" style={entry.colorDot}></span>
+                                                            <span class="shift-desc-compact" title={entry.projectName}>{entry.projectName}</span>
+                                                            <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                                                                <template if:true={entry.isClashing}>
+                                                                    <lightning-icon icon-name="utility:warning" size="xx-small" class="clash-icon-inline" title="Time overlap detected!"></lightning-icon>
+                                                                </template>
+                                                                <span class={entry.pillClass}>{entry.statusShort}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="shift-time"><lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon><span>{entry.timeRange}</span></div>
+                                                        <div class="entry-type-row">
+                                                            <span class="entry-type-badge">{entry.typeLabel}</span>
+                                                            <template if:true={entry.isCutPending}><span class="cut-badge">✂ Moving…</span></template>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="shift-action-bar" onmousedown={stopPropagation} onclick={stopPropagation} ondragstart={preventDrag}>
+                                                        <input type="checkbox" class="shift-checkbox" checked={entry.isSelected} data-id={entry.id} onchange={handleEntrySelection} onclick={stopPropagation} />
+                                                        <div class="action-btn-group">
+                                                            <div class={entry.btnCutClass} data-id={entry.id} onclick={handleBtnCut} title="Cut"><lightning-icon icon-name="utility:cut" size="xx-small"></lightning-icon></div>
+                                                            <div class="action-btn btn-copy" data-id={entry.id} onclick={handleBtnCopy} title="Copy"><lightning-icon icon-name="utility:copy" size="xx-small"></lightning-icon></div>
+                                                            <div class={entry.btnDeleteClass} data-id={entry.id} onclick={handleBtnDelete} title="Delete"><lightning-icon icon-name="utility:delete" size="xx-small"></lightning-icon></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-grid_align-spread slds-p-around_x-small slds-theme_default slds-box slds-box_xx-small pagination-bar">
+                    <div class="slds-col slds-align-middle slds-text-color_weak" style="font-size:12px;font-weight:600;">Showing {paginationStart}–{paginationEnd} of {totalRecords} Projects</div>
+                    <div class="slds-col slds-grid slds-grid_vertical-align-center">
+                        <span class="slds-m-right_x-small slds-text-color_weak" style="font-size:12px;">Rows per page:</span>
+                        <div class="slds-form-element slds-m-right_medium">
+                            <div class="slds-form-element__control">
+                                <div class="slds-select_container">
+                                    <select class="slds-select" onchange={handleRecordsPerPageChange} style="width:110px;height:32px;font-size:12px;">
+                                        <template for:each={recordsPerPageOptions} for:item="opt">
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <lightning-button-group>
+                            <lightning-button-icon icon-name="utility:chevronleft" onclick={handlePrevPage} disabled={isFirstPage}></lightning-button-icon>
+                            <lightning-button label={pageIndicatorLabel} disabled></lightning-button>
+                            <lightning-button-icon icon-name="utility:chevronright" onclick={handleNextPage} disabled={isLastPage}></lightning-button-icon>
+                        </lightning-button-group>
+                    </div>
+                </div>
+            </template> 
+            
+            <template if:true={isListView}>
+                <div class="matrix-container slds-p-around_medium">
+                    
+                    <div class="slds-m-bottom_medium slds-text-heading_small" style="font-weight: 700; color: #444;">
+                        Weekly Summary: {weekRangeLabel}
+                    </div>
+
+                    <div class="matrix-table-wrapper">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th class="matrix-col-project">Project Name</th>
+                                    <template for:each={dateHeaders} for:item="dh">
+                                        <th key={dh.columnId} class="matrix-col-day">
+                                            {dh.display}
+                                        </th>
+                                    </template>
+                                    <th class="matrix-col-total">Total</th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody>
+                                <template if:false={matrixViewData.rows.length}>
+                                    <tr>
+                                        <td colspan="9" class="matrix-empty-state">
+                                            No hours logged for this week.
+                                        </td>
+                                    </tr>
+                                </template>
+
+                                <template for:each={matrixViewData.rows} for:item="row">
+                                    <tr key={row.id}>
+                                        <td class="matrix-cell-project">{row.projectName}</td>
+                                        
+                                        <template for:each={row.formattedDays} for:item="day">
+                                            <td key={day.key} class="matrix-cell-day">
+                                                {day.value}
+                                            </td>
+                                        </template>
+                                        
+                                        <td class="matrix-cell-total">{row.formattedTotal}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <td class="matrix-footer-label">Total Hours</td>
+                                    
+                                    <template for:each={matrixViewData.footer} for:item="f">
+                                        <td key={f.key} class="matrix-footer-day">
+                                            {f.value}
+                                        </td>
+                                    </template>
+                                    
+                                    <td class="matrix-footer-grand">
+                                        {matrixViewData.grandTotal}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </template>
+        </template> 
+
+        <!-- ==================== EXPENSES TAB CONTENT (COLLAPSIBLE SPLIT-VIEW) ==================== -->
+        <template if:true={isExpensesTab}>
+            <div class="split-view-container">
+                
+                <div class={masterContainerClass}>
+                    <div class="master-header">
+                        <span class="slds-text-heading_small slds-p-left_small" style="font-weight:700;">My Expenses</span>
+                        <span class="slds-badge">{processedExpenses.length}</span>
+                    </div>
+                    
+                    <div class="master-list-scroll">
+                        <div class="master-list-container">
+                            <template if:false={hasExpenses}>
+                                <div class="slds-p-around_medium slds-text-color_weak slds-text-align_center">
+                                    No expenses found. Click 'Add Expense' to create one.
+                                </div>
+                            </template>
+                            
+                            <template for:each={processedExpenses} for:item="exp">
+                                <div key={exp.Id} class={exp.masterItemClass} onclick={handleExpenseSelect} data-id={exp.Id}>
+                                    <div class="expense-card-info">
+                                        <div class="expense-card-title">{exp.projectName}</div>
+                                        <div class="expense-card-date">{exp.displayDate}</div>
+                                    </div>
+                                    <div class="expense-card-value">
+                                        <div class="expense-card-amount">{exp.displayAmount}</div>
+                                        <div class="expense-card-status"><span class={exp.pillClass}>{exp.status}</span></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="split-view-detail">
+                    <template if:true={selectedExpenseId}>
+                        <div class="detail-header slds-grid slds-grid_align-spread slds-p-around_medium" style="border-bottom: 1px solid #e5e5e5; background: #FAFAF9;">
+                            <div>
+                                <h2 class="slds-text-heading_medium" style="font-weight: 700;">{expenseDetailTitle}</h2>
+                                <p class="slds-text-color_weak" style="font-size: 12px;">{expenseDetailSubtitle}</p>
+                            </div>
+                            <template if:true={isExpenseReadOnly}>
+                                <span class="slds-badge slds-theme_warning slds-align-middle">READ ONLY - {expenseStatus}</span>
+                            </template>
+                        </div>
+
+                        <div class="detail-body slds-p-around_large" style="flex: 1; overflow-y: auto;">
+                            <div class="slds-form slds-form_stacked">
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox name="expenseProjectId" label="Project" value={expenseProjectId} options={expenseProjectOptions} onchange={handleInputChange} required disabled={isExpenseReadOnly}></lightning-combobox>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input type="date" name="expenseDate" label="Date" value={expenseDate} onchange={handleInputChange} required disabled={isExpenseReadOnly}></lightning-input>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters slds-m-top_small">
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input type="number" name="expenseAmount" label="Amount ($)" value={expenseAmount} step="0.01" min="0" onchange={handleInputChange} required disabled={isExpenseReadOnly}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox name="expenseCategory" label="Category" value={expenseCategory} options={expenseCategoryOptions} onchange={handleInputChange} disabled={isExpenseReadOnly}></lightning-combobox>
+                                    </div>
+                                </div>
+                                <lightning-input type="text" name="expenseDescription" label="Description" value={expenseDescription} onchange={handleInputChange} class="slds-m-top_small" disabled={isExpenseReadOnly}></lightning-input>
+                                <lightning-textarea name="expenseComments" label="Notes" value={expenseComments} onchange={handleInputChange} class="slds-m-top_small" disabled={isExpenseReadOnly}></lightning-textarea>
+                                
+                                <div class="slds-m-top_large slds-p-top_medium" style="border-top: 1px dashed var(--border-light);">
+                                    <h3 class="slds-text-title_caps slds-m-bottom_small">Proof of Expense</h3>
+                                    
+                                    <template if:false={isExpenseReadOnly}>
+                                        <template if:false={attachedFileName}>
+                                            <lightning-input type="file" label="Attach Receipt" accept="image/*, .pdf" onchange={handleFileChange}></lightning-input>
+                                            <div class="slds-text-color_weak slds-m-top_xxx-small" style="font-size: 11px;">Max file size: 3MB</div>
+                                        </template>
+                                    </template>
+
+                                    <template if:true={attachedFileName}>
+                                        <div class="attachment-pill">
+                                            <lightning-icon icon-name="doctype:attachment" size="small" class="slds-m-right_small"></lightning-icon>
+                                            
+                                            <span class="attachment-name" onclick={previewFile} title="Click to view file">
+                                                {attachedFileName}
+                                            </span>
+                                            
+                                            <template if:true={attachedFileId}>
+                                                <lightning-button-icon icon-name="utility:preview" variant="bare" onclick={previewFile} title="Preview File" class="slds-m-right_x-small"></lightning-button-icon>
+                                            </template>
+                                            
+                                            <template if:false={isExpenseReadOnly}>
+                                                <lightning-button-icon icon-name="utility:delete" variant="bare" onclick={removeAttachment} title="Permanently delete file" class="delete-icon-btn"></lightning-button-icon>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-footer slds-p-around_medium slds-grid slds-grid_align-end" style="border-top: 1px solid #e5e5e5; background: #FAFAF9;">
+                            <template if:false={isExpenseReadOnly}>
+                                <template if:false={isNewExpense}>
+                                    <lightning-button label="Delete Expense" variant="destructive-text" onclick={handleDeleteExpense} data-id={selectedExpenseId} class="slds-m-right_small"></lightning-button>
+                                </template>
+                                <lightning-button label="Save Changes" variant="brand" icon-name="utility:save" onclick={saveExpenseModal}></lightning-button>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Occupation__c</fullName>
+    <label>Job Occupation</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Financial Control</fullName>
+                <default>false</default>
+                <label>Financial Control</label>
+            </value>
+            <value>
+                <fullName>Fund Accounting</fullName>
+                <default>false</default>
+                <label>Fund Accounting</label>
+            </value>
+            <value>
+                <fullName>Corporate Finance</fullName>
+                <default>false</default>
+                <label>Corporate Finance</label>
+            </value>
+            <value>
+                <fullName>Financial Analysis/Research/Reporting</fullName>
+                <default>false</default>
+                <label>Financial Analysis/Research/Reporting</label>
+            </value>
+            <value>
+                <fullName>Investment Management</fullName>
+                <default>false</default>
+                <label>Investment Management</label>
+            </value>
+            <value>
+                <fullName>Real Estate Leasing/Acquisition</fullName>
+                <default>false</default>
+                <label>Real Estate Leasing/Acquisition</label>
+            </value>
+            <value>
+                <fullName>Tax Accounting</fullName>
+                <default>false</default>
+                <label>Tax Accounting</label>
+            </value>
+            <value>
+                <fullName>General/Other: Accounting/Finance</fullName>
+                <default>false</default>
+                <label>General/Other: Accounting/Finance</label>
+            </value>
+            <value>
+                <fullName>Actuarial Analysis</fullName>
+                <default>false</default>
+                <label>Actuarial Analysis</label>
+            </value>
+            <value>
+                <fullName>Risk Management/Compliance</fullName>
+                <default>false</default>
+                <label>Risk Management/Compliance</label>
+            </value>
+            <value>
+                <fullName>Audit</fullName>
+                <default>false</default>
+                <label>Audit</label>
+            </value>
+            <value>
+                <fullName>Collections</fullName>
+                <default>false</default>
+                <label>Collections</label>
+            </value>
+            <value>
+                <fullName>Tax Assessment and Collections</fullName>
+                <default>false</default>
+                <label>Tax Assessment and Collections</label>
+            </value>
+            <value>
+                <fullName>Credit Review/Analysis</fullName>
+                <default>false</default>
+                <label>Credit Review/Analysis</label>
+            </value>
+            <value>
+                <fullName>Financial Planning/Advising</fullName>
+                <default>false</default>
+                <label>Financial Planning/Advising</label>
+            </value>
+            <value>
+                <fullName>Accounts Payable/Receivable</fullName>
+                <default>false</default>
+                <label>Accounts Payable/Receivable</label>
+            </value>
+            <value>
+                <fullName>Financial Products Sales/Brokerage</fullName>
+                <default>false</default>
+                <label>Financial Products Sales/Brokerage</label>
+            </value>
+            <value>
+                <fullName>Bookkeeping</fullName>
+                <default>false</default>
+                <label>Bookkeeping</label>
+            </value>
+            <value>
+                <fullName>Policy Underwriting</fullName>
+                <default>false</default>
+                <label>Policy Underwriting</label>
+            </value>
+            <value>
+                <fullName>Filing/Records Management</fullName>
+                <default>false</default>
+                <label>Filing/Records Management</label>
+            </value>
+            <value>
+                <fullName>Reception/Switchboard</fullName>
+                <default>false</default>
+                <label>Reception/Switchboard</label>
+            </value>
+            <value>
+                <fullName>Property Management</fullName>
+                <default>false</default>
+                <label>Property Management</label>
+            </value>
+            <value>
+                <fullName>Executive Support</fullName>
+                <default>false</default>
+                <label>Executive Support</label>
+            </value>
+            <value>
+                <fullName>Office Management</fullName>
+                <default>false</default>
+                <label>Office Management</label>
+            </value>
+            <value>
+                <fullName>Data Entry/Order Processing</fullName>
+                <default>false</default>
+                <label>Data Entry/Order Processing</label>
+            </value>
+            <value>
+                <fullName>Administrative Support</fullName>
+                <default>false</default>
+                <label>Administrative Support</label>
+            </value>
+            <value>
+                <fullName>General/Other: Administrative/Clerical</fullName>
+                <default>false</default>
+                <label>General/Other: Administrative/Clerical</label>
+            </value>
+            <value>
+                <fullName>Secretary/Executive Assistant</fullName>
+                <default>false</default>
+                <label>Secretary/Executive Assistant</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

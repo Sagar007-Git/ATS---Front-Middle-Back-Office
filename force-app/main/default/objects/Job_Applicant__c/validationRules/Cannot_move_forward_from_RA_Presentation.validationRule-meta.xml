@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cannot_move_forward_from_RA_Presentation</fullName>
+    <active>true</active>
+    <description>If the stage is changed to RA Presentation and the RA Lead Sent field is not filled in, then displays validtaion message</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c),
+TEXT(Stage__c) =&quot;RA Presentation&quot;,
+AND(ISBLANK( RA_Lead_Sent__c )))</errorConditionFormula>
+    <errorMessage>You must complete the  RA Lead Sent field</errorMessage>
+</ValidationRule>

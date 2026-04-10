@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Check_Not_Required</fullName>
+    <active>true</active>
+    <description>Prevents stage change to Credit Check when Credit Status = Not Required.</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+ISPICKVAL(Stage__c , &quot;Credit Check&quot;) ,
+ISPICKVAL( Credit_Status__c , &quot;Not Required&quot;))</errorConditionFormula>
+    <errorMessage>Credit Check Not Required Please Move to Correct Stage
+(Credit Check is not required when approved in last 12 months for the Account)</errorMessage>
+</ValidationRule>

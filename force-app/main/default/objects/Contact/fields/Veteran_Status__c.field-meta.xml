@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Veteran_Status__c</fullName>
+    <description>Veteran status for compliance</description>
+    <label>Veteran Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Active Reservist</fullName>
+                <default>false</default>
+                <label>Active Reservist</label>
+            </value>
+            <value>
+                <fullName>Inactive Reservist</fullName>
+                <default>false</default>
+                <label>Inactive Reservist</label>
+            </value>
+            <value>
+                <fullName>Newly Separated Veteran</fullName>
+                <default>false</default>
+                <label>Newly Separated Veteran</label>
+            </value>
+            <value>
+                <fullName>Special Disable Veteran</fullName>
+                <default>false</default>
+                <label>Special Disable Veteran</label>
+            </value>
+            <value>
+                <fullName>Other Protected Veteran</fullName>
+                <default>false</default>
+                <label>Other Protected Veteran</label>
+            </value>
+            <value>
+                <fullName>None of the Above</fullName>
+                <default>false</default>
+                <label>None of the Above</label>
+            </value>
+            <value>
+                <fullName>I don’t wish to answer</fullName>
+                <default>false</default>
+                <label>I don’t wish to answer</label>
+            </value>
+            <value>
+                <fullName>No</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>No</label>
+            </value>
+            <value>
+                <fullName>Yes</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Yes</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

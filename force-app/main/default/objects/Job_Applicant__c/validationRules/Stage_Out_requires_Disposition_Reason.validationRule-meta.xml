@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage_Out_requires_Disposition_Reason</fullName>
+    <active>true</active>
+    <description>Prevents stage change to Out if Reject Qualifiers field is empty.</description>
+    <errorConditionFormula>AND (
+ISCHANGED(Stage__c ),
+ISPICKVAL(Stage__c ,&quot;Out&quot;),
+ISBLANK( TEXT(Disposition_Qualifiers__c) )
+)</errorConditionFormula>
+    <errorMessage>Please choose a Disposition Qualifier if changing to stage Out.</errorMessage>
+</ValidationRule>

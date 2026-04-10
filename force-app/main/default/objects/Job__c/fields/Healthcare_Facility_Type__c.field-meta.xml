@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Healthcare_Facility_Type__c</fullName>
+    <label>Healthcare Facility Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Ambulatory Surgical Centers</fullName>
+                <default>false</default>
+                <label>Ambulatory Surgical Centers</label>
+            </value>
+            <value>
+                <fullName>Birth Centers</fullName>
+                <default>false</default>
+                <label>Birth Centers</label>
+            </value>
+            <value>
+                <fullName>Blood Banks</fullName>
+                <default>false</default>
+                <label>Blood Banks</label>
+            </value>
+            <value>
+                <fullName>Clinics and Medical Offices</fullName>
+                <default>false</default>
+                <label>Clinics and Medical Offices</label>
+            </value>
+            <value>
+                <fullName>Community Hospitals</fullName>
+                <default>false</default>
+                <label>Community Hospitals</label>
+            </value>
+            <value>
+                <fullName>Critical Access Hospitals</fullName>
+                <default>false</default>
+                <label>Critical Access Hospitals</label>
+            </value>
+            <value>
+                <fullName>Diagnostic and Imaging Centers</fullName>
+                <default>false</default>
+                <label>Diagnostic and Imaging Centers</label>
+            </value>
+            <value>
+                <fullName>Emergency Rooms (ER)</fullName>
+                <default>false</default>
+                <label>Emergency Rooms (ER)</label>
+            </value>
+            <value>
+                <fullName>Federal Hospitals</fullName>
+                <default>false</default>
+                <label>Federal Hospitals</label>
+            </value>
+            <value>
+                <fullName>For-Profit Hospitals</fullName>
+                <default>false</default>
+                <label>For-Profit Hospitals</label>
+            </value>
+            <value>
+                <fullName>Free Hospitals</fullName>
+                <default>false</default>
+                <label>Free Hospitals</label>
+            </value>
+            <value>
+                <fullName>General Acute Care Hospitals</fullName>
+                <default>false</default>
+                <label>General Acute Care Hospitals</label>
+            </value>
+            <value>
+                <fullName>Government Hospitals</fullName>
+                <default>false</default>
+                <label>Government Hospitals</label>
+            </value>
+            <value>
+                <fullName>Hospice Facilities</fullName>
+                <default>false</default>
+                <label>Hospice Facilities</label>
+            </value>
+            <value>
+                <fullName>Long-Term Acute Care Hospitals (LTACH)</fullName>
+                <default>false</default>
+                <label>Long-Term Acute Care Hospitals (LTACH)</label>
+            </value>
+            <value>
+                <fullName>Mental Health and Addiction Treatment Centers</fullName>
+                <default>false</default>
+                <label>Mental Health and Addiction Treatment Centers</label>
+            </value>
+            <value>
+                <fullName>Military Hospitals</fullName>
+                <default>false</default>
+                <label>Military Hospitals</label>
+            </value>
+            <value>
+                <fullName>Not-for-Profit Hospitals</fullName>
+                <default>false</default>
+                <label>Not-for-Profit Hospitals</label>
+            </value>
+            <value>
+                <fullName>Outpatient Care Centers</fullName>
+                <default>false</default>
+                <label>Outpatient Care Centers</label>
+            </value>
+            <value>
+                <fullName>Pediatric Hospitals</fullName>
+                <default>false</default>
+                <label>Pediatric Hospitals</label>
+            </value>
+            <value>
+                <fullName>Psychiatric Hospitals</fullName>
+                <default>false</default>
+                <label>Psychiatric Hospitals</label>
+            </value>
+            <value>
+                <fullName>Rehabilitation Centers</fullName>
+                <default>false</default>
+                <label>Rehabilitation Centers</label>
+            </value>
+            <value>
+                <fullName>Specialty Hospitals (Cardiac, Cancer, Orthopedic, etc.)</fullName>
+                <default>false</default>
+                <label>Specialty Hospitals (Cardiac, Cancer, Orthopedic, etc.)</label>
+            </value>
+            <value>
+                <fullName>Teaching Hospitals</fullName>
+                <default>false</default>
+                <label>Teaching Hospitals</label>
+            </value>
+            <value>
+                <fullName>Trauma Centers</fullName>
+                <default>false</default>
+                <label>Trauma Centers</label>
+            </value>
+            <value>
+                <fullName>Urban Hospitals</fullName>
+                <default>false</default>
+                <label>Urban Hospitals</label>
+            </value>
+            <value>
+                <fullName>Veterans Affairs (VA) Hospitals</fullName>
+                <default>false</default>
+                <label>Veterans Affairs (VA) Hospitals</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

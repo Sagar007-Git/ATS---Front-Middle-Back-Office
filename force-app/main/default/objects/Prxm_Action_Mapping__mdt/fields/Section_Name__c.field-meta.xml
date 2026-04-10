@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Section_Name__c</fullName>
+    <description>Section name for UI grouping. Fields with the same value will be grouped together under a section header in the dynamic form. Leave blank to display the field outside any section.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>- Enter a section name to group this field with others under a common header in the generated UI (e.g., “Financials”, “Details”).
+- All fields with the same section name will appear together under that header.
+- The order of sections is determined by the lowest Order value among fields in that section.
+- Fields within a section are also ordered by their Order value.
+- Leave blank if this field should not be grouped under a section.</inlineHelpText>
+    <label>Section Name</label>
+    <length>100</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

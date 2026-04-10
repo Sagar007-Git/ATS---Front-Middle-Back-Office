@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Questionnaire_URL__c</fullName>
+    <externalId>false</externalId>
+    <formula>HYPERLINK(&apos;https://praxiomai-dev-ed.develop.my.salesforce-sites.com/&apos;
+ &amp; &apos;Survey?id=&apos; &amp; Job_Num__c &amp; &apos;&amp;intId=&apos; &amp; Id &amp; &apos;&amp;jaId=&apos; &amp; Job_Applicant__c &amp; &apos;&amp;accessoryType=Interview Questionnaire&apos;, &apos;click_here&apos;, &apos; &apos;)</formula>
+    <label>Questionnaire URL</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

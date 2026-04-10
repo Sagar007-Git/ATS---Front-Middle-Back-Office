@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Current_Status_Legacy__c</fullName>
+    <label>Current Status Legacy</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Completed</fullName>
+                <default>false</default>
+                <label>Completed</label>
+            </value>
+            <value>
+                <fullName>Interview</fullName>
+                <default>false</default>
+                <label>Interview</label>
+            </value>
+            <value>
+                <fullName>LINKNAME</fullName>
+                <default>false</default>
+                <label>LINKNAME</label>
+            </value>
+            <value>
+                <fullName>OUT Closed</fullName>
+                <default>false</default>
+                <label>OUT Closed</label>
+            </value>
+            <value>
+                <fullName>OUT Match</fullName>
+                <default>false</default>
+                <label>OUT Match</label>
+            </value>
+            <value>
+                <fullName>Out NLI</fullName>
+                <default>false</default>
+                <label>Out NLI</label>
+            </value>
+            <value>
+                <fullName>OUT Nohire</fullName>
+                <default>false</default>
+                <label>OUT Nohire</label>
+            </value>
+            <value>
+                <fullName>OUT OthJob</fullName>
+                <default>false</default>
+                <label>OUT OthJob</label>
+            </value>
+            <value>
+                <fullName>OUT Unresp</fullName>
+                <default>false</default>
+                <label>OUT Unresp</label>
+            </value>
+            <value>
+                <fullName>Pacific 1</fullName>
+                <default>false</default>
+                <label>Pacific 1</label>
+            </value>
+            <value>
+                <fullName>PERM Acc</fullName>
+                <default>false</default>
+                <label>PERM Acc</label>
+            </value>
+            <value>
+                <fullName>Permanent Placement</fullName>
+                <default>false</default>
+                <label>Permanent Placement</label>
+            </value>
+            <value>
+                <fullName>TEMP ACC</fullName>
+                <default>false</default>
+                <label>TEMP ACC</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

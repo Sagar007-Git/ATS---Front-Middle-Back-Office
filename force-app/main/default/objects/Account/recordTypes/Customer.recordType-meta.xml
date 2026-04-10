@@ -1,0 +1,1164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Customer</fullName>
+    <active>true</active>
+    <label>Customer</label>
+    <picklistValues>
+        <picklist>ATS_Type__c</picklist>
+        <values>
+            <fullName>External</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Native</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>AccountSource</picklist>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Partner Referral</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Phone Inquiry</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Purchased List</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Web</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Accreditation_Status__c</picklist>
+        <values>
+            <fullName>CARF</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>CMS certification</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>JCAHO</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Active__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>COVID_Policy__c</picklist>
+        <values>
+            <fullName>Accepting Declinations</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Accepting Medical Exemptions - Centra Form</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Accepting Medical Exemptions - Client Form</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Accepting Religious Exemptions - Centra Form</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Accepting Religious Exemptions - Client Form</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Must be vaccinated</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Must have booster</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Category__c</picklist>
+        <values>
+            <fullName>Corporate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Healthcare %2B finance staffing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Recruitment Agency</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Staffing Firm</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Client_Offer_Letter__c</picklist>
+        <values>
+            <fullName>Centra Client Conf</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>VMS Offer Upload</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Compliance_Status__c</picklist>
+        <values>
+            <fullName>Compliant</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Non-Compliant</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending Document Submission</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Credentials_Pack__c</picklist>
+        <values>
+            <fullName>CA Children Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Dentist</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>HCA</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>MCP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nurse Practitioner</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Trauma</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>CustomerPriority__c</picklist>
+        <values>
+            <fullName>High</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Low</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Medium</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Exchange__c</picklist>
+        <values>
+            <fullName>AMEX</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NASDA</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NYSE</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>TSX</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Existing_Agreements__c</picklist>
+        <values>
+            <fullName>Perm Nursing Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Perm Physician Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Perm Therapy Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temp Nursing Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temp Therapy Agreement</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Facility_Type__c</picklist>
+        <values>
+            <fullName>Clinic</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nursing Home</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pharmacy</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Hospital_Type__c</picklist>
+        <values>
+            <fullName>Clinic%27</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Diagnostic Center</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Government Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Multi-Specialty</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Private Hospital</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Industry</picklist>
+        <values>
+            <fullName>Agriculture</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Apparel</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Banking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Biotechnology</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Chemicals</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Communications</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Construction</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Consulting</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Education</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Electronics</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Energy</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Engineering</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Entertainment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Environmental</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Finance</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Food %26 Beverage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Government</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Healthcare</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hospitality</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Insurance</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Machinery</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Manufacturing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Media</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not For Profit</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Recreation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Retail</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Shipping</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Technology</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Telecommunications</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Transportation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Utilities</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Invoice_Preference__c</picklist>
+        <values>
+            <fullName>Account Level</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Project Level</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Mapping_Address__c</picklist>
+        <values>
+            <fullName>Billing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Do Not Map</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Shipping</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Mapping_Status__c</picklist>
+        <values>
+            <fullName>Google Error</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Google Exhausted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Located</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Located Yet</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Problem with Address</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Net_Payment_Terms__c</picklist>
+        <values>
+            <fullName>1%2F2 %3D 30%2C 1%2F2 %3D 90</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Due On Receipt</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 15</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 30</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 45</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 55</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 60</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 90</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Ownership</picklist>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Private</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Public</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Subsidiary</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Payment_Terms__c</picklist>
+        <values>
+            <fullName>Net 30</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Net 60</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Perm_Guarantee_Period__c</picklist>
+        <values>
+            <fullName>120 days</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>120 days pro-rated</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>30 days</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>60 days</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>60 days pro-rated</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>90 days</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>90 days pro-rated</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Perm_Nursing_Agreement__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Perm_Physician_Agreement__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Perm_Therapy_Agreement__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>QB_Tax_Code__c</picklist>
+        <values>
+            <fullName>DC - Sales Tax - Perm - 6%2E0%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PA - Allegheny Sales Tax 7%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PA - Philly Sales Tax 8%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PA - Sales Tax 6%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - CT - 6%2E35%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - CT - EXEMPT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - HI - 4%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - HI - 4%2E5%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - IA - 7%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 6%2E8125%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E25%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E2500%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E3125%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E4375%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E53%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E625%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E8125%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E8333%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E8750%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 7%2E8958%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E0000%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E1250%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E1875%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E2500%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E3125%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E3750%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E4375%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E5083%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - NM - 8%2E9375%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 6%2E5%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 6%2E75%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 6%2E85%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 7%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 7%2E25%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 7%2E5%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 7%2E8%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - OH - 8%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - Ohio - 7%2E5%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - WV - 6%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sales Tax - WV - 7%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>South Dakota - Sales Tax</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>WA - Excise Tax</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Rating</picklist>
+        <values>
+            <fullName>Cold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hot</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Warm</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>SLA__c</picklist>
+        <values>
+            <fullName>Bronze</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Platinum</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Silver</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Setting__c</picklist>
+        <values>
+            <fullName>Acute Care Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Addiction Treatment Center</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Aquatic Therapy</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Assisted Living Facility</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Behavioral Health</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Camp</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Charter School</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Clinic</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Correctional</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Critical Illness Recovery Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Dialysis</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Family Practice</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gymnastics</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Health Plan</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Home Health</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hospice</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Imaging</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Laboratory</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Long Term Acute Care Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Managed Care</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mobile Health</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Outpatient</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Outpatient - Ortho</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Outpatient - Private Practice</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Outpatient - Sports</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pediatrics</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rehabilitation Hospital</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>SNF %2F LTC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Schools</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sub Acute Rehab</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Surgery Center</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Third Party Administrator</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Veterans Affairs</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Active</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Bid Loss</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Bid Won</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Contract Sent</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Full Executed Contract</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Fully Executed Contract</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Inactive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Moved to a Different MSP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>N %2F A</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Negotiating Terms</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New Bid</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No longer working with</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not At This Time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Pursuing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Prospect</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sub Vendor Prospect</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verifying MSP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Win Back</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Temp_Allied_Agreement__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Temp_Nursing_Agreement__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Time_Zone__c</picklist>
+        <values>
+            <fullName>-CST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>-EST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>-GMT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>-MST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>-PST</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Timezone__c</picklist>
+        <values>
+            <fullName>CST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>EST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>IST</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>MDT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PST</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type</picklist>
+        <values>
+            <fullName>Channel Partner %2F Reseller</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Customer - Channel</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Customer - Direct</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Installation Partner</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Prospect</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Technology Partner</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>UpsellOpportunity__c</picklist>
+        <values>
+            <fullName>Maybe</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Work_Week__c</picklist>
+        <values>
+            <fullName>FriThu</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>MonSun</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>SatFri</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>SunSat</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Test</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ThuWed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>TueMon</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>WedTue</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Workweek__c</picklist>
+        <values>
+            <fullName>Mon - Sun</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sat - Sun</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sun - Sat</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

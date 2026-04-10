@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Templates</fullName>
+    <columns>NAME</columns>
+    <columns>Job_Title__c</columns>
+    <columns>Client__c</columns>
+    <columns>Job_Category__c</columns>
+    <columns>Job_Division__c</columns>
+    <columns>Job_Industry__c</columns>
+    <columns>Default_Bill_Rate__c</columns>
+    <columns>Default_Pay_Rate__c</columns>
+    <columns>EEO_Compliant__c</columns>
+    <columns>Assigned_Recruiter__c</columns>
+    <columns>Hiring_Manager__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Record_Type_Label__c</field>
+        <operation>equals</operation>
+        <value>Job Template</value>
+    </filters>
+    <label>Job Templates</label>
+</ListView>

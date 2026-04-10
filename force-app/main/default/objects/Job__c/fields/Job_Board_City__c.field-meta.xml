@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Board_City__c</fullName>
+    <label>Job Board City</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Anchorage</fullName>
+                <default>false</default>
+                <label>Anchorage</label>
+            </value>
+            <value>
+                <fullName>Fairbanks</fullName>
+                <default>false</default>
+                <label>Fairbanks</label>
+            </value>
+            <value>
+                <fullName>Far North/Nome</fullName>
+                <default>false</default>
+                <label>Far North/Nome</label>
+            </value>
+            <value>
+                <fullName>Juneau</fullName>
+                <default>false</default>
+                <label>Juneau</label>
+            </value>
+            <value>
+                <fullName>Southwest</fullName>
+                <default>false</default>
+                <label>Southwest</label>
+            </value>
+            <value>
+                <fullName>Anniston</fullName>
+                <default>false</default>
+                <label>Anniston</label>
+            </value>
+            <value>
+                <fullName>Birmingham</fullName>
+                <default>false</default>
+                <label>Birmingham</label>
+            </value>
+            <value>
+                <fullName>Mobile/Dothan</fullName>
+                <default>false</default>
+                <label>Mobile/Dothan</label>
+            </value>
+            <value>
+                <fullName>Montgomery</fullName>
+                <default>false</default>
+                <label>Montgomery</label>
+            </value>
+            <value>
+                <fullName>Northern/Huntsville</fullName>
+                <default>false</default>
+                <label>Northern/Huntsville</label>
+            </value>
+            <value>
+                <fullName>Tuscaloosa</fullName>
+                <default>false</default>
+                <label>Tuscaloosa</label>
+            </value>
+            <value>
+                <fullName>Eastern</fullName>
+                <default>false</default>
+                <label>Eastern</label>
+            </value>
+            <value>
+                <fullName>Little Rock</fullName>
+                <default>false</default>
+                <label>Little Rock</label>
+            </value>
+            <value>
+                <fullName>Western</fullName>
+                <default>false</default>
+                <label>Western</label>
+            </value>
+            <value>
+                <fullName>Flagstaff</fullName>
+                <default>false</default>
+                <label>Flagstaff</label>
+            </value>
+            <value>
+                <fullName>Phoenix</fullName>
+                <default>false</default>
+                <label>Phoenix</label>
+            </value>
+            <value>
+                <fullName>Tucson</fullName>
+                <default>false</default>
+                <label>Tucson</label>
+            </value>
+            <value>
+                <fullName>Yuma</fullName>
+                <default>false</default>
+                <label>Yuma</label>
+            </value>
+            <value>
+                <fullName>Anaheim/Huntington Beach</fullName>
+                <default>false</default>
+                <label>Anaheim/Huntington Beach</label>
+            </value>
+            <value>
+                <fullName>Central Coast</fullName>
+                <default>false</default>
+                <label>Central Coast</label>
+            </value>
+            <value>
+                <fullName>Central Valley</fullName>
+                <default>false</default>
+                <label>Central Valley</label>
+            </value>
+            <value>
+                <fullName>Chico/Eureka</fullName>
+                <default>false</default>
+                <label>Chico/Eureka</label>
+            </value>
+            <value>
+                <fullName>Long Beach</fullName>
+                <default>false</default>
+                <label>Long Beach</label>
+            </value>
+            <value>
+                <fullName>Los Angeles</fullName>
+                <default>false</default>
+                <label>Los Angeles</label>
+            </value>
+            <value>
+                <fullName>Marin County/North Bay</fullName>
+                <default>false</default>
+                <label>Marin County/North Bay</label>
+            </value>
+            <value>
+                <fullName>Oakland/East Bay</fullName>
+                <default>false</default>
+                <label>Oakland/East Bay</label>
+            </value>
+            <value>
+                <fullName>Orange County</fullName>
+                <default>false</default>
+                <label>Orange County</label>
+            </value>
+            <value>
+                <fullName>Riverside County</fullName>
+                <default>false</default>
+                <label>Riverside County</label>
+            </value>
+            <value>
+                <fullName>Sacramento</fullName>
+                <default>false</default>
+                <label>Sacramento</label>
+            </value>
+            <value>
+                <fullName>San Bernardino/Palm Springs</fullName>
+                <default>false</default>
+                <label>San Bernardino/Palm Springs</label>
+            </value>
+            <value>
+                <fullName>San Diego</fullName>
+                <default>false</default>
+                <label>San Diego</label>
+            </value>
+            <value>
+                <fullName>San Francisco</fullName>
+                <default>false</default>
+                <label>San Francisco</label>
+            </value>
+            <value>
+                <fullName>Santa Barbara</fullName>
+                <default>false</default>
+                <label>Santa Barbara</label>
+            </value>
+            <value>
+                <fullName>Silicon Valley/Peninsula</fullName>
+                <default>false</default>
+                <label>Silicon Valley/Peninsula</label>
+            </value>
+            <value>
+                <fullName>Silicon Valley/San Jose</fullName>
+                <default>false</default>
+                <label>Silicon Valley/San Jose</label>
+            </value>
+            <value>
+                <fullName>Ventura County</fullName>
+                <default>false</default>
+                <label>Ventura County</label>
+            </value>
+            <value>
+                <fullName>Aurora/Denver</fullName>
+                <default>false</default>
+                <label>Aurora/Denver</label>
+            </value>
+            <value>
+                <fullName>Boulder/Fort Collins</fullName>
+                <default>false</default>
+                <label>Boulder/Fort Collins</label>
+            </value>
+            <value>
+                <fullName>Colorado Springs/Pueblo</fullName>
+                <default>false</default>
+                <label>Colorado Springs/Pueblo</label>
+            </value>
+            <value>
+                <fullName>Denver South</fullName>
+                <default>false</default>
+                <label>Denver South</label>
+            </value>
+            <value>
+                <fullName>Western/Grand Junction</fullName>
+                <default>false</default>
+                <label>Western/Grand Junction</label>
+            </value>
+            <value>
+                <fullName>CT-Stamford</fullName>
+                <default>false</default>
+                <label>CT-Stamford</label>
+            </value>
+            <value>
+                <fullName>Danbury/Bridgeport</fullName>
+                <default>false</default>
+                <label>Danbury/Bridgeport</label>
+            </value>
+            <value>
+                <fullName>Hartford</fullName>
+                <default>false</default>
+                <label>Hartford</label>
+            </value>
+            <value>
+                <fullName>New Haven</fullName>
+                <default>false</default>
+                <label>New Haven</label>
+            </value>
+            <value>
+                <fullName>Southeast/New London</fullName>
+                <default>false</default>
+                <label>Southeast/New London</label>
+            </value>
+            <value>
+                <fullName>Washington/Metro</fullName>
+                <default>false</default>
+                <label>Washington/Metro</label>
+            </value>
+            <value>
+                <fullName>Delaware</fullName>
+                <default>false</default>
+                <label>Delaware</label>
+            </value>
+            <value>
+                <fullName>Daytona</fullName>
+                <default>false</default>
+                <label>Daytona</label>
+            </value>
+            <value>
+                <fullName>Ft. Lauderdale</fullName>
+                <default>false</default>
+                <label>Ft. Lauderdale</label>
+            </value>
+            <value>
+                <fullName>Ft. Myers/Naples</fullName>
+                <default>false</default>
+                <label>Ft. Myers/Naples</label>
+            </value>
+            <value>
+                <fullName>Gainesville/Jacksonville</fullName>
+                <default>false</default>
+                <label>Gainesville/Jacksonville</label>
+            </value>
+            <value>
+                <fullName>Melbourne</fullName>
+                <default>false</default>
+                <label>Melbourne</label>
+            </value>
+            <value>
+                <fullName>Miami</fullName>
+                <default>false</default>
+                <label>Miami</label>
+            </value>
+            <value>
+                <fullName>Orlando</fullName>
+                <default>false</default>
+                <label>Orlando</label>
+            </value>
+            <value>
+                <fullName>Pensacola/Panama City</fullName>
+                <default>false</default>
+                <label>Pensacola/Panama City</label>
+            </value>
+            <value>
+                <fullName>Sarasota/Bradenton</fullName>
+                <default>false</default>
+                <label>Sarasota/Bradenton</label>
+            </value>
+            <value>
+                <fullName>St. Petersburg</fullName>
+                <default>false</default>
+                <label>St. Petersburg</label>
+            </value>
+            <value>
+                <fullName>Tallahassee</fullName>
+                <default>false</default>
+                <label>Tallahassee</label>
+            </value>
+            <value>
+                <fullName>Tampa</fullName>
+                <default>false</default>
+                <label>Tampa</label>
+            </value>
+            <value>
+                <fullName>West Palm Beach</fullName>
+                <default>false</default>
+                <label>West Palm Beach</label>
+            </value>
+            <value>
+                <fullName>Atlanta</fullName>
+                <default>false</default>
+                <label>Atlanta</label>
+            </value>
+            <value>
+                <fullName>Atlanta North</fullName>
+                <default>false</default>
+                <label>Atlanta North</label>
+            </value>
+            <value>
+                <fullName>Atlanta South</fullName>
+                <default>false</default>
+                <label>Atlanta South</label>
+            </value>
+            <value>
+                <fullName>Central/Augusta</fullName>
+                <default>false</default>
+                <label>Central/Augusta</label>
+            </value>
+            <value>
+                <fullName>Georgia - Northeast</fullName>
+                <default>false</default>
+                <label>Georgia - Northeast</label>
+            </value>
+            <value>
+                <fullName>Savannah</fullName>
+                <default>false</default>
+                <label>Savannah</label>
+            </value>
+            <value>
+                <fullName>Hawaii</fullName>
+                <default>false</default>
+                <label>Hawaii</label>
+            </value>
+            <value>
+                <fullName>Cedar Rapids</fullName>
+                <default>false</default>
+                <label>Cedar Rapids</label>
+            </value>
+            <value>
+                <fullName>Central/Des Moines</fullName>
+                <default>false</default>
+                <label>Central/Des Moines</label>
+            </value>
+            <value>
+                <fullName>Davenport</fullName>
+                <default>false</default>
+                <label>Davenport</label>
+            </value>
+            <value>
+                <fullName>Dubuque</fullName>
+                <default>false</default>
+                <label>Dubuque</label>
+            </value>
+            <value>
+                <fullName>Western/Sioux City</fullName>
+                <default>false</default>
+                <label>Western/Sioux City</label>
+            </value>
+            <value>
+                <fullName>Boise</fullName>
+                <default>false</default>
+                <label>Boise</label>
+            </value>
+            <value>
+                <fullName>Eastern/Twin Falls</fullName>
+                <default>false</default>
+                <label>Eastern/Twin Falls</label>
+            </value>
+            <value>
+                <fullName>Northern</fullName>
+                <default>false</default>
+                <label>Northern</label>
+            </value>
+            <value>
+                <fullName>Bloomington/Peoria</fullName>
+                <default>false</default>
+                <label>Bloomington/Peoria</label>
+            </value>
+            <value>
+                <fullName>Chicago</fullName>
+                <default>false</default>
+                <label>Chicago</label>
+            </value>
+            <value>
+                <fullName>Chicago North</fullName>
+                <default>false</default>
+                <label>Chicago North</label>
+            </value>
+            <value>
+                <fullName>Chicago Northwest</fullName>
+                <default>false</default>
+                <label>Chicago Northwest</label>
+            </value>
+            <value>
+                <fullName>Chicago South</fullName>
+                <default>false</default>
+                <label>Chicago South</label>
+            </value>
+            <value>
+                <fullName>Chicago West</fullName>
+                <default>false</default>
+                <label>Chicago West</label>
+            </value>
+            <value>
+                <fullName>Quincy</fullName>
+                <default>false</default>
+                <label>Quincy</label>
+            </value>
+            <value>
+                <fullName>Rockford</fullName>
+                <default>false</default>
+                <label>Rockford</label>
+            </value>
+            <value>
+                <fullName>Southern</fullName>
+                <default>false</default>
+                <label>Southern</label>
+            </value>
+            <value>
+                <fullName>Springfield/Champaign</fullName>
+                <default>false</default>
+                <label>Springfield/Champaign</label>
+            </value>
+            <value>
+                <fullName>Evansville</fullName>
+                <default>false</default>
+                <label>Evansville</label>
+            </value>
+            <value>
+                <fullName>Fort Wayne</fullName>
+                <default>false</default>
+                <label>Fort Wayne</label>
+            </value>
+            <value>
+                <fullName>Gary/Merrillville</fullName>
+                <default>false</default>
+                <label>Gary/Merrillville</label>
+            </value>
+            <value>
+                <fullName>Indianapolis</fullName>
+                <default>false</default>
+                <label>Indianapolis</label>
+            </value>
+            <value>
+                <fullName>Lafayette</fullName>
+                <default>false</default>
+                <label>Lafayette</label>
+            </value>
+            <value>
+                <fullName>South Bend</fullName>
+                <default>false</default>
+                <label>South Bend</label>
+            </value>
+            <value>
+                <fullName>Terre Haute</fullName>
+                <default>false</default>
+                <label>Terre Haute</label>
+            </value>
+            <value>
+                <fullName>Kansas City</fullName>
+                <default>false</default>
+                <label>Kansas City</label>
+            </value>
+            <value>
+                <fullName>Overland Park</fullName>
+                <default>false</default>
+                <label>Overland Park</label>
+            </value>
+            <value>
+                <fullName>Topeka/Manhattan</fullName>
+                <default>false</default>
+                <label>Topeka/Manhattan</label>
+            </value>
+            <value>
+                <fullName>Wichita Western</fullName>
+                <default>false</default>
+                <label>Wichita Western</label>
+            </value>
+            <value>
+                <fullName>Bowling Green/Paducah</fullName>
+                <default>false</default>
+                <label>Bowling Green/Paducah</label>
+            </value>
+            <value>
+                <fullName>Lexington</fullName>
+                <default>false</default>
+                <label>Lexington</label>
+            </value>
+            <value>
+                <fullName>Louisville</fullName>
+                <default>false</default>
+                <label>Louisville</label>
+            </value>
+            <value>
+                <fullName>Northern Kentucky</fullName>
+                <default>false</default>
+                <label>Northern Kentucky</label>
+            </value>
+            <value>
+                <fullName>Alexandria</fullName>
+                <default>false</default>
+                <label>Alexandria</label>
+            </value>
+            <value>
+                <fullName>Baton Rouge</fullName>
+                <default>false</default>
+                <label>Baton Rouge</label>
+            </value>
+            <value>
+                <fullName>Lafayette /Lake Charles</fullName>
+                <default>false</default>
+                <label>Lafayette /Lake Charles</label>
+            </value>
+            <value>
+                <fullName>New Orleans</fullName>
+                <default>false</default>
+                <label>New Orleans</label>
+            </value>
+            <value>
+                <fullName>Boston</fullName>
+                <default>false</default>
+                <label>Boston</label>
+            </value>
+            <value>
+                <fullName>Boston North</fullName>
+                <default>false</default>
+                <label>Boston North</label>
+            </value>
+            <value>
+                <fullName>Boston South</fullName>
+                <default>false</default>
+                <label>Boston South</label>
+            </value>
+            <value>
+                <fullName>Cape Cod/Islands</fullName>
+                <default>false</default>
+                <label>Cape Cod/Islands</label>
+            </value>
+            <value>
+                <fullName>Framingham/Worcester</fullName>
+                <default>false</default>
+                <label>Framingham/Worcester</label>
+            </value>
+            <value>
+                <fullName>Western/Springfield</fullName>
+                <default>false</default>
+                <label>Western/Springfield</label>
+            </value>
+            <value>
+                <fullName>Anne Arundel County</fullName>
+                <default>false</default>
+                <label>Anne Arundel County</label>
+            </value>
+            <value>
+                <fullName>Baltimore</fullName>
+                <default>false</default>
+                <label>Baltimore</label>
+            </value>
+            <value>
+                <fullName>Columbia</fullName>
+                <default>false</default>
+                <label>Columbia</label>
+            </value>
+            <value>
+                <fullName>Frederick/Hagerstown</fullName>
+                <default>false</default>
+                <label>Frederick/Hagerstown</label>
+            </value>
+            <value>
+                <fullName>Montgomery County</fullName>
+                <default>false</default>
+                <label>Montgomery County</label>
+            </value>
+            <value>
+                <fullName>Prince George&apos;s County</fullName>
+                <default>false</default>
+                <label>Prince George&apos;s County</label>
+            </value>
+            <value>
+                <fullName>Salisbury</fullName>
+                <default>false</default>
+                <label>Salisbury</label>
+            </value>
+            <value>
+                <fullName>test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

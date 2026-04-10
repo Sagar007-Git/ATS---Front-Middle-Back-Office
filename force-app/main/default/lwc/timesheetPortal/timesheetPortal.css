@@ -1,0 +1,1124 @@
+/* =========================================
+   CALENDAR TIMESHEET PORTAL — COMPLETE CSS
+   ========================================= */
+
+:host {
+    --bg-page:               #F4F6F9; 
+    --bg-column:             #FFFFFF; 
+    --bg-card:               #FFFFFF;
+    --brand:                 #0176D3;
+    --brand-primary:         #0176D3;
+    --text-p:                #181818;
+    --text-s:                #444444;
+    --text-m:                #706E6B;
+    --border:                #DDDBDA;
+    --border-light:          #E5E5E5; 
+    --div:                   #F0F0F0; 
+    --divider-light:         #F0F0F0;
+    --sc-bg:                 #D4EDDA;
+    --sc-txt:                #2E844A;
+    --sp-bg:                 #FEF2D9;
+    --sp-txt:                #A86403;
+    --sa-bg:                 #D8EDFF;
+    --sa-txt:                #0176D3;
+    --time-axis:             60px;
+    --hour-h:                60px;
+    font-family: 'Salesforce Sans', system-ui, sans-serif;
+    box-sizing: border-box;
+}
+
+/* =============================================
+   APP LAYOUT (Sidebar + Calendar)
+   ============================================= */
+.calendar-app-layout { display: flex; flex-direction: row; height: calc(100vh - 160px); gap: 8px; }
+.project-sidebar { width: 200px; min-width: 200px; flex-shrink: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); padding: 8px 6px; display: flex; flex-direction: column; gap: 6px; }
+.sidebar-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-m); padding: 4px 6px; border-bottom: 1px solid var(--div); margin-bottom: 2px; }
+.sidebar-project-card { border-radius: 6px; padding: 8px 10px; transition: box-shadow .12s ease; cursor: default; } 
+.sidebar-project-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); } 
+.sidebar-project-name { font-size: 12px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+.sidebar-week-hrs { display: flex; align-items: center; margin-top: 4px; font-size: 11px; font-weight: 600; }
+.calendar-scroll-wrapper { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); position: relative; isolation: isolate; }
+.pagination-bar { flex-shrink: 0; border-top: 1px solid var(--div); background: #FAFAF9; margin-top: 8px; }
+
+/* =============================================
+   🔥 CALENDAR GRID & COLUMNS
+   ============================================= */
+.calendar-container { display: flex; flex-direction: column; background: var(--bg-page); min-width: max-content; position: relative; padding-bottom: 8px; }
+.calendar-header-row { display: grid; grid-template-columns: var(--time-axis) repeat(7, 1fr); column-gap: 8px; padding-right: 8px; background: #FFF !important; border-bottom: 2px solid var(--border) !important; box-shadow: 0 3px 8px rgba(0,0,0,.09); position: sticky; top: 0; z-index: 20; }
+.time-axis-header { padding: 8px; background: #FFF !important; display: flex; align-items: center; justify-content: center; z-index: 25 !important; position: sticky; left: 0; }
+.header-cell { display: flex; align-items: center; justify-content: center; height: 34px; font-size: 11px; font-weight: 600; color: var(--text-s); background: #FFFFFF; border-radius: 4px; box-sizing: border-box; } 
+.header-cell-today { background: #F0F8FF !important; color: var(--brand) !important; font-weight: 700; }
+.calendar-body { display: grid; grid-template-columns: var(--time-axis) repeat(7, 1fr); column-gap: 8px; padding-right: 8px; position: relative; }
+.sticky-time-axis { position: sticky; left: 0; z-index: 10; background: var(--bg-page); }
+.time-slot-label { height: var(--hour-h); font-size: 10px; color: var(--text-m); padding: 0 6px; transform: translateY(-50%); text-align: right; pointer-events: none; }
+.days-grid { display: contents; }
+.day-column { position: relative; background: var(--bg-column); border-radius: 6px; box-sizing: border-box; overflow: visible; user-select: none; min-height: calc(24 * var(--hour-h)); margin-top: 8px; border-right: 1px solid var(--divider-light); }
+.day-column:hover { background-color: #F9FBFC; }
+.hour-grid-line { position: absolute; left: 0; right: 0; height: 1px; border-bottom: 1px dashed #E2E2E2; pointer-events: none; z-index: 1; }
+.weekend-overlay { position: absolute; inset: 0; border-radius: 6px; background: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(0,0,0,.015) 6px, rgba(0,0,0,.015) 12px); pointer-events: none; z-index: 2; }
+
+/* =============================================
+   DRAWING & PASTING OVERLAYS
+   ============================================= */
+.ghost-shift { position: absolute; z-index: 90; background: rgba(1,118,211,.14); border: 2px dashed var(--brand); border-radius: 4px; pointer-events: none; animation: ghostP 1.5s ease infinite; }
+@keyframes ghostP { 0%, 100% { background: rgba(1,118,211,.10); } 50% { background: rgba(1,118,211,.20); } }
+.paste-overlay { display: none; position: absolute; inset: 0; justify-content: center; align-items: center; background: rgba(1,118,211,.05); border-radius: 6px; border: 1px dashed var(--brand); z-index: 5; cursor: pointer; transition: opacity .1s ease; }
+.day-column:hover .paste-overlay { display: flex; animation: fadeIn .1s ease; } 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* =============================================
+   📅 TIME ENTRY CARDS & PHYSICS
+   ============================================= */
+.shift-box {
+    position: absolute;
+    left: 4px; right: 4px;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 6px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    min-height: 28px;
+    z-index: 3;
+    transition: box-shadow 150ms ease, transform 150ms ease, opacity 200ms ease;
+    backdrop-filter: blur(6px); 
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* 🟢 DEFAULT BEHAVIOR (Normal/Long Cards) */
+.shift-box:not(.short-shift) { overflow: hidden; }
+
+/* 🔴 OVERRIDE BEHAVIOR (Short Cards) */
+.shift-box.short-shift { overflow: visible !important; }
+
+.shift-box:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.12); transform: translateY(-2px); z-index: 50 !important; }
+.shift-box.is-dragging, .shift-box:active { cursor: grabbing !important; transform: rotate(1.5deg) scale(1.02); box-shadow: 0 8px 22px rgba(1,118,211,0.22); z-index: 99 !important; opacity: 0.95; }
+
+.border-confirmed  { border-left: 4px solid var(--sc-txt); } 
+.border-approved   { border-left: 4px solid var(--sc-txt); }
+.border-submitted  { border-left: 4px solid var(--brand); }
+.border-pending    { border-left: 4px solid var(--sp-txt); }
+.border-draft      { border-left: 4px solid #B0ADAB; }
+.border-rejected   { border-left: 4px solid #ea001e; }
+
+/* ─── Drag Handle (Only visible on Short Shifts) ─── */
+.drag-handle { display: none; position: absolute; top: 4px; left: 2px; cursor: grab; color: var(--text-m); z-index: 10; padding: 2px; border-radius: 4px; opacity: 0; transition: opacity 0.2s ease, background 0.2s ease; }
+.shift-box.short-shift .drag-handle { display: block; }
+.shift-box.short-shift:hover .drag-handle { opacity: 0.6; }
+.drag-handle:hover { opacity: 1 !important; background: rgba(0,0,0,0.08); }
+.drag-handle:active { cursor: grabbing; }
+
+/* ─── Card Content ─── */
+.card-content { padding: 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; border-radius: 5px; flex: 1; }
+.shift-box.short-shift .card-content { padding-left: 22px; }
+
+.card-top-area { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; min-height: 16px; }
+.shift-desc-compact { font-size: 11.5px; font-weight: 600; color: var(--text-p); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.shift-desc-compact[data-editable="true"]:hover { text-decoration: underline dashed var(--brand); cursor: text; }
+.shift-time { font-size: 10.5px; color: var(--text-s); display: flex; align-items: center; gap: 4px; line-height: 1; margin-top: 2px; }
+.entry-type-row { display: flex; align-items: center; gap: 4px; margin-top: 4px; } 
+.entry-type-badge { font-size: 8px; font-weight: 700; text-transform: uppercase; padding: 4px 6px; border-radius: 8px; background: rgba(0,0,0,0.06); color: var(--text-s); white-space: nowrap; letter-spacing: .3px; }
+
+.status-pill { padding: 2px 6px; border-radius: 8px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; flex-shrink: 0; } 
+.pill-confirmed { background: var(--sc-bg); color: var(--sc-txt); } 
+.pill-pending   { background: var(--sp-bg); color: var(--sp-txt); } 
+.pill-active    { background: var(--sa-bg); color: var(--sa-txt); } 
+.pill-rejected  { background: #FFDEDE; color: #ba0517; }
+
+.selected-shift { box-shadow: 0 0 0 2px var(--brand), 0 2px 6px rgba(0,0,0,.1) !important; background: #F0F8FF !important; }
+.readonly-shift { opacity: .6; cursor: not-allowed !important; } 
+.cut-pending { opacity: .35 !important; border: 2px dashed var(--text-m) !important; filter: grayscale(70%); cursor: not-allowed !important; } 
+.cut-badge { font-size: 7px; font-weight: 700; color: var(--text-m); text-transform: uppercase; }
+
+/* =============================================
+   ACTION BAR (Dynamic Position)
+   ============================================= */
+/* 🟢 DEFAULT: Inside at the bottom (For long shifts) */
+.shift-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 6px;
+    opacity: 0;
+    transition: opacity 150ms ease, transform 150ms ease;
+    background: rgba(245, 247, 250, 0.95);
+    border-top: 1px solid var(--border-light);
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    border-radius: 0 0 4px 4px;
+    height: 24px;
+    z-index: 10;
+    pointer-events: none;
+}
+.shift-box:hover .shift-action-bar { opacity: 1; pointer-events: auto; }
+
+/* 🔴 OVERRIDE: Floating outside top right (For short shifts) */
+.shift-box.short-shift .shift-action-bar {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: 6px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    bottom: auto; left: auto; /* Reset default positions */
+    top: -26px; right: -4px; /* Flushed to eliminate hover gap */
+    height: 28px;
+    z-index: 9999;
+    transform: translateY(4px);
+}
+.shift-box.short-shift:hover .shift-action-bar { transform: translateY(0); }
+/* ─── Hide Time & Task on Short Shifts ─── */
+.shift-box.short-shift .shift-time,
+.shift-box.short-shift .entry-type-row {
+    display: none;
+}
+
+.shift-checkbox { width: 12px; height: 12px; cursor: pointer; accent-color: var(--brand); flex-shrink: 0; margin: 0; } 
+.action-btn-group { display: flex; align-items: center; gap: 1px; } 
+.action-btn { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; cursor: pointer; transition: background .1s, transform .08s; flex-shrink: 0; } 
+.action-btn:hover { transform: scale(1.15); } .btn-cut:hover { background: #EBEBEB; } .btn-copy:hover { background: #D8EDFF; } .btn-delete:hover { background: #FFDEDE; } 
+.btn-disabled { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; opacity: .25; cursor: not-allowed; pointer-events: none; }
+
+.color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.2); } 
+.color-dot-sm { display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.15); margin-right: 4px; }
+.inline-edit-input { width: 100%; font-size: 10px; font-weight: 600; color: var(--text-p); padding: 0 3px; border: 1px solid var(--brand); border-radius: 3px; outline: none; background: #F8FBFF; box-shadow: inset 0 1px 2px rgba(0,0,0,.05); }
+
+/* =============================================
+   RESIZE HANDLES
+   ============================================= */
+.resize-handle-top { position: absolute; top: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; background: linear-gradient(to top, transparent, rgba(1,118,211,0.15)); border-bottom: 1px solid rgba(0,0,0,0.05); border-radius: 5px 5px 0 0; z-index: 20; transition: background 0.1s ease; }
+.resize-handle-top:hover { background: rgba(1,118,211,0.25); }
+.resize-handle-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; background: linear-gradient(to bottom, transparent, rgba(1,118,211,0.15)); border-top: 1px solid rgba(0,0,0,0.05); border-radius: 0 0 5px 5px; z-index: 20; transition: background 0.1s ease; }
+.resize-handle-bottom:hover { background: rgba(1,118,211,0.25); }
+.shift-box.is-locked .resize-handle-top, .shift-box.is-locked .resize-handle-bottom { display: none; }
+
+/* =============================================
+   OVERNIGHT SHIFT SPLITTING
+   ============================================= */
+.overnight-start { border-bottom: 2px dashed var(--brand-primary); border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: none !important; }
+.overnight-start .shift-action-bar { display: none; }
+.overnight-end { border-top: 2px dashed var(--brand-primary); border-top-left-radius: 0; border-top-right-radius: 0; }
+
+/* =============================================
+   🔍 HOVER & TOOLTIP
+   ============================================= */
+.shift-hover-card { position: fixed; z-index: 9000; width: 280px; background: #FFF; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.09); border: 1px solid var(--border); overflow: hidden; pointer-events: none; animation: hCI .18s cubic-bezier(.2,0,0,1); } 
+@keyframes hCI { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } } 
+.hover-card-header { padding: 10px 12px 8px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; } 
+.hover-card-title { font-size: 13px; font-weight: 700; line-height: 18px; flex: 1; word-break: break-word; color: inherit; } 
+.hover-card-body { padding: 7px 12px 10px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--div); background: #FFF; } 
+.hover-card-row { display: flex; align-items: center; gap: 7px; } 
+.hover-label { font-size: 11px; color: var(--text-m); min-width: 56px; flex-shrink: 0; } 
+.hover-value { font-size: 12px; color: var(--text-p); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.resize-tooltip { position: fixed; background: #181818; color: #FFF; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 700; z-index: 9999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,.3); animation: tI .12s ease; } 
+@keyframes tI { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =============================================
+   CLASHING CARDS (CLEAN OVERLAP WARNING)
+   ============================================= */
+.clashing-shift { border: 1px solid #ea001e !important; box-shadow: 0 2px 8px rgba(234, 0, 30, 0.15) !important; }
+.clash-icon-inline { --sds-c-icon-color-foreground-default: #ea001e; display: flex; align-items: center; }
+.list-row-clashing { background-color: rgba(234, 0, 30, 0.04) !important; }
+.list-row-clashing td { border-top: 1px solid rgba(234, 0, 30, 0.2) !important; border-bottom: 1px solid rgba(234, 0, 30, 0.2) !important; }
+
+/* =============================================
+   📋 LIST VIEW & EXPENSES UTILS
+   ============================================= */
+.list-container, .expenses-container { padding: 12px; min-height: 400px; } 
+.list-table, .expense-table { width: 100%; } 
+.expense-project-cell { display: flex; align-items: center; gap: 6px; } 
+.expense-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; } 
+.delete-icon-btn { --sds-c-button-icon-color-foreground: #ea001e !important; --sds-c-button-icon-color-foreground-hover: #ba0517 !important; }
+
+/* =============================================
+   🎛 TOOLBAR & UTILS
+   ============================================= */
+.tab-switcher { display: flex; background: #f3f3f3; border-radius: 8px; padding: 3px; gap: 2px; margin-left: 8px; } 
+.portal-tab { display: inline-flex; align-items: center; gap: 4px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-m); transition: all .15s ease; white-space: nowrap; } 
+.portal-tab:hover { background: #e8e8e8; color: var(--text-p); } 
+.tab-active { background: #FFF !important; color: var(--brand) !important; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.week-summary-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: linear-gradient(135deg,#EAF5FE,#F8FBFF); border: 1px solid #A6D5FF; border-radius: 6px; margin-bottom: 8px; font-size: 12px; } 
+.week-label { display: flex; align-items: center; color: var(--brand); font-weight: 600; } 
+.week-total-chip { display: flex; align-items: center; background: var(--brand); color: #FFF; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.badge-hours { padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; } 
+.badge-ok { background: var(--sc-bg); color: var(--sc-txt); } 
+.badge-warn { background: #FFDEDE; color: #ba0517; } 
+.badge-draft { background: var(--sp-bg); color: var(--sp-txt); }
+
+/* =============================================
+   🪟 MODAL HEADER & BADGE STYLING (RESTORED)
+   ============================================= */
+.entry-modal-header, .expense-modal-header {
+    background: linear-gradient(135deg, var(--brand) 0%, #005fb2 100%);
+    border-top-left-radius: 6px; border-top-right-radius: 6px;
+}
+.delete-modal-header {
+    background: linear-gradient(135deg, #ea001e 0%, #ba0517 100%);
+    border-top-left-radius: 6px; border-top-right-radius: 6px;
+}
+.modal-date-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--sa-bg); color: var(--sa-txt);
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    margin-bottom: 8px; width: 100%; box-sizing: border-box;
+}
+
+/* =============================================
+   💼 EXPENSES SLIDING SPLIT VIEW (ANIMATED)
+   ============================================= */
+.split-view-container { 
+    display: flex; 
+    height: 70vh; 
+    min-height: 500px; 
+    border: 1px solid var(--border-light); 
+    border-radius: 8px; 
+    overflow: hidden; 
+    background: #fff; 
+    margin-top: 12px;
+    position: relative; /* Required for absolute positioning of the detail panel */
+}
+
+/* 🟥 Master List (Starts at 100%, smoothly shrinks to 35%) */
+.split-view-master { 
+    width: 100%; 
+    height: 100%;
+    border-right: 1px solid transparent; 
+    background: #f9f9fb; 
+    display: flex; 
+    flex-direction: column; 
+    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), border-color 0.35s ease;
+    z-index: 2;
+}
+
+/* When a record is clicked, this class is applied to shrink the master list */
+.split-view-master.split-view-master-active {
+    width: 35%;
+    border-right: 1px solid var(--border-light);
+}
+
+.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
+.master-list-scroll { flex: 1; overflow-y: auto; }
+.master-list-scroll > div:hover { background: #fff; }
+.master-item-selected { background: #fff !important; border-left: 4px solid var(--brand) !important; }
+
+/* 🟦 Detail Workspace (Slides in from the right) */
+.split-view-detail { 
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 65%; /* Takes up the remaining 65% of the screen */
+    display: flex; 
+    flex-direction: column; 
+    background: #fff; 
+    
+    /* Starts off-screen to the right */
+    transform: translateX(100%); 
+    opacity: 0;
+    visibility: hidden;
+    
+    /* Smooth slide-in animation */
+    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
+    z-index: 1;
+}
+
+/* When the master list shrinks, the detail panel slides in */
+.split-view-master.split-view-master-active + .split-view-detail {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Attachment pill styling (used in expense modal & detail) */
+.attachment-pill { 
+    display: flex; 
+    align-items: center; 
+    background-color: #F8FBFF; 
+    border: 1px solid var(--brand); 
+    border-radius: 6px; 
+    padding: 8px 12px; 
+    margin-top: 4px; 
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); 
+}
+.attachment-name { 
+    flex: 1; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--brand-primary); 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+
+/* =============================================
+   🖱 CUSTOM SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar { width: 6px; height: 6px; } 
+::-webkit-scrollbar-track { background: transparent; } 
+::-webkit-scrollbar-thumb { background: #c9c7c5; border-radius: 4px; } 
+::-webkit-scrollbar-thumb:hover { background: #b0adab; }
+/* =============================================
+   💼 EXPENSES SLIDING SPLIT VIEW (BULLETPROOF)
+   ============================================= */
+.split-view-container { 
+    display: flex; 
+    width: 100% !important; 
+    height: 600px !important; /* Fixed height to prevent collapsing */
+    border: 1px solid var(--border-light); 
+    border-radius: 8px; 
+    overflow: hidden; 
+    background: #fff; 
+    margin-top: 12px;
+    position: relative; 
+}
+
+/* 🟥 Master List (Starts at 100%, smoothly shrinks to 35%) */
+.split-view-master { 
+    width: 100%; 
+    height: 100%;
+    flex-shrink: 0; 
+    border-right: 1px solid transparent; 
+    background: #f9f9fb; 
+    display: flex; 
+    flex-direction: column; 
+    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 2;
+}
+
+/* When a record is clicked, this class shrinks the master list */
+.split-view-master.split-view-master-active {
+    width: 35% !important;
+    border-right: 1px solid var(--border-light);
+}
+
+.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
+.master-list-scroll { flex: 1; overflow-y: auto; }
+.master-list-scroll > div:hover { background: #fff; }
+.master-item-selected { background: #fff !important; border-left: 4px solid var(--brand) !important; }
+
+/* 🟦 Detail Workspace (Slides in from the right) */
+.split-view-detail { 
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 65% !important; 
+    display: flex; 
+    flex-direction: column; 
+    background: #fff; 
+    
+    /* Starts off-screen to the right */
+    transform: translateX(100%); 
+    opacity: 0;
+    visibility: hidden;
+    
+    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
+    z-index: 1;
+}
+
+/* Slide animation trigger */
+.split-view-master.split-view-master-active ~ .split-view-detail {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Detail Form Scroll Area */
+.detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+/* =============================================
+   💼 EXPENSES SLIDING SPLIT VIEW (ANIMATED)
+   ============================================= */
+.split-view-container { 
+    display: flex; 
+    width: 100% !important; 
+    height: 70vh;
+    min-height: 600px; 
+    border: 1px solid var(--border-light); 
+    border-radius: 8px; 
+    overflow: hidden; 
+    background: #fff; 
+    margin-top: 12px;
+    position: relative; 
+}
+
+/* 🟥 Master List Animation */
+.split-view-master { 
+    width: 100%; 
+    height: 100%;
+    flex-shrink: 0; 
+    border-right: 1px solid transparent; 
+    background: #fff; 
+    display: flex; 
+    flex-direction: column; 
+    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), background 0.35s ease;
+    z-index: 2;
+}
+
+/* When active, shrinks to 35% */
+.split-view-master.split-view-master-active {
+    width: 35% !important;
+    border-right: 1px solid var(--border-light);
+    background: #f9f9fb; /* Returns to soft grey when squished */
+}
+
+/* 🎩 MAGIC ENTERPRISE TRICK: Center the list when at 100% width! */
+.split-view-master:not(.split-view-master-active) {
+    background: #f4f6f9; /* Soft grey outside the list container */
+}
+.split-view-master:not(.split-view-master-active) .master-list-scroll {
+    padding: 24px;
+}
+.split-view-master:not(.split-view-master-active) .master-list-container {
+    max-width: 800px; /* Caps the width so it doesn't stretch 1500px wide */
+    margin: 0 auto; /* Centers it horizontally */
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Header & Scrolling */
+.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
+.master-list-scroll { flex: 1; overflow-y: auto; }
+.master-list-container { display: flex; flex-direction: column; }
+
+/* ✨ Elegant List Item Cards */
+.expense-card-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.expense-card-item:last-child { border-bottom: none; }
+.expense-card-item:hover { background: #fafafa; }
+.master-item-selected { background: #F0F8FF !important; border-left: 4px solid var(--brand) !important; }
+
+/* Content within the List Item */
+.expense-card-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.expense-card-title { font-size: 14px; font-weight: 700; color: var(--text-p); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+.expense-card-date { font-size: 12px; color: var(--text-m); }
+
+.expense-card-value { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 90px; }
+.expense-card-amount { font-size: 15px; font-weight: 700; color: var(--brand-primary); }
+
+
+/* 🟦 Detail Workspace Panel */
+.split-view-detail { 
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 65% !important; 
+    display: flex; 
+    flex-direction: column; 
+    background: #fff; 
+    transform: translateX(100%); 
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
+    z-index: 1;
+}
+
+/* Slide animation trigger */
+.split-view-master.split-view-master-active ~ .split-view-detail {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Attachment pill */
+.attachment-pill { display: flex; align-items: center; background-color: #F8FBFF; border: 1px solid var(--brand); border-radius: 6px; padding: 8px 12px; margin-top: 4px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+.attachment-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--brand-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.attachment-name:hover {
+    text-decoration: underline;
+}
+
+.attachment-name { 
+    flex: 1; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--brand-primary); 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+    cursor: pointer; /* ✅ Ensures the mouse turns into a pointer finger */
+}
+
+/* Adds a nice underline when they hover to show it's clickable */
+.attachment-name:hover {
+    text-decoration: underline;
+}
+
+/* =============================================
+   📊 ENTERPRISE MATRIX LIST VIEW
+   ============================================= */
+.matrix-container {
+    min-height: 400px;
+    background-color: #FFFFFF;
+}
+
+.matrix-table-wrapper {
+    border: 1px solid #D8DDE6;
+    border-radius: 4px;
+    overflow-x: auto;
+    background-color: #FFFFFF;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* --- Headers --- */
+.matrix-table thead th {
+    background-color: #F4F6F9;
+    color: #514F4D;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    border-bottom: 2px solid #D8DDE6;
+    border-right: 1px solid #EBEBEB;
+    text-align: right;
+}
+
+.matrix-table thead th.matrix-col-project {
+    text-align: left;
+    width: 250px;
+}
+
+.matrix-table thead th.matrix-col-total {
+    background-color: #ECEFEA;
+    color: #181818;
+}
+
+/* --- Body Cells --- */
+.matrix-table tbody td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #444444;
+    border-bottom: 1px solid #EBEBEB;
+    border-right: 1px solid #EBEBEB;
+    text-align: right;
+    transition: background-color 0.1s ease;
+}
+
+.matrix-table tbody tr:hover td {
+    background-color: #FAFAFA;
+}
+
+.matrix-table tbody td.matrix-cell-project {
+    text-align: left;
+    font-weight: 600;
+    color: #181818;
+}
+
+.matrix-table tbody td.matrix-cell-day {
+    color: #706E6B;
+}
+
+/* Emphasize the row total */
+.matrix-table tbody td.matrix-cell-total {
+    font-weight: 700;
+    color: #181818;
+    background-color: #F9F9F9;
+}
+
+/* --- Footer Totals --- */
+.matrix-table tfoot td {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #181818;
+    background-color: #F4F6F9;
+    border-top: 2px solid #D8DDE6;
+    border-right: 1px solid #EBEBEB;
+    text-align: right;
+}
+
+.matrix-table tfoot td.matrix-footer-label {
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #514F4D;
+}
+
+/* The Grand Total Box (Bottom Right) */
+.matrix-table tfoot td.matrix-footer-grand {
+    background-color: #E2E2E2; /* Slightly darker grey to signify the ultimate total */
+    color: #000000;
+    font-size: 15px;
+}
+
+.matrix-empty-state {
+    text-align: center !important;
+    padding: 40px !important;
+    color: #A0A0A0 !important;
+    font-style: italic;
+}
+
+/* =============================================
+   🎛 ENTERPRISE TOOLBAR
+   ============================================= */
+.enterprise-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: transparent;
+}
+
+/* Logical Grouping */
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Subtle vertical line between groups */
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-light);
+    margin: 0 2px;
+}
+
+/* Standardized Input Widths */
+.toolbar-search {
+    width: 160px;
+    transition: width 0.2s ease;
+}
+.toolbar-search:focus-within {
+    width: 200px; /* Smoothly expands when typing */
+}
+
+.toolbar-timeframe {
+    width: 130px;
+}
+
+.toolbar-date {
+    width: 140px;
+}
+/* =============================================
+   🏢 ENTERPRISE PROJECT SIDEBAR
+   ============================================= */
+.project-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #F9F9FB; /* Soft enterprise grey */
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 8px;
+}
+
+/* The Card container */
+.sidebar-project-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.sidebar-project-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+}
+
+/* Row 1: Code and Hours */
+.sidebar-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+/* The Prominent Project ID */
+.project-code {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--brand-primary);
+    background: #F0F8FF;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-week-hrs {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #444444;
+}
+
+/* Row 2: ✂️ STRICT TRUNCATION MAGIC */
+.sidebar-project-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #181818;
+    
+    
+    width: 100%;
+    cursor: default; /* Tells the user they can hover */
+}
+
+/* =============================================
+   🏢 ENTERPRISE PROJECT SIDEBAR (CLEAN SAAS)
+   ============================================= */
+.sidebar-project-card {
+    background: #FFFFFF; /* Pure white background */
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    /* Notice border-left is dynamically set by JS to be 6px wide */
+}
+
+.sidebar-project-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+}
+
+.sidebar-project-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #181818; /* High contrast black */
+    white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis;  
+    width: 100%;
+    cursor: default;
+}
+
+.project-code {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #444444;
+    background: #F4F6F9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-week-hrs {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #444444;
+}
+
+/* =============================================
+   📅 CALENDAR ENTRY CARDS (CLEAN SAAS)
+   ============================================= */
+.shift-box {
+    position: absolute;
+    left: 4px; right: 4px;
+    background: #FFFFFF; /* Pure white background */
+    border: 1px solid var(--border-light);
+    border-left-width: 4px; /* Forces the thick 4px color bar */
+    border-left-style: solid;
+    border-radius: 6px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    min-height: 28px;
+    z-index: 3;
+    transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.shift-desc-compact { 
+    font-size: 11.5px; 
+    font-weight: 700; 
+    color: #181818; /* High contrast black */
+    line-height: 1.3; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    flex: 1; 
+}
+
+.shift-time { 
+    font-size: 10.5px; 
+    color: #706E6B; /* Muted grey for secondary info */
+    display: flex; 
+    align-items: center; 
+    gap: 4px; 
+    line-height: 1; 
+    margin-top: 2px; 
+}
+
+/* In the Sidebar CSS section */
+.sidebar-project-name {
+    font-size: 13px;
+    font-weight: 500; /* ✅ Reduced from 600 */
+    color: #181818; 
+    white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis;  
+    width: 100%;
+    cursor: default;
+}
+
+/* In the Calendar Entry Cards section */
+.shift-desc-compact { 
+    font-size: 11.5px; 
+    font-weight: 500; /* ✅ Reduced from 700 */
+    color: #181818; 
+    line-height: 1.3; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    flex: 1; 
+}
+
+/* =============================================
+   🔥 ULTRA-CLEAN CALENDAR GRID & COLUMNS
+   ============================================= */
+.calendar-container { 
+    display: flex; 
+    flex-direction: column; 
+    background: #FFFFFF; /* ✅ Pure white base */
+    min-width: max-content; 
+    position: relative; 
+    padding-bottom: 8px; 
+}
+
+.calendar-header-row { 
+    display: grid; 
+    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
+    column-gap: 0; /* ✅ Removed gap for continuous clean lines */
+    background: #FFFFFF !important; 
+    border-bottom: 1px solid #E5E5E5 !important; /* Crisp bottom border */
+    position: sticky; 
+    top: 0; 
+    z-index: 20; 
+}
+
+.time-axis-header { 
+    padding: 8px; 
+    background: #FFFFFF !important; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 25 !important; 
+    position: sticky; 
+    left: 0; 
+    border-right: 1px solid #F0F2F4; 
+}
+
+.header-cell { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 40px; 
+    font-size: 12px; 
+    font-weight: 600; 
+    color: #514F4D; 
+    background: #FFFFFF; 
+    border-right: 1px solid #F0F2F4; /* Soft column dividers */
+} 
+
+/* Subtle highlight for "Today" */
+.header-cell-today { color: var(--brand-primary) !important; font-weight: 700; }
+
+.calendar-body { 
+    display: grid; 
+    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
+    column-gap: 0; /* Matches header */
+    position: relative; 
+}
+
+.sticky-time-axis { 
+    position: sticky; 
+    left: 0; 
+    z-index: 10; 
+    background: #FFFFFF; 
+    border-right: 1px solid #F0F2F4; 
+}
+
+.time-slot-label { 
+    height: var(--hour-h); 
+    font-size: 11px; 
+    font-weight: 500; /* Cleaner font weight */
+    color: #A0A0A0; /* Softer grey */
+    padding-right: 8px; 
+    transform: translateY(-50%); 
+    text-align: right; 
+    pointer-events: none; 
+}
+
+.days-grid { display: contents; }
+
+.day-column { 
+    position: relative; 
+    background: #FFFFFF; 
+    box-sizing: border-box; 
+    overflow: visible; 
+    user-select: none; 
+    min-height: calc(24 * var(--hour-h)); 
+    border-right: 1px solid #F0F2F4; /* Whisper-thin column line */
+}
+
+/* Subtle hover effect */
+.day-column:hover { background-color: #FAFBFC; }
+
+/* ✅ THE BIG FIX: Solid, whisper-light horizontal lines instead of heavy dashes */
+.hour-grid-line { 
+    position: absolute; 
+    left: 0; 
+    right: 0; 
+    height: 1px; 
+    border-bottom: 1px solid #F4F6F9; 
+    pointer-events: none; 
+    z-index: 1; 
+}
+
+/* ✅ THE BIG FIX 2: Flat, calm weekend overlay instead of diagonal zebra stripes */
+.weekend-overlay { 
+    position: absolute; 
+    inset: 0; 
+    background: #FAFBFC; /* Just a very soft grey */
+    pointer-events: none; 
+    z-index: 2; 
+}
+
+/* =============================================
+   🔥 ULTRA-CLEAN CALENDAR GRID & COLUMNS (FIXED)
+   ============================================= */
+.calendar-container { 
+    display: flex; 
+    flex-direction: column; 
+    background: #FFFFFF; 
+    min-width: max-content; 
+    position: relative; 
+    padding-bottom: 8px; 
+}
+
+.calendar-header-row { 
+    display: grid; 
+    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
+    column-gap: 0; 
+    background: #FFFFFF !important; 
+    border-bottom: 1px solid #A0A0A0 !important; /* Darker bottom border */
+    position: sticky; 
+    top: 0; 
+    z-index: 20; 
+}
+
+.time-axis-header { 
+    padding: 8px; 
+    background: #FFFFFF !important; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 25 !important; 
+    position: sticky; 
+    left: 0; 
+    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
+}
+
+.header-cell { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 40px; 
+    font-size: 12px; 
+    font-weight: 600; 
+    color: #514F4D; 
+    background: #FFFFFF; 
+    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
+} 
+
+.header-cell-today { color: var(--brand-primary) !important; font-weight: 700; }
+
+.calendar-body { 
+    display: grid; 
+    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
+    column-gap: 0; 
+    position: relative; 
+}
+
+.sticky-time-axis { 
+    position: sticky; 
+    left: 0; 
+    z-index: 10; 
+    background: #FFFFFF; 
+    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
+}
+
+/* ✅ FIX 1: Added position: absolute so the time perfectly aligns with the line */
+.time-slot-label { 
+    position: absolute; 
+    width: 100%;
+    height: 20px; 
+    font-size: 11px; 
+    font-weight: 500; 
+    color: #706E6B; 
+    padding-right: 8px; 
+    transform: translateY(-50%); /* Centers the text perfectly on the grid line */
+    text-align: right; 
+    pointer-events: none; 
+}
+
+.days-grid { display: contents; }
+
+.day-column { 
+    position: relative; 
+    background: #FFFFFF; /* Ensures 100% white background for all 7 days */
+    box-sizing: border-box; 
+    overflow: visible; 
+    user-select: none; 
+    min-height: calc(24 * var(--hour-h)); 
+    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
+}
+
+/* Subtle hover effect so the user knows which column they are on */
+.day-column:hover { background-color: #F8F9FA; } 
+
+.hour-grid-line { 
+    position: absolute; 
+    left: 0; 
+    right: 0; 
+    height: 1px; 
+    border-bottom: 1px solid #E5E5E5; /* Kept slightly lighter than verticals to prevent a checkerboard look */
+    pointer-events: none; 
+    z-index: 1; 
+}
+
+/* ✅ FIX 2: Completely hide the weekend overlay to ensure 100% background consistency */
+.weekend-overlay { 
+    display: none; 
+}

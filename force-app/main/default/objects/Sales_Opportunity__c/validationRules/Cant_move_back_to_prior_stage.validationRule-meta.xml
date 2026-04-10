@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cant_move_back_to_prior_stage</fullName>
+    <active>true</active>
+    <description>Prevents stage regression for non-System Administrator users by comparing the current and prior stage sequence.</description>
+    <errorConditionFormula>AND(
+$Profile.Name &lt;&gt; &apos;System Administrator&apos;,
+CASE(Stage__c ,
+&quot;Prospecting&quot;,1,
+&quot;Needs Analysis&quot;,2,
+&quot;Credit Check&quot;,3,
+&quot;Contract Sent&quot;,4,
+&quot;Negotiation&quot;,5,
+&quot;Sent to Backoffice&quot;,6,
+&quot;Opportunity Won&quot;,7,
+&quot;Opportunity Lost&quot;,9,
+&quot;Bid Won&quot;,10,
+&quot;Bid Won&quot;,11,
+99)
+&lt;
+CASE(PRIORVALUE(Stage__c),
+&quot;Prospecting&quot;,1,
+&quot;Needs Analysis&quot;,2,
+&quot;Credit Check&quot;,3,
+&quot;Contract Sent&quot;,4,
+&quot;Negotiation&quot;,5,
+&quot;Sent to Backoffice&quot;,6,
+&quot;Opportunity Won&quot;,7,
+&quot;Opportunity Lost&quot;,9,
+&quot;Bid Won&quot;,10,
+&quot;Bid Won&quot;,11,
+0)
+)</errorConditionFormula>
+    <errorMessage>You can not move to a prior stage. Please contact your system administrator to make this change for you. Thank you</errorMessage>
+</ValidationRule>

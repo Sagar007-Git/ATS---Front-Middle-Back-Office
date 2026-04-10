@@ -4,19 +4,15 @@ public with sharing class InvoiceConsoleController {
     // 1. DATA WRAPPERS
     // ==========================================
     public class InvoiceDataWrapper {
-        @AuraEnabled public Id timesheetId { get; set; }
-        @AuraEnabled public String timesheetName { get; set; }
-        @AuraEnabled public String accountName { get; set; }
-        @AuraEnabled public Id accountId { get; set; }
-        @AuraEnabled public String projectName { get; set; } 
         @AuraEnabled public Id projectId { get; set; }       
-        @AuraEnabled public String taskName { get; set; }  
-        @AuraEnabled public Id taskId { get; set; }        
-        @AuraEnabled public String candidateName { get; set; }
-        @AuraEnabled public String reportingWeek { get; set; }
+        @AuraEnabled public String projectName { get; set; } 
+        @AuraEnabled public Id accountId { get; set; }
+        @AuraEnabled public String accountName { get; set; }
+        @AuraEnabled public String candidateName { get; set; } // ✅ Required for "By Candidate" tab
+        
+        @AuraEnabled public Integer unbilledTimeEntries { get; set; }
         @AuraEnabled public Decimal totalHours { get; set; }
         @AuraEnabled public Decimal totalExpenses { get; set; } 
-        @AuraEnabled public Boolean hasAttachments { get; set; }
     }
 
     public class EntitySummaryWrapper {
@@ -26,8 +22,26 @@ public with sharing class InvoiceConsoleController {
         @AuraEnabled public String status { get; set; }
     }
 
+    // Used internally to bucket Time Entries during Invoice Generation
+    private class ResourceLineBucket {
+        Invoice_Line__c invLine;
+        List<Time_Entry__c> entries;
+        
+        public ResourceLineBucket(Id invoiceId, Id resourceId, String resourceName, Decimal rate) {
+            this.invLine = new Invoice_Line__c(
+                Pxm_Invoice__c = invoiceId,
+                Project_Resource__c = resourceId,
+                Name = ('Consulting: ' + resourceName).left(80),
+                Line_Description__c = 'Aggregated consulting hours for ' + resourceName,
+                Bill_Rate__c = rate,
+                Hours__c = 0
+            );
+            this.entries = new List<Time_Entry__c>();
+        }
+    }
+
     // ==========================================
-    // 2. METADATA HELPERS (Safe Fetching)
+    // 2. METADATA HELPERS
     // ==========================================
     private static String getTargetStatus() {
         Invoice_Setting__mdt setting = Invoice_Setting__mdt.getInstance('Default');
@@ -45,270 +59,265 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 3. TIMESHEET HUB: READ TRANSACTIONS
+    // 3. THE SWEEP: READ UNBILLED PROJECTS
     // ==========================================
     @AuraEnabled(cacheable=true)
-    public static List<InvoiceDataWrapper> getBillableTimesheets() {
+    public static List<InvoiceDataWrapper> getUnbilledProjects() {
         try {
-            String targetStatus = getTargetStatus();
+            String targetStatus = getTargetStatus(); 
+            // ✅ Composite Map Key (Project + Candidate) prevents multiple candidates on one project from overwriting each other
+            Map<String, InvoiceDataWrapper> recordMap = new Map<String, InvoiceDataWrapper>();
 
-            List<Timesheet__c> timesheets = [
-                SELECT Id, Name, Start_Date__c, End_Date__c, Reporting_Week__c, Total_Time_Hours__c,
-                   Task__c, Task__r.Name, Task__r.Account__c, 
-                   Client__c, Client__r.Name,
-                   Project_Resource__r.Project__c, 
-                   Project_Resource__r.Project__r.Name,
-                   Project_Resource__r.Account__c, 
-                   Project_Resource__r.Account__r.Name,
-                   Project_Resource__r.Candidate_Employee__r.Name,
-                   (SELECT Id FROM ContentDocumentLinks LIMIT 1),
-                   (SELECT Amount__c FROM Expenses__r WHERE Status__c = 'Approved')
-                FROM Timesheet__c
-                WHERE Timesheet_Status__c = :targetStatus
-                ORDER BY Project_Resource__r.Account__r.Name ASC
-                LIMIT 1000
-            ];
+            // 1. Sweep Aggregate Time Entries 
+            for (AggregateResult ar : [
+                SELECT Project__c projId, Project__r.Name projName, 
+                       Project__r.Client__c accId, Project__r.Client__r.Name accName, 
+                       Project_Resource__r.Candidate_Employee__r.Name candName, // ✅ Query Candidate
+                       COUNT(Id) entryCount, SUM(Hours_Worked_Number_Format__c) totalHours
+                FROM Time_Entry__c
+                WHERE Approval_Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name, Project_Resource__r.Candidate_Employee__r.Name
+            ]) {
+                Id pId = (Id)ar.get('projId');
+                String candName = (String)ar.get('candName');
+                if (String.isBlank(candName)) candName = 'Unknown Resource';
+                
+                String compositeKey = pId + '_' + candName;
 
-            List<InvoiceDataWrapper> wrappers = new List<InvoiceDataWrapper>();
-            for (Timesheet__c ts : timesheets) {
-                InvoiceDataWrapper wrapper = new InvoiceDataWrapper();
-                wrapper.timesheetId = ts.Id;
-                wrapper.timesheetName = ts.Name;
+                InvoiceDataWrapper wrap = new InvoiceDataWrapper();
+                wrap.projectId = pId;
+                wrap.projectName = (String)ar.get('projName');
+                wrap.accountId = (Id)ar.get('accId');
+                wrap.accountName = (String)ar.get('accName');
+                wrap.candidateName = candName;
+                wrap.unbilledTimeEntries = (Integer)ar.get('entryCount');
+                wrap.totalHours = (Decimal)ar.get('totalHours');
+                wrap.totalExpenses = 0.0;
                 
-                // Task Hierarchy Mapping
-                wrapper.taskId = ts.Task__c;
-                wrapper.taskName = ts.Task__r?.Name;
-                wrapper.projectId = ts.Project_Resource__r?.Project__c;
-                wrapper.projectName = ts.Project_Resource__r?.Project__r?.Name;
-                
-                // ACCOUNT WATERFALL LOGIC for UI Display
-                if (ts.Task__r?.Account__c != null) {
-                    wrapper.accountId = ts.Task__r.Account__c;
-                    wrapper.accountName = 'Task Account'; 
-                } else if (ts.Client__c != null) {
-                    wrapper.accountId = ts.Client__c;
-                    wrapper.accountName = ts.Client__r?.Name;
-                } else {
-                    wrapper.accountId = ts.Project_Resource__r?.Account__c;
-                    wrapper.accountName = ts.Project_Resource__r?.Account__r?.Name;
-                }
-
-                wrapper.candidateName = ts.Project_Resource__r?.Candidate_Employee__r?.Name;
-                wrapper.reportingWeek = ts.Reporting_Week__c;
-                wrapper.hasAttachments = (ts.ContentDocumentLinks != null && !ts.ContentDocumentLinks.isEmpty()); 
-                wrapper.totalHours = (ts.Total_Time_Hours__c != null) ? Decimal.valueOf(String.valueOf(ts.Total_Time_Hours__c)) : 0.0;
-                
-                // Aggregate Expenses
-                Decimal expSum = 0.0;
-                if (ts.Expenses__r != null) {
-                    for (Expense__c exp : ts.Expenses__r) {
-                        expSum += (exp.Amount__c != null) ? Decimal.valueOf(String.valueOf(exp.Amount__c)) : 0.0;
-                    }
-                }
-                wrapper.totalExpenses = expSum;
-                
-                wrappers.add(wrapper);
+                recordMap.put(compositeKey, wrap);
             }
-            return wrappers;
+
+            // 2. Sweep Aggregate Expenses
+            for (AggregateResult ar : [
+                SELECT Project__c projId, Project__r.Name projName, 
+                       Project__r.Client__c accId, Project__r.Client__r.Name accName, 
+                       SUM(Amount__c) totalExp
+                FROM Expense__c
+                WHERE Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name
+            ]) {
+                Id pId = (Id)ar.get('projId');
+                String candName = 'Project Expenses'; // Expenses usually apply to the whole project
+                String compositeKey = pId + '_' + candName;
+
+                if (!recordMap.containsKey(compositeKey)) {
+                    InvoiceDataWrapper wrap = new InvoiceDataWrapper();
+                    wrap.projectId = pId;
+                    wrap.projectName = (String)ar.get('projName');
+                    wrap.accountId = (Id)ar.get('accId');
+                    wrap.accountName = (String)ar.get('accName');
+                    wrap.candidateName = candName;
+                    wrap.unbilledTimeEntries = 0;
+                    wrap.totalHours = 0.0;
+                    wrap.totalExpenses = (Decimal)ar.get('totalExp');
+                    recordMap.put(compositeKey, wrap);
+                } else {
+                    recordMap.get(compositeKey).totalExpenses += (Decimal)ar.get('totalExp');
+                }
+            }
+
+            return recordMap.values();
 
         } catch (Exception e) {
-            throw createAuraException('Failed to fetch billable records: ' + e.getMessage());
+            throw createAuraException('Failed to fetch unbilled projects: ' + e.getMessage());
         }
     }
 
     // ==========================================
-    // 4. TIMESHEET HUB: GENERATE INVOICES
+    // 4. GENERATE INVOICES (The Aggregation Engine)
     // ==========================================
     @AuraEnabled
-    public static String generateInvoices(List<Id> timesheetIds) {
-        if (timesheetIds == null || timesheetIds.isEmpty()) {
-            throw createAuraException('No Timesheets provided for invoice generation.');
+    public static String generateInvoices(List<Id> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            throw createAuraException('No Projects provided for invoice generation.');
         }
 
         Savepoint sp = Database.setSavepoint();
 
         try {
+            String targetStatus = getTargetStatus();
             String invoicedStatus = getInvoicedStatus();
             Integer dueOffset = getDueDateOffset();
-            
-            List<Timesheet__c> timesheetsToBill = [
-                SELECT Id, Name, Start_Date__c, End_Date__c, Total_Time_Hours__c, Timesheet_Status__c, Reporting_Week__c,
-                       Task__c, Task__r.Name, Task__r.Bill_Rate__c, Task__r.Account__c,
-                       Client__c,
-                       Project_Resource__r.Bill_Rate__c,
-                       Project_Resource__r.Placement__r.Bill_Rate__c,
-                       Project_Resource__r.Candidate_Employee__r.Name,
-                       (SELECT Amount__c FROM Expenses__r WHERE Status__c = 'Approved'),
-                       (SELECT Id, Date__c, Hours_Worked_Number_Format__c, Task__c, Task__r.Name, Task__r.Bill_Rate__c, Additional_Comments__c 
-                        FROM Time_Entries__r 
-                        WHERE Hours_Worked_Number_Format__c > 0)
-                FROM Timesheet__c
-                WHERE Id IN :timesheetIds
-                FOR UPDATE 
+
+            // --- STEP 1: QUERY RAW DATA (THE SWEEP) ---
+            List<Time_Entry__c> timeEntriesToBill = [
+                SELECT Id, Hours_Worked_Number_Format__c, Date__c, Additional_Comments__c,
+                       Project__c, Project__r.Client__c, Project__r.Name, 
+                       Project_Resource__c, Project_Resource__r.Candidate_Employee__r.Name,
+                       Project_Resource__r.Bill_Rate__c, Project_Resource__r.Placement__r.Bill_Rate__c,
+                       Task__c, Task__r.Name, Task__r.Bill_Rate__c
+                FROM Time_Entry__c
+                WHERE Project__c IN :projectIds AND Approval_Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                FOR UPDATE
             ];
 
-            Map<Id, List<Timesheet__c>> accountToTimesheetsMap = new Map<Id, List<Timesheet__c>>();
-            for (Timesheet__c ts : timesheetsToBill) {
-                if (ts.Timesheet_Status__c == invoicedStatus) {
-                    throw new CustomException('Timesheet ' + ts.Name + ' has already been invoiced.');
-                }
-                
-                Id accId = (ts.Task__r?.Account__c != null) ? ts.Task__r.Account__c : ts.Client__c;
+            List<Expense__c> expensesToBill = [
+                SELECT Id, Amount__c, Project__c, Project__r.Client__c, Project__r.Name, Description__c 
+                FROM Expense__c
+                WHERE Project__c IN :projectIds AND Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                FOR UPDATE
+            ];
+
+            if (timeEntriesToBill.isEmpty() && expensesToBill.isEmpty()) {
+                throw new CustomException('No Approved Time Entries or Expenses found for the selected Projects.');
+            }
+
+            // --- STEP 2: CREATE INVOICE HEADERS ---
+            Map<Id, Invoice__c> projectToInvoiceMap = new Map<Id, Invoice__c>();
+            
+            Set<Id> activeProjectIds = new Set<Id>();
+            Map<Id, Id> projectToAccountMap = new Map<Id, Id>();
+            Map<Id, String> projectNames = new Map<Id, String>();
+
+            for (Time_Entry__c te : timeEntriesToBill) {
+                activeProjectIds.add(te.Project__c);
+                projectToAccountMap.put(te.Project__c, te.Project__r.Client__c);
+                projectNames.put(te.Project__c, te.Project__r.Name);
+            }
+            for (Expense__c exp : expensesToBill) {
+                activeProjectIds.add(exp.Project__c);
+                projectToAccountMap.put(exp.Project__c, exp.Project__r.Client__c);
+                projectNames.put(exp.Project__c, exp.Project__r.Name);
+            }
+
+            for (Id pId : activeProjectIds) {
+                Id accId = projectToAccountMap.get(pId);
                 
                 if (accId == null) {
-                    throw new CustomException('Timesheet ' + ts.Name + ' is missing a billing Account (Check Task Account or Timesheet Client).');
+                    throw new CustomException('Cannot generate invoice for project "' + projectNames.get(pId) + '" because it is not linked to a Client Account. Please update the Project and try again.');
                 }
 
-                if (!accountToTimesheetsMap.containsKey(accId)) {
-                    accountToTimesheetsMap.put(accId, new List<Timesheet__c>());
-                }
-                accountToTimesheetsMap.get(accId).add(ts);
-            }
-
-            List<Invoice__c> invoicesToInsert = new List<Invoice__c>();
-            Map<Id, Invoice__c> accountToInvoiceMap = new Map<Id, Invoice__c>();
-            
-            for (Id accId : accountToTimesheetsMap.keySet()) {
                 Invoice__c newInvoice = new Invoice__c(
+                    Project__c = pId,
                     Account__c = accId,
                     Invoice_Date__c = Date.today(),
-                    Due_Date__c = Date.today().addDays(dueOffset)
+                    Due_Date__c = Date.today().addDays(dueOffset),
+                    Status__c = 'Draft'
                 );
-                invoicesToInsert.add(newInvoice);
-                accountToInvoiceMap.put(accId, newInvoice); 
+                projectToInvoiceMap.put(pId, newInvoice);
             }
-            insert invoicesToInsert;
+            insert projectToInvoiceMap.values();
 
-            List<Invoice_Line__c> linesToInsert = new List<Invoice_Line__c>();
-            List<Timesheet__c> timesheetsToUpdate = new List<Timesheet__c>();
+            // --- STEP 3: AGGREGATE TIME INTO INVOICE LINES ---
+            Map<String, ResourceLineBucket> lineBuckets = new Map<String, ResourceLineBucket>();
 
-            for (Id accId : accountToTimesheetsMap.keySet()) {
-                Invoice__c parentInvoice = accountToInvoiceMap.get(accId);
+            for (Time_Entry__c te : timeEntriesToBill) {
+                // --- RATE WATERFALL CALCULATION ---
+                Decimal resourceRate = 0.0;
+                if (te.Project_Resource__r != null && te.Project_Resource__r.Bill_Rate__c != null) {
+                    try {
+                        resourceRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Bill_Rate__c));
+                    } catch(Exception e) { resourceRate = 0.0; }
+                }
                 
-                for (Timesheet__c ts : accountToTimesheetsMap.get(accId)) {
+                Decimal placementRate = 0.0;
+                if (te.Project_Resource__r != null && te.Project_Resource__r.Placement__r != null && te.Project_Resource__r.Placement__r.Bill_Rate__c != null) {
+                    try {
+                        placementRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Placement__r.Bill_Rate__c));
+                    } catch(Exception e) { placementRate = 0.0; }
+                }
+                
+                Decimal baseRate = (resourceRate > 0) ? resourceRate : placementRate;
+                
+                Decimal dailyRate = baseRate;
+                if (te.Task__r != null && te.Task__r.Bill_Rate__c != null) {
+                    try {
+                        dailyRate = Decimal.valueOf(String.valueOf(te.Task__r.Bill_Rate__c));
+                    } catch(Exception e) { dailyRate = baseRate; }
+                }
+
+                // Grouping Key: Project + Resource + Rate 
+                String bucketKey = te.Project__c + '_' + te.Project_Resource__c + '_' + dailyRate;
+
+                if (!lineBuckets.containsKey(bucketKey)) {
+                    Id parentInvId = projectToInvoiceMap.get(te.Project__c).Id;
                     
-                    Decimal resourceRate = (ts.Project_Resource__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Project_Resource__r.Bill_Rate__c)) : 0.0;
-                    Decimal placementRate = (ts.Project_Resource__r?.Placement__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Project_Resource__r.Placement__r.Bill_Rate__c)) : 0.0;
-                    Decimal baseRate = (resourceRate > 0) ? resourceRate : placementRate;
-                    String candidateName = String.isNotBlank(ts.Project_Resource__r?.Candidate_Employee__r?.Name) ? ts.Project_Resource__r.Candidate_Employee__r.Name : 'Unknown Resource';
-
-                    // Detailed Daily Lines
-                    if (ts.Time_Entries__r != null && !ts.Time_Entries__r.isEmpty()) {
-                        for (Time_Entry__c te : ts.Time_Entries__r) {
-                            Decimal dailyHours = Decimal.valueOf(String.valueOf(te.Hours_Worked_Number_Format__c));
-                            Decimal dailyRate = baseRate;
-                            if (te.Task__r?.Bill_Rate__c != null) {
-                                dailyRate = Decimal.valueOf(String.valueOf(te.Task__r.Bill_Rate__c));
-                            } else if (ts.Task__r?.Bill_Rate__c != null) {
-                                dailyRate = Decimal.valueOf(String.valueOf(ts.Task__r.Bill_Rate__c));
-                            }
-
-                            String taskName = String.isNotBlank(te.Task__r?.Name) ? te.Task__r.Name : (String.isNotBlank(ts.Task__r?.Name) ? ts.Task__r.Name : 'Labor');
-                            String comments = String.isNotBlank(te.Additional_Comments__c) ? ' | Notes: ' + te.Additional_Comments__c : '';
-                            String dateStr = (te.Date__c != null) ? String.valueOf(te.Date__c) : '';
-
-                            linesToInsert.add(new Invoice_Line__c(
-                                Pxm_Invoice__c = parentInvoice.Id,
-                                Timesheet__c = ts.Id,
-                                Hours__c = dailyHours,      
-                                Bill_Rate__c = dailyRate,        
-                                Name = (taskName + ' (' + dateStr + ')').left(80), 
-                                Line_Description__c = ('Candidate: ' + candidateName + comments).left(255)
-                            ));
-                        }
-                    } 
-                    // Fallback Summary Line
-                    else if (ts.Total_Time_Hours__c != null && ts.Total_Time_Hours__c > 0) {
-                        Decimal totalHours = Decimal.valueOf(String.valueOf(ts.Total_Time_Hours__c));
-                        Decimal fallbackRate = (ts.Task__r?.Bill_Rate__c != null) ? Decimal.valueOf(String.valueOf(ts.Task__r.Bill_Rate__c)) : baseRate;
-
-                        linesToInsert.add(new Invoice_Line__c(
-                            Pxm_Invoice__c = parentInvoice.Id,
-                            Timesheet__c = ts.Id,
-                            Hours__c = totalHours,      
-                            Bill_Rate__c = fallbackRate,        
-                            Name = 'Standard Labor'.left(80), 
-                            Line_Description__c = ('Candidate: ' + candidateName + ' | Week: ' + ts.Reporting_Week__c).left(255)
-                        ));
+                    String candName = 'Unknown Resource';
+                    if (te.Project_Resource__r != null && te.Project_Resource__r.Candidate_Employee__r != null && String.isNotBlank(te.Project_Resource__r.Candidate_Employee__r.Name)) {
+                        candName = te.Project_Resource__r.Candidate_Employee__r.Name;
                     }
+                    
+                    lineBuckets.put(bucketKey, new ResourceLineBucket(parentInvId, te.Project_Resource__c, candName, dailyRate));
+                }
 
-                    // Expense Lines
-                    Decimal expSum = 0.0;
-                    if (ts.Expenses__r != null) {
-                        for (Expense__c exp : ts.Expenses__r) {
-                            expSum += (exp.Amount__c != null) ? Decimal.valueOf(String.valueOf(exp.Amount__c)) : 0.0;
-                        }
-                    }
+                ResourceLineBucket bucket = lineBuckets.get(bucketKey);
+                bucket.entries.add(te);
+                bucket.invLine.Hours__c += (te.Hours_Worked_Number_Format__c != null) ? te.Hours_Worked_Number_Format__c : 0.0;
+            }
 
-                    if (expSum > 0) {
-                        linesToInsert.add(new Invoice_Line__c(
-                            Pxm_Invoice__c = parentInvoice.Id,
-                            Timesheet__c = ts.Id,
-                            Hours__c = 1,          
-                            Bill_Rate__c = expSum,          
-                            Name = 'Reimbursable Expenses',
-                            Line_Description__c = ('Approved expenses for period ' + ts.Reporting_Week__c).left(255)
-                        ));
-                    }
+            // --- STEP 4: AGGREGATE EXPENSES INTO INVOICE LINES ---
+            Map<Id, Invoice_Line__c> projectExpenseLines = new Map<Id, Invoice_Line__c>();
+            
+            for (Expense__c exp : expensesToBill) {
+                if (!projectExpenseLines.containsKey(exp.Project__c)) {
+                    projectExpenseLines.put(exp.Project__c, new Invoice_Line__c(
+                        Pxm_Invoice__c = projectToInvoiceMap.get(exp.Project__c).Id,
+                        Name = 'Reimbursable Expenses',
+                        Hours__c = 1,
+                        Bill_Rate__c = 0 
+                    ));
+                }
+                projectExpenseLines.get(exp.Project__c).Bill_Rate__c += (exp.Amount__c != null) ? exp.Amount__c : 0.0;
+            }
 
-                    ts.Timesheet_Status__c = invoicedStatus;
-                    timesheetsToUpdate.add(ts);
+            // Insert All Lines
+            List<Invoice_Line__c> allLinesToInsert = new List<Invoice_Line__c>();
+            for (ResourceLineBucket bucket : lineBuckets.values()) {
+                allLinesToInsert.add(bucket.invLine);
+            }
+            allLinesToInsert.addAll(projectExpenseLines.values());
+            
+            if (!allLinesToInsert.isEmpty()) {
+                insert allLinesToInsert;
+            }
+
+            // --- STEP 5: THE LOCK (Stamp Lines onto Source Records) ---
+            List<Time_Entry__c> timeEntriesToUpdate = new List<Time_Entry__c>();
+            for (ResourceLineBucket bucket : lineBuckets.values()) {
+                for (Time_Entry__c te : bucket.entries) {
+                    te.Pxm_Invoice_Line__c = bucket.invLine.Id;
+                    te.Invoice_Status__c = invoicedStatus; // Marks it as Billed
+                    timeEntriesToUpdate.add(te);
                 }
             }
-            
-            if (!linesToInsert.isEmpty()) insert linesToInsert;
-            if (!timesheetsToUpdate.isEmpty()) update timesheetsToUpdate;
 
-            return 'Success: Generated ' + invoicesToInsert.size() + ' invoice(s).';
+            List<Expense__c> expensesToUpdate = new List<Expense__c>();
+            for (Expense__c exp : expensesToBill) {
+                exp.Pxm_Invoice_Line__c = projectExpenseLines.get(exp.Project__c).Id;
+                exp.Status__c = invoicedStatus; // Marks it as Billed
+                expensesToUpdate.add(exp);
+            }
+
+            if (!timeEntriesToUpdate.isEmpty()) update timeEntriesToUpdate;
+            if (!expensesToUpdate.isEmpty()) update expensesToUpdate;
+
+            return 'Success: Generated ' + projectToInvoiceMap.size() + ' invoice(s).';
 
         } catch (Exception e) {
             Database.rollback(sp);
-            throw createAuraException('Generation failed: ' + e.getMessage());
+            throw createAuraException('Generation failed: ' + e.getMessage() + ' at line ' + e.getLineNumber());
         }
     }
 
     // ==========================================
-    // 5. TIMESHEET HUB: BACKGROUND PDF GENERATION
-    // ==========================================
-    @AuraEnabled
-    public static String massGenerateTimesheetPDFs(List<Id> timesheetIds) {
-        if (timesheetIds == null || timesheetIds.isEmpty()) {
-            throw createAuraException('No records selected.');
-        }
-
-        List<Timesheet__c> tsList = [
-            SELECT Id, Name, Project_Resource__r.Candidate_Employee__r.Name 
-            FROM Timesheet__c 
-            WHERE Id IN :timesheetIds
-        ];
-
-        Map<Id, String> idToFileNameMap = new Map<Id, String>();
-        for (Timesheet__c ts : tsList) {
-            String candName = String.isNotBlank(ts.Project_Resource__r?.Candidate_Employee__r?.Name) 
-                              ? ts.Project_Resource__r.Candidate_Employee__r.Name : 'Consultant';
-            idToFileNameMap.put(ts.Id, 'Timesheet - ' + candName + ' - ' + ts.Name);
-        }
-
-        // 🛑 REPLACE WITH YOUR ACTUAL TIMESHEET VF PAGE NAME
-        String targetVfPage = 'YOUR_TIMESHEET_VF_PAGE_NAME'; 
-
-        try {
-            System.enqueueJob(new PDFGeneratorQueueable(idToFileNameMap, targetVfPage));
-            return 'PDF Generation started in the background for ' + timesheetIds.size() + ' records.';
-        } catch (Exception e) {
-            throw createAuraException('Error starting PDF job: ' + e.getMessage());
-        }
-    }
-
-    // ==========================================
-    // 6. INVOICE DISPATCH HUB: DRAFTS & EMAIL
+    // 5. INVOICE DISPATCH HUB: DRAFTS & EMAIL
     // ==========================================
     @AuraEnabled(cacheable=true)
     public static List<Invoice__c> getDraftInvoices() {
         try {
             return [
                 SELECT Id, Name, Account__c, Account__r.Name, Account__r.Billing_Email__c,
-                       Invoice_Date__c, Due_Date__c, Status__c 
+                       Project__r.Name, Invoice_Date__c, Due_Date__c, Status__c 
                 FROM Invoice__c
                 WHERE Status__c = 'Draft'
                 ORDER BY Invoice_Date__c ASC
@@ -333,7 +342,7 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 7. DIRECTORY TRANSACTIONS (Entity Fetching)
+    // 6. DIRECTORY TRANSACTIONS (Entity Fetching)
     // ==========================================
     @AuraEnabled(cacheable=true)
     public static List<EntitySummaryWrapper> getActiveEntities(String entityType) {
@@ -369,7 +378,7 @@ public with sharing class InvoiceConsoleController {
         try {
             return [
                 SELECT Id, Name, Account__c, Account__r.Name, Account__r.Billing_Email__c,
-                       Invoice_Date__c, Due_Date__c, Status__c 
+                       Project__r.Name, Invoice_Date__c, Due_Date__c, Status__c 
                 FROM Invoice__c
                 WHERE Status__c != 'Draft' 
                 ORDER BY CreatedDate DESC
@@ -390,7 +399,7 @@ public with sharing class InvoiceConsoleController {
     }
 
     // ==========================================
-    // 8. EXCEPTION HANDLING UTILITIES
+    // 7. EXCEPTION HANDLING UTILITIES
     // ==========================================
     public class CustomException extends Exception {}
 
@@ -399,6 +408,4 @@ public with sharing class InvoiceConsoleController {
         e.setMessage(message); 
         return e;
     }
-
-
 }

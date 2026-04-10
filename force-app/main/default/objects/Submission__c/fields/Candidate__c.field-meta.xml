@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Candidate__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Applicant/Candidate who submitted the Application</description>
+    <label>Candidate</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Contact.Record_Type_Label__c</field>
+            <operation>equals</operation>
+            <value>Candidate</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Submissions</relationshipLabel>
+    <relationshipName>Submissions</relationshipName>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

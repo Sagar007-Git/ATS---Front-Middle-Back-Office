@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Recruiter__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Recruiter/s in case of deault recruiters at account level (Based on the Industry and type)</description>
+    <label>Recruiter</label>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Accounts (Recruiter)</relationshipLabel>
+    <relationshipName>Accounts2</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Frequency_to_Follow_Up__c</fullName>
+    <label>Frequency to Follow Up</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Test</fullName>
+                <default>false</default>
+                <label>Test</label>
+            </value>
+            <value>
+                <fullName>Weekly</fullName>
+                <default>false</default>
+                <label>Weekly</label>
+            </value>
+            <value>
+                <fullName>2x a month</fullName>
+                <default>false</default>
+                <label>2x a month</label>
+            </value>
+            <value>
+                <fullName>1x a month</fullName>
+                <default>false</default>
+                <label>1x a month</label>
+            </value>
+            <value>
+                <fullName>Don&apos;t call me I&apos;ll call you</fullName>
+                <default>false</default>
+                <label>Don&apos;t call me I&apos;ll call you</label>
+            </value>
+            <value>
+                <fullName>N/A</fullName>
+                <default>false</default>
+                <label>N/A</label>
+            </value>
+            <value>
+                <fullName>Distribution List</fullName>
+                <default>false</default>
+                <label>Distribution List</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

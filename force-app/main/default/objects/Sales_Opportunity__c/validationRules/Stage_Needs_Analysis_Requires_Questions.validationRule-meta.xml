@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stage_Needs_Analysis_Requires_Questions</fullName>
+    <active>true</active>
+    <description>Before moving forward to another Stage,complete all the fields in the Client Questionnaire Section</description>
+    <errorConditionFormula>AND(
+ISCHANGED(Stage__c ),
+CASE(PRIORVALUE(Stage__c ),&quot;Needs Analysis&quot;,1,0)=1,
+Account__r.RecordType.DeveloperName &lt;&gt; &apos;MSP_VMS&apos;,
+OR(
+ISPICKVAL(Stage__c , &quot;Credit Check&quot;),
+ISPICKVAL(Stage__c , &quot;Contract Sent&quot;),
+ISPICKVAL(Stage__c , &quot;Negotiation&quot;),
+ISPICKVAL(Stage__c , &quot;Sent to Backoffice&quot;),
+ISPICKVAL(Stage__c , &quot;Bid Won&quot;),
+ISPICKVAL(Stage__c , &quot;Opportunity Won&quot;)),
+
+OR (
+ISBLANK (Name_of_Individual__c),
+ISBLANK(Title_Position__c),
+ISBLANK (Email_Address__c),
+ISBLANK (Who_signs_the_agreement__c),
+ISBLANK (Experience_with_other_agencies__c),
+ISBLANK(of_facilities_responsible_for__c) ,
+ISBLANK (Minimum_years_expectation__c),
+ISBLANK (Ideal_candidate_for_immediate_attention__c),
+ISBLANK (Patient_to_healthcare_professional_ratio__c),
+ISBLANK (Typical_work_schedule__c),
+ISBLANK (Benefits_to_working_with_your_company__c),
+ISBLANK (Process_for_introducing_a_candidate__c ),
+ISBLANK (Is_there_a_parent_company__c),
+ISBLANK(Our_agreement_or_yours__c),
+ISBLANK (Legal_name_for_contract_credit_check__c),
+ISBLANK (Corporate_address_for_agreement__c),
+ISBLANK (How_are_we_notified_of_jobs__c),
+ISBLANK (Current_openings__c),
+ISBLANK (Other_staffing_services__c),
+ISBLANK (X48_hour_turnaround_from_submission__c),
+ISBLANK (Timeframe_to_execute_an_agremeent__c),
+ISBLANK (Follow_up_call__c)
+
+)
+)</errorConditionFormula>
+    <errorMessage>You must complete all the questions in the Client Questionnaire Section before moving to another Stage. If the question does not apply please respond with NA.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Copy_to_Client__c</fullName>
+    <defaultValue>false</defaultValue>
+    <label>Require Copy to Client</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

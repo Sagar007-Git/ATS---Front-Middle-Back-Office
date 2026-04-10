@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Disability__c</fullName>
+    <label>Disability</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>No Disability</fullName>
+                <default>false</default>
+                <label>No Disability</label>
+            </value>
+            <value>
+                <fullName>Partial Disability</fullName>
+                <default>false</default>
+                <label>Partial Disability</label>
+            </value>
+            <value>
+                <fullName>Full Disability</fullName>
+                <default>false</default>
+                <label>Full Disability</label>
+            </value>
+            <value>
+                <fullName>Temporary Disability</fullName>
+                <default>false</default>
+                <label>Temporary Disability</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

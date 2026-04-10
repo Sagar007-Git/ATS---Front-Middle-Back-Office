@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>QB_Tax_Code__c</fullName>
+    <label>QB Tax Code</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Test</fullName>
+                <default>false</default>
+                <label>Test</label>
+            </value>
+            <value>
+                <fullName>DC - Sales Tax - Perm - 6.0%</fullName>
+                <default>false</default>
+                <label>DC - Sales Tax - Perm - 6.0%</label>
+            </value>
+            <value>
+                <fullName>PA - Allegheny Sales Tax 7%</fullName>
+                <default>false</default>
+                <label>PA - Allegheny Sales Tax 7%</label>
+            </value>
+            <value>
+                <fullName>PA - Philly Sales Tax 8%</fullName>
+                <default>false</default>
+                <label>PA - Philly Sales Tax 8%</label>
+            </value>
+            <value>
+                <fullName>PA - Sales Tax 6%</fullName>
+                <default>false</default>
+                <label>PA - Sales Tax 6%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - CT - 6.35%</fullName>
+                <default>false</default>
+                <label>Sales Tax - CT - 6.35%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - CT - EXEMPT</fullName>
+                <default>false</default>
+                <label>Sales Tax - CT - EXEMPT</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - HI - 4.5%</fullName>
+                <default>false</default>
+                <label>Sales Tax - HI - 4.5%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - HI - 4%</fullName>
+                <default>false</default>
+                <label>Sales Tax - HI - 4%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - IA - 7%</fullName>
+                <default>false</default>
+                <label>Sales Tax - IA - 7%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 6.8125%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 6.8125%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.25%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.25%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.2500%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.2500%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.3125%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.3125%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.4375%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.4375%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.53%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.53%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.625%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.625%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.8125%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.8125%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.8333%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.8333%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.8750%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.8750%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 7.8958%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 7.8958%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.0000%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.0000%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.1250%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.1250%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.1875%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.1875%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.2500%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.2500%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.3125%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.3125%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.3750%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.3750%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.4375%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.4375%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.5083%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.5083%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - NM - 8.9375%</fullName>
+                <default>false</default>
+                <label>Sales Tax - NM - 8.9375%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 6.5%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 6.5%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 6.75%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 6.75%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 6.85%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 6.85%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 7.25%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 7.25%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 7.5%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 7.5%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 7.8%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 7.8%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 7%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 7%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - OH - 8%</fullName>
+                <default>false</default>
+                <label>Sales Tax - OH - 8%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - Ohio - 7.5%</fullName>
+                <default>false</default>
+                <label>Sales Tax - Ohio - 7.5%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - WV - 6%</fullName>
+                <default>false</default>
+                <label>Sales Tax - WV - 6%</label>
+            </value>
+            <value>
+                <fullName>Sales Tax - WV - 7%</fullName>
+                <default>false</default>
+                <label>Sales Tax - WV - 7%</label>
+            </value>
+            <value>
+                <fullName>South Dakota - Sales Tax</fullName>
+                <default>false</default>
+                <label>South Dakota - Sales Tax</label>
+            </value>
+            <value>
+                <fullName>WA - Excise Tax</fullName>
+                <default>false</default>
+                <label>WA - Excise Tax</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

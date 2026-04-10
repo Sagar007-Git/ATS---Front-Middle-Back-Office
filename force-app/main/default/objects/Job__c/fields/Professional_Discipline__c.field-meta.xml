@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Professional_Discipline__c</fullName>
+    <label>Professional Discipline</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Administrative</fullName>
+                <default>false</default>
+                <label>Administrative</label>
+            </value>
+            <value>
+                <fullName>Athletic Trainer</fullName>
+                <default>false</default>
+                <label>Athletic Trainer</label>
+            </value>
+            <value>
+                <fullName>Audiologist</fullName>
+                <default>false</default>
+                <label>Audiologist</label>
+            </value>
+            <value>
+                <fullName>Board Certified Behavior Analyst (BCBA)</fullName>
+                <default>false</default>
+                <label>Board Certified Behavior Analyst (BCBA)</label>
+            </value>
+            <value>
+                <fullName>Certified Hand Therapist (CHT)</fullName>
+                <default>false</default>
+                <label>Certified Hand Therapist (CHT)</label>
+            </value>
+            <value>
+                <fullName>Certified Nurse Anesthetist (CRNA)</fullName>
+                <default>false</default>
+                <label>Certified Nurse Anesthetist (CRNA)</label>
+            </value>
+            <value>
+                <fullName>Certified Nursing Assistant (CNA)</fullName>
+                <default>false</default>
+                <label>Certified Nursing Assistant (CNA)</label>
+            </value>
+            <value>
+                <fullName>Certified Occupational Therapy Assistant (COTA)</fullName>
+                <default>false</default>
+                <label>Certified Occupational Therapy Assistant (COTA)</label>
+            </value>
+            <value>
+                <fullName>Certified Orientation and Mobility Specialist</fullName>
+                <default>false</default>
+                <label>Certified Orientation and Mobility Specialist</label>
+            </value>
+            <value>
+                <fullName>Clinical Psychologist</fullName>
+                <default>false</default>
+                <label>Clinical Psychologist</label>
+            </value>
+            <value>
+                <fullName>CT Technologist (CT Tech)</fullName>
+                <default>false</default>
+                <label>CT Technologist (CT Tech)</label>
+            </value>
+            <value>
+                <fullName>Dental Assistant</fullName>
+                <default>false</default>
+                <label>Dental Assistant</label>
+            </value>
+            <value>
+                <fullName>Dietitian</fullName>
+                <default>false</default>
+                <label>Dietitian</label>
+            </value>
+            <value>
+                <fullName>Geriatric Nursing Assistant (GNA)</fullName>
+                <default>false</default>
+                <label>Geriatric Nursing Assistant (GNA)</label>
+            </value>
+            <value>
+                <fullName>LPN / LVN</fullName>
+                <default>false</default>
+                <label>LPN / LVN</label>
+            </value>
+            <value>
+                <fullName>Medical Assistant (MA / CMA)</fullName>
+                <default>false</default>
+                <label>Medical Assistant (MA / CMA)</label>
+            </value>
+            <value>
+                <fullName>Medical Lab Technician (MLT)</fullName>
+                <default>false</default>
+                <label>Medical Lab Technician (MLT)</label>
+            </value>
+            <value>
+                <fullName>Medical Technologist</fullName>
+                <default>false</default>
+                <label>Medical Technologist</label>
+            </value>
+            <value>
+                <fullName>Nurse Practitioner (NP / APRN)</fullName>
+                <default>false</default>
+                <label>Nurse Practitioner (NP / APRN)</label>
+            </value>
+            <value>
+                <fullName>Nursing Home Administrator (NHA)</fullName>
+                <default>false</default>
+                <label>Nursing Home Administrator (NHA)</label>
+            </value>
+            <value>
+                <fullName>Nursing Management</fullName>
+                <default>false</default>
+                <label>Nursing Management</label>
+            </value>
+            <value>
+                <fullName>Occupational Therapist (OT)</fullName>
+                <default>false</default>
+                <label>Occupational Therapist (OT)</label>
+            </value>
+            <value>
+                <fullName>Pharmacist</fullName>
+                <default>false</default>
+                <label>Pharmacist</label>
+            </value>
+            <value>
+                <fullName>Pharmacy Tech</fullName>
+                <default>false</default>
+                <label>Pharmacy Tech</label>
+            </value>
+            <value>
+                <fullName>Phlebotomist</fullName>
+                <default>false</default>
+                <label>Phlebotomist</label>
+            </value>
+            <value>
+                <fullName>Physical Therapist (PT)</fullName>
+                <default>false</default>
+                <label>Physical Therapist (PT)</label>
+            </value>
+            <value>
+                <fullName>Physical Therapist Assistant (PTA)</fullName>
+                <default>false</default>
+                <label>Physical Therapist Assistant (PTA)</label>
+            </value>
+            <value>
+                <fullName>Physician (MD / DO)</fullName>
+                <default>false</default>
+                <label>Physician (MD / DO)</label>
+            </value>
+            <value>
+                <fullName>Physician Assistant (PA)</fullName>
+                <default>false</default>
+                <label>Physician Assistant (PA)</label>
+            </value>
+            <value>
+                <fullName>Rad Tech</fullName>
+                <default>false</default>
+                <label>Rad Tech</label>
+            </value>
+            <value>
+                <fullName>Recruiting Assistant</fullName>
+                <default>false</default>
+                <label>Recruiting Assistant</label>
+            </value>
+            <value>
+                <fullName>Regional Manager</fullName>
+                <default>false</default>
+                <label>Regional Manager</label>
+            </value>
+            <value>
+                <fullName>Registered Behavior Technician (RBT)</fullName>
+                <default>false</default>
+                <label>Registered Behavior Technician (RBT)</label>
+            </value>
+            <value>
+                <fullName>Registered Nurse (RN)</fullName>
+                <default>false</default>
+                <label>Registered Nurse (RN)</label>
+            </value>
+            <value>
+                <fullName>Rehabilitation Management</fullName>
+                <default>false</default>
+                <label>Rehabilitation Management</label>
+            </value>
+            <value>
+                <fullName>Resident Care Assistant (RCA)</fullName>
+                <default>false</default>
+                <label>Resident Care Assistant (RCA)</label>
+            </value>
+            <value>
+                <fullName>Respiratory Therapist (RRT / CRT)</fullName>
+                <default>false</default>
+                <label>Respiratory Therapist (RRT / CRT)</label>
+            </value>
+            <value>
+                <fullName>Respiratory Therapist (RRT)</fullName>
+                <default>false</default>
+                <label>Respiratory Therapist (RRT)</label>
+            </value>
+            <value>
+                <fullName>RN / LPN - Do Not Use</fullName>
+                <default>false</default>
+                <label>RN / LPN - Do Not Use</label>
+            </value>
+            <value>
+                <fullName>Sales and Recruiting</fullName>
+                <default>false</default>
+                <label>Sales and Recruiting</label>
+            </value>
+            <value>
+                <fullName>School Counselor</fullName>
+                <default>false</default>
+                <label>School Counselor</label>
+            </value>
+            <value>
+                <fullName>School Psychologist</fullName>
+                <default>false</default>
+                <label>School Psychologist</label>
+            </value>
+            <value>
+                <fullName>Social Worker</fullName>
+                <default>false</default>
+                <label>Social Worker</label>
+            </value>
+            <value>
+                <fullName>Special Education Teacher (SPED)</fullName>
+                <default>false</default>
+                <label>Special Education Teacher (SPED)</label>
+            </value>
+            <value>
+                <fullName>Speech Language Pathologist (SLP)</fullName>
+                <default>false</default>
+                <label>Speech Language Pathologist (SLP)</label>
+            </value>
+            <value>
+                <fullName>Speech Language Pathologist Assistant (SLPA)</fullName>
+                <default>false</default>
+                <label>Speech Language Pathologist Assistant (SLPA)</label>
+            </value>
+            <value>
+                <fullName>Sterile Processing Tech</fullName>
+                <default>false</default>
+                <label>Sterile Processing Tech</label>
+            </value>
+            <value>
+                <fullName>Surg Tech</fullName>
+                <default>false</default>
+                <label>Surg Tech</label>
+            </value>
+            <value>
+                <fullName>Teacher</fullName>
+                <default>false</default>
+                <label>Teacher</label>
+            </value>
+            <value>
+                <fullName>Teacher&apos;s Assistant</fullName>
+                <default>false</default>
+                <label>Teacher&apos;s Assistant</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

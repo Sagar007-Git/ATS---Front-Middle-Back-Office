@@ -1,6 +1,8 @@
 import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+// Importing the refactored controller methods
 import getDraftInvoices from '@salesforce/apex/InvoiceConsoleController.getDraftInvoices';
 import getTrackedInvoices from '@salesforce/apex/InvoiceConsoleController.getTrackedInvoices';
 import dispatchInvoices from '@salesforce/apex/InvoiceConsoleController.dispatchInvoices';
@@ -19,25 +21,27 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
 
     // --- Columns ---
     draftColumns = [
-        { label: 'Invoice #', fieldName: 'Name', type: 'text', initialWidth: 150 },
+        { label: 'Invoice #', fieldName: 'Name', type: 'text', initialWidth: 120 },
+        { label: 'Project', fieldName: 'projectName', type: 'text' },
         { label: 'Client', fieldName: 'clientName', type: 'text' },
-        { label: 'Invoice Date', fieldName: 'Invoice_Date__c', type: 'date-local', initialWidth: 150 },
-        { label: 'Due Date', fieldName: 'Due_Date__c', type: 'date-local', initialWidth: 150 },
-        { label: 'Status', fieldName: 'Status__c', type: 'text', initialWidth: 120 }
+        { label: 'Invoice Date', fieldName: 'Invoice_Date__c', type: 'date-local', initialWidth: 130 },
+        { label: 'Due Date', fieldName: 'Due_Date__c', type: 'date-local', initialWidth: 130 },
+        { label: 'Status', fieldName: 'Status__c', type: 'text', initialWidth: 100 }
     ];
 
     trackedColumns = [
-        { label: 'Invoice #', fieldName: 'Name', type: 'text', initialWidth: 130 },
+        { label: 'Invoice #', fieldName: 'Name', type: 'text', initialWidth: 120 },
+        { label: 'Project', fieldName: 'projectName', type: 'text' },
         { label: 'Client', fieldName: 'clientName', type: 'text' },
         { label: 'Invoice Date', fieldName: 'Invoice_Date__c', type: 'date-local', initialWidth: 120 },
         { label: 'Due Date', fieldName: 'Due_Date__c', type: 'date-local', initialWidth: 120 },
         { 
-            label: 'Status', fieldName: 'Status__c', type: 'text', initialWidth: 120,
+            label: 'Status', fieldName: 'Status__c', type: 'text', initialWidth: 100,
             cellAttributes: { 
                 class: { fieldName: 'statusColor' } 
             }
         },
-        { type: 'button', initialWidth: 150, typeAttributes: { label: 'View Record', name: 'view', variant: 'base' } }
+        { type: 'button', initialWidth: 120, typeAttributes: { label: 'View', name: 'view', variant: 'base' } }
     ];
 
     connectedCallback() {
@@ -51,32 +55,34 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
         this.isLoading = true;
         this.selectedIds = [];
         
-        // Fetch both Drafts and Tracked invoices simultaneously
         Promise.all([getDraftInvoices(), getTrackedInvoices()])
             .then(results => {
-                // Handle Drafts
+                // Process Drafts
                 this.allDraftData = results[0].map(row => ({
                     ...row,
-                    clientName: row.Account__r?.Name || 'Unknown Client'
+                    clientName: row.Account__r?.Name || 'Unknown Client',
+                    projectName: row.Project__r?.Name || 'N/A'
                 }));
                 this.filteredDraftData = [...this.allDraftData];
 
-                // Handle Tracked Invoices (Adds dynamic CSS colors for statuses)
+                // Process Tracked Invoices
                 this.allTrackedData = results[1].map(row => {
                     let colorClass = 'slds-text-color_default';
                     if (row.Status__c === 'Paid') colorClass = 'slds-text-color_success';
                     if (row.Status__c === 'Overdue') colorClass = 'slds-text-color_error';
+                    if (row.Status__c === 'Sent') colorClass = 'slds-text-color_weak';
                     
                     return {
                         ...row,
                         clientName: row.Account__r?.Name || 'Unknown Client',
+                        projectName: row.Project__r?.Name || 'N/A',
                         statusColor: colorClass
                     };
                 });
                 this.filteredTrackedData = [...this.allTrackedData];
             })
             .catch(error => {
-                this.showToast('Error Loading Data', error.body?.message || error.message, 'error');
+                this.showToast('Error Loading Data', this.extractErrorMessage(error), 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -92,7 +98,9 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
             this.filteredDraftData = [...this.allDraftData];
         } else {
             this.filteredDraftData = this.allDraftData.filter(row => 
-                row.clientName.toLowerCase().includes(term) || row.Name.toLowerCase().includes(term)
+                row.clientName.toLowerCase().includes(term) || 
+                row.projectName.toLowerCase().includes(term) ||
+                row.Name.toLowerCase().includes(term)
             );
         }
     }
@@ -104,6 +112,7 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
         } else {
             this.filteredTrackedData = this.allTrackedData.filter(row => 
                 row.clientName.toLowerCase().includes(term) || 
+                row.projectName.toLowerCase().includes(term) || 
                 row.Name.toLowerCase().includes(term) ||
                 row.Status__c.toLowerCase().includes(term)
             );
@@ -126,11 +135,16 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
         dispatchInvoices({ invoiceIds: this.selectedIds })
             .then(message => {
                 this.showToast('Dispatch Started!', message, 'success');
-                // The records are updating in the background. Reload data to move them from Tab 1 to Tab 2.
-                setTimeout(() => { this.loadAllData(); }, 3000); 
+                
+                // Clear selections in the UI
+                this.template.querySelector('lightning-datatable').selectedRows = [];
+                this.selectedIds = [];
+
+                // Allow background process 4 seconds to complete before refresh
+                setTimeout(() => { this.loadAllData(); }, 4000); 
             })
             .catch(error => {
-                this.showToast('Dispatch Failed', error.body?.message || error.message, 'error');
+                this.showToast('Dispatch Failed', this.extractErrorMessage(error), 'error');
                 this.isLoading = false;
             });
     }
@@ -148,6 +162,13 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
                 }
             });
         }
+    }
+
+    // ==========================================
+    // UTILITIES
+    // ==========================================
+    extractErrorMessage(error) {
+        return error.body?.message || error.message || 'Unknown error';
     }
 
     showToast(title, message, variant) {

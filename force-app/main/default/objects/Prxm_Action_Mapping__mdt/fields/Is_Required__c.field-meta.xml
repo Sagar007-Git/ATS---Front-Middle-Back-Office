@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Required__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>If checked, enforces the user to fill this field before the LWC will submit.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>If checked, enforces the user to fill this field before the LWC will submit.</inlineHelpText>
+    <label>Is Required</label>
+    <type>Checkbox</type>
+</CustomField>

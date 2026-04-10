@@ -1,0 +1,33 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-is-relative" style="height: 200px;">
+            <lightning-spinner alternative-text="Checking for existing records..." size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        <template if:true={isStepPlacement}>
+            <c-prxm-dynamic-record-creator 
+                action-name="Prxm_Convert_To_Placement" 
+                record-id={recordId}
+                disable-auto-close="true"
+                wizard-steps={wizardSteps}
+                current-step-value="1"
+                onsavecomplete={handlePlacementSaved}>
+            </c-prxm-dynamic-record-creator>
+        </template>
+
+        <template if:true={isStepProjectResource}>
+            <template if:true={projectResourceOverrides}>
+                <c-prxm-dynamic-record-creator 
+                    action-name="Prxm_Create_Project_Resource" 
+                    record-id={newPlacementId} 
+                    default-field-overrides={projectResourceOverrides}
+                    wizard-steps={wizardSteps}
+                    current-step-value="2"
+                    onsavecomplete={handleProjectResourceSaved}>
+                </c-prxm-dynamic-record-creator>
+            </template>
+        </template>
+    </template>
+</template>

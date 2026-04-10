@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CandidateStatusDNU</fullName>
+    <active>true</active>
+    <description>Checks whether the Candidate_Status__c field on the related Contact Candidate record equals “Do Not Use.”And prevents creation of Job applicant</description>
+    <errorConditionFormula>TEXT( Candidate__r.Candidate_Status__c ) =&apos;Do Not Use&apos;</errorConditionFormula>
+    <errorMessage>DNU candidates cannot have a Job Applicant. Please reach out to Leadership.</errorMessage>
+</ValidationRule>

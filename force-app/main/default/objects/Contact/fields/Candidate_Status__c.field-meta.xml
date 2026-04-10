@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Candidate_Status__c</fullName>
+    <label>Candidate Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Candidate</fullName>
+                <default>false</default>
+                <label>Candidate</label>
+            </value>
+            <value>
+                <fullName>On Assignment</fullName>
+                <default>false</default>
+                <label>On Assignment</label>
+            </value>
+            <value>
+                <fullName>Off Assignment</fullName>
+                <default>false</default>
+                <label>Off Assignment</label>
+            </value>
+            <value>
+                <fullName>Perm Placement</fullName>
+                <default>false</default>
+                <label>Perm Placement</label>
+            </value>
+            <value>
+                <fullName>Active</fullName>
+                <default>false</default>
+                <label>Active</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <description>Account Status(Active, Prospect or Inactive) as per the requirement</description>
+    <label>Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>true</sorted>
+            <value>
+                <fullName>Active</fullName>
+                <default>false</default>
+                <label>Active</label>
+            </value>
+            <value>
+                <fullName>Bid Loss</fullName>
+                <default>false</default>
+                <label>Bid Loss</label>
+            </value>
+            <value>
+                <fullName>Bid Won</fullName>
+                <default>false</default>
+                <label>Bid Won</label>
+            </value>
+            <value>
+                <fullName>Contract Sent</fullName>
+                <default>false</default>
+                <label>Contract Sent</label>
+            </value>
+            <value>
+                <fullName>Full Executed Contract</fullName>
+                <default>false</default>
+                <label>Full Executed Contract</label>
+            </value>
+            <value>
+                <fullName>Fully Executed Contract</fullName>
+                <default>false</default>
+                <label>Fully Executed Contract</label>
+            </value>
+            <value>
+                <fullName>Inactive</fullName>
+                <default>false</default>
+                <label>Inactive</label>
+            </value>
+            <value>
+                <fullName>Moved to a Different MSP</fullName>
+                <default>false</default>
+                <label>Moved to a Different MSP</label>
+            </value>
+            <value>
+                <fullName>N / A</fullName>
+                <default>false</default>
+                <label>N / A</label>
+            </value>
+            <value>
+                <fullName>Negotiating Terms</fullName>
+                <default>false</default>
+                <label>Negotiating Terms</label>
+            </value>
+            <value>
+                <fullName>New Bid</fullName>
+                <default>false</default>
+                <label>New Bid</label>
+            </value>
+            <value>
+                <fullName>No longer working with</fullName>
+                <default>false</default>
+                <label>No longer working with</label>
+            </value>
+            <value>
+                <fullName>Not At This Time</fullName>
+                <default>false</default>
+                <label>Not At This Time</label>
+            </value>
+            <value>
+                <fullName>Not Pursuing</fullName>
+                <default>false</default>
+                <label>Not Pursuing</label>
+            </value>
+            <value>
+                <fullName>Prospect</fullName>
+                <default>false</default>
+                <label>Prospect</label>
+            </value>
+            <value>
+                <fullName>Sub Vendor Prospect</fullName>
+                <default>false</default>
+                <label>Sub Vendor Prospect</label>
+            </value>
+            <value>
+                <fullName>Verifying MSP</fullName>
+                <default>false</default>
+                <label>Verifying MSP</label>
+            </value>
+            <value>
+                <fullName>Win Back</fullName>
+                <default>false</default>
+                <label>Win Back</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Assigned_RA__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK(BillingState), &quot;None&quot;,
+IF(CONTAINS(&quot;IL:IN:KS:KY:LA:ME:MD:MA:MI:MN:MS&quot;, BillingState), &quot;Olivia&quot;,
+IF(CONTAINS(&quot;MO:MT:NE:NV:NH:NJ:NM:NY:NC:ND:OH:OK&quot;, BillingState), &quot;Tina&quot;,
+IF(CONTAINS(&quot;OR:PA:RI:SC:SD:TN:TX:UT:VT:VA:WA:WV:WI:WY&quot;, BillingState), &quot;Alexis&quot;, &quot;Franchesca&quot;))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Assigned RA</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

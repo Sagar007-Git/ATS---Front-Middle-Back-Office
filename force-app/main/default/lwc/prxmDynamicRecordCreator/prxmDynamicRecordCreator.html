@@ -1,0 +1,94 @@
+<template>
+    <lightning-quick-action-panel if:true={config}>
+        
+        <lightning-spinner if:true={isLoading} alternative-text="Loading configuration..." size="medium"></lightning-spinner>
+
+        <template if:true={fatalErrorMessage}>
+            <div class="slds-notify slds-notify_alert slds-theme_error slds-m-bottom_medium" role="alert">
+                <span class="slds-assistive-text">error</span>
+                <h2>{fatalErrorMessage}</h2>
+            </div>
+        </template>
+
+        <template if:true={isFormReady}>
+            
+            <div class="slds-p-bottom_small slds-m-bottom_small slds-border_bottom">
+                <h2 class="slds-text-heading_medium slds-text-align_center">{config.title}</h2>
+                
+                <template if:true={hasWizardSteps}>
+                    <div class="slds-m-top_medium slds-p-horizontal_large">
+                        <lightning-progress-indicator current-step={currentStepValue} type="path" variant="base">
+                            <template for:each={wizardSteps} for:item="step">
+                                <lightning-progress-step key={step.value} label={step.label} value={step.value}></lightning-progress-step>
+                            </template>
+                        </lightning-progress-indicator>
+                    </div>
+                </template>
+            </div>
+
+            <div style="overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 200px);">
+                <lightning-record-edit-form 
+                    lwc:ref="editForm"
+                    object-api-name={config.targetObjectApiName} 
+                    onsubmit={handleFormSubmit} 
+                    onsuccess={handleFormSuccess}
+                    onerror={handleFormError}>
+                    
+                    <lightning-messages></lightning-messages>
+
+                    <div class="form-legend slds-p-bottom_small slds-p-horizontal_small">
+                        <abbr class="slds-required">*</abbr> = Required Information
+                    </div>
+
+                    <div class="slds-grid slds-wrap row row-main column">
+                        <div class="slds-col slds-size_1-of-1 region-main region-full-width">
+                            <template for:each={formSections} for:item="section">
+                                <div class="slds-section slds-is-open slds-p-bottom_none slds-m-bottom_none" key={section.id}>
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small" title={section.name}>{section.name}</span>
+                                    </h3>
+                                    
+                                    <div aria-hidden="false" class="slds-section__content slds-p-top_small slds-p-bottom_small slds-p-horizontal_none">
+                                        <div class="slds-grid slds-wrap">
+                                            <template for:each={section.fields} for:item="f">
+                                                <div key={f.id} class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 slds-p-horizontal_small slds-p-bottom_small">
+                                                    <div class="slds-form-element slds-form-element_stacked">
+                                                        <lightning-input-field 
+                                                            field-name={f.apiName} 
+                                                            value={f.defaultValue}
+                                                            required={f.isRequired}
+                                                            disabled={f.isReadOnly}
+                                                            variant="label-stacked"
+                                                            class="slds-size_1-of-1">
+                                                        </lightning-input-field>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </lightning-record-edit-form>
+            </div>
+
+        </template>
+
+        <div slot="footer" class="slds-p-vertical_small slds-text-align_center slds-theme_default">
+            <lightning-button 
+                class="slds-m-right_small"
+                label="Cancel" 
+                onclick={handleCancel}
+                disabled={isLoading}>
+            </lightning-button>
+            <lightning-button 
+                label="Save" 
+                onclick={handleSave}
+                variant="brand" 
+                disabled={isLoading}>
+            </lightning-button>
+        </div>
+
+    </lightning-quick-action-panel>
+</template>

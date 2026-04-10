@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Division__c</fullName>
+    <label>Job Division</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Healthcare Division</fullName>
+                <default>false</default>
+                <label>Healthcare Division</label>
+            </value>
+            <value>
+                <fullName>Information Technology Division</fullName>
+                <default>false</default>
+                <label>Information Technology Division</label>
+            </value>
+            <value>
+                <fullName>Finance Division</fullName>
+                <default>false</default>
+                <label>Finance Division</label>
+            </value>
+            <value>
+                <fullName>Operations Division</fullName>
+                <default>false</default>
+                <label>Operations Division</label>
+            </value>
+            <value>
+                <fullName>Sales &amp; Marketing Division</fullName>
+                <default>false</default>
+                <label>Sales &amp; Marketing Division</label>
+            </value>
+            <value>
+                <fullName>Human Resources Division</fullName>
+                <default>false</default>
+                <label>Human Resources Division</label>
+            </value>
+            <value>
+                <fullName>Customer Service Division</fullName>
+                <default>false</default>
+                <label>Customer Service Division</label>
+            </value>
+            <value>
+                <fullName>Legal Division</fullName>
+                <default>false</default>
+                <label>Legal Division</label>
+            </value>
+            <value>
+                <fullName>Manufacturing Division</fullName>
+                <default>false</default>
+                <label>Manufacturing Division</label>
+            </value>
+            <value>
+                <fullName>Research &amp; Development Division</fullName>
+                <default>false</default>
+                <label>Research &amp; Development Division</label>
+            </value>
+            <value>
+                <fullName>Facilities Division</fullName>
+                <default>false</default>
+                <label>Facilities Division</label>
+            </value>
+            <value>
+                <fullName>Clinical Services Division</fullName>
+                <default>false</default>
+                <label>Clinical Services Division</label>
+            </value>
+            <value>
+                <fullName>Outpatient Services Division</fullName>
+                <default>false</default>
+                <label>Outpatient Services Division</label>
+            </value>
+            <value>
+                <fullName>Inpatient Services Division</fullName>
+                <default>false</default>
+                <label>Inpatient Services Division</label>
+            </value>
+            <value>
+                <fullName>Pharmacy Division</fullName>
+                <default>false</default>
+                <label>Pharmacy Division</label>
+            </value>
+            <value>
+                <fullName>Radiology Division</fullName>
+                <default>false</default>
+                <label>Radiology Division</label>
+            </value>
+            <value>
+                <fullName>Emergency Services Division</fullName>
+                <default>false</default>
+                <label>Emergency Services Division</label>
+            </value>
+            <value>
+                <fullName>Administration Division</fullName>
+                <default>false</default>
+                <label>Administration Division</label>
+            </value>
+            <value>
+                <fullName>Supply Chain Division</fullName>
+                <default>false</default>
+                <label>Supply Chain Division</label>
+            </value>
+            <value>
+                <fullName>Education Division</fullName>
+                <default>false</default>
+                <label>Education Division</label>
+            </value>
+            <value>
+                <fullName>Corporate Services Division</fullName>
+                <default>false</default>
+                <label>Corporate Services Division</label>
+            </value>
+            <value>
+                <fullName>Government Services Division</fullName>
+                <default>false</default>
+                <label>Government Services Division</label>
+            </value>
+            <value>
+                <fullName>Regional Division (e.g., North Region, South Region, East Region, West Region)</fullName>
+                <default>false</default>
+                <label>Regional Division (e.g., North Region, South Region, East Region, West Region)</label>
+            </value>
+            <value>
+                <fullName>International Division</fullName>
+                <default>false</default>
+                <label>International Division</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Perm</fullName>
+                <default>false</default>
+                <label>Perm</label>
+            </value>
+            <value>
+                <fullName>Management</fullName>
+                <default>false</default>
+                <label>Management</label>
+            </value>
+            <value>
+                <fullName>Temp Allied</fullName>
+                <default>false</default>
+                <label>Temp Allied</label>
+            </value>
+            <value>
+                <fullName>Temp Nursing</fullName>
+                <default>false</default>
+                <label>Temp Nursing</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

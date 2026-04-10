@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Application_Information_Source__c</fullName>
+    <label>Application Information Source</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Agency</fullName>
+                <default>false</default>
+                <label>Agency</label>
+            </value>
+            <value>
+                <fullName>Billboards</fullName>
+                <default>false</default>
+                <label>Billboards</label>
+            </value>
+            <value>
+                <fullName>College Recruiting</fullName>
+                <default>false</default>
+                <label>College Recruiting</label>
+            </value>
+            <value>
+                <fullName>Direct Recruiting</fullName>
+                <default>false</default>
+                <label>Direct Recruiting</label>
+            </value>
+            <value>
+                <fullName>Diversity Referral</fullName>
+                <default>false</default>
+                <label>Diversity Referral</label>
+            </value>
+            <value>
+                <fullName>Employee Referral</fullName>
+                <default>false</default>
+                <label>Employee Referral</label>
+            </value>
+            <value>
+                <fullName>Ex-Employee</fullName>
+                <default>false</default>
+                <label>Ex-Employee</label>
+            </value>
+            <value>
+                <fullName>Internal Employee</fullName>
+                <default>false</default>
+                <label>Internal Employee</label>
+            </value>
+            <value>
+                <fullName>Internet Job Boards</fullName>
+                <default>false</default>
+                <label>Internet Job Boards</label>
+            </value>
+            <value>
+                <fullName>Internet</fullName>
+                <default>false</default>
+                <label>Internet</label>
+            </value>
+            <value>
+                <fullName>Job Fair</fullName>
+                <default>false</default>
+                <label>Job Fair</label>
+            </value>
+            <value>
+                <fullName>Newspaper</fullName>
+                <default>false</default>
+                <label>Newspaper</label>
+            </value>
+            <value>
+                <fullName>Other Print Media</fullName>
+                <default>false</default>
+                <label>Other Print Media</label>
+            </value>
+            <value>
+                <fullName>Users Group</fullName>
+                <default>false</default>
+                <label>Users Group</label>
+            </value>
+            <value>
+                <fullName>Others</fullName>
+                <default>false</default>
+                <label>Others</label>
+            </value>
+            <value>
+                <fullName>Test</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Test</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

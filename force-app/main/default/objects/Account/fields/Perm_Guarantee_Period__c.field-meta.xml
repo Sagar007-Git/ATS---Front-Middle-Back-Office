@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Perm_Guarantee_Period__c</fullName>
+    <label>Perm Guarantee Period</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>120 days</fullName>
+                <default>false</default>
+                <label>120 days</label>
+            </value>
+            <value>
+                <fullName>120 days pro-rated</fullName>
+                <default>false</default>
+                <label>120 days pro-rated</label>
+            </value>
+            <value>
+                <fullName>30 days</fullName>
+                <default>false</default>
+                <label>30 days</label>
+            </value>
+            <value>
+                <fullName>60 days</fullName>
+                <default>false</default>
+                <label>60 days</label>
+            </value>
+            <value>
+                <fullName>60 days pro-rated</fullName>
+                <default>false</default>
+                <label>60 days pro-rated</label>
+            </value>
+            <value>
+                <fullName>90 days</fullName>
+                <default>false</default>
+                <label>90 days</label>
+            </value>
+            <value>
+                <fullName>90 days pro-rated</fullName>
+                <default>false</default>
+                <label>90 days pro-rated</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

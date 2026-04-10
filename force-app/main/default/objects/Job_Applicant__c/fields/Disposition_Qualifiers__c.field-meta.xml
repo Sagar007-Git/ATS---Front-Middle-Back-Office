@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Disposition_Qualifiers__c</fullName>
+    <label>Disposition Qualifiers</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Stage__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Accepted a different position</fullName>
+                <default>false</default>
+                <label>Accepted a different position</label>
+            </value>
+            <value>
+                <fullName>Accepted position but never started</fullName>
+                <default>false</default>
+                <label>Accepted position but never started</label>
+            </value>
+            <value>
+                <fullName>Applied for position previously</fullName>
+                <default>false</default>
+                <label>Applied for position previously</label>
+            </value>
+            <value>
+                <fullName>Cancelled or failed to show for interview</fullName>
+                <default>false</default>
+                <label>Cancelled or failed to show for interview</label>
+            </value>
+            <value>
+                <fullName>Client Unresponsive</fullName>
+                <default>false</default>
+                <label>Client Unresponsive</label>
+            </value>
+            <value>
+                <fullName>Current employer</fullName>
+                <default>false</default>
+                <label>Current employer</label>
+            </value>
+            <value>
+                <fullName>Declined position</fullName>
+                <default>false</default>
+                <label>Declined position</label>
+            </value>
+            <value>
+                <fullName>Did not apply for a particular position</fullName>
+                <default>false</default>
+                <label>Did not apply for a particular position</label>
+            </value>
+            <value>
+                <fullName>Did not complete assessments</fullName>
+                <default>false</default>
+                <label>Did not complete assessments</label>
+            </value>
+            <value>
+                <fullName>Did not follow application process</fullName>
+                <default>false</default>
+                <label>Did not follow application process</label>
+            </value>
+            <value>
+                <fullName>Did not meet basic requirements</fullName>
+                <default>false</default>
+                <label>Did not meet basic requirements</label>
+            </value>
+            <value>
+                <fullName>Did not pass credentialing stage</fullName>
+                <default>false</default>
+                <label>Did not pass credentialing stage</label>
+            </value>
+            <value>
+                <fullName>Distance was not favorable</fullName>
+                <default>false</default>
+                <label>Distance was not favorable</label>
+            </value>
+            <value>
+                <fullName>Does not qualify as a profession that we staff</fullName>
+                <default>false</default>
+                <label>Does not qualify as a profession that we staff</label>
+            </value>
+            <value>
+                <fullName>Hired</fullName>
+                <default>false</default>
+                <label>Hired</label>
+            </value>
+            <value>
+                <fullName>Internal successful</fullName>
+                <default>false</default>
+                <label>Internal successful</label>
+            </value>
+            <value>
+                <fullName>Lacks favorable references</fullName>
+                <default>false</default>
+                <label>Lacks favorable references</label>
+            </value>
+            <value>
+                <fullName>Lacks required VISA/work papers</fullName>
+                <default>false</default>
+                <label>Lacks required VISA/work papers</label>
+            </value>
+            <value>
+                <fullName>Lacks willingness for required travel</fullName>
+                <default>false</default>
+                <label>Lacks willingness for required travel</label>
+            </value>
+            <value>
+                <fullName>No contact information</fullName>
+                <default>false</default>
+                <label>No contact information</label>
+            </value>
+            <value>
+                <fullName>No longer interested in the position</fullName>
+                <default>false</default>
+                <label>No longer interested in the position</label>
+            </value>
+            <value>
+                <fullName>No positions available</fullName>
+                <default>false</default>
+                <label>No positions available</label>
+            </value>
+            <value>
+                <fullName>Not best qualified</fullName>
+                <default>false</default>
+                <label>Not best qualified</label>
+            </value>
+            <value>
+                <fullName>Not rehireable by Client</fullName>
+                <default>false</default>
+                <label>Not rehireable by Client</label>
+            </value>
+            <value>
+                <fullName>Pay requested is too high</fullName>
+                <default>false</default>
+                <label>Pay requested is too high</label>
+            </value>
+            <value>
+                <fullName>PLACEMENT</fullName>
+                <default>false</default>
+                <label>PLACEMENT</label>
+            </value>
+            <value>
+                <fullName>Poor test results</fullName>
+                <default>false</default>
+                <label>Poor test results</label>
+            </value>
+            <value>
+                <fullName>Position Closed</fullName>
+                <default>false</default>
+                <label>Position Closed</label>
+            </value>
+            <value>
+                <fullName>Retired</fullName>
+                <default>false</default>
+                <label>Retired</label>
+            </value>
+            <value>
+                <fullName>Salary requested is too high</fullName>
+                <default>false</default>
+                <label>Salary requested is too high</label>
+            </value>
+            <value>
+                <fullName>Start Date Too Far Out</fullName>
+                <default>false</default>
+                <label>Start Date Too Far Out</label>
+            </value>
+            <value>
+                <fullName>Underqualified for position</fullName>
+                <default>false</default>
+                <label>Underqualified for position</label>
+            </value>
+            <value>
+                <fullName>Unfavorable interview</fullName>
+                <default>false</default>
+                <label>Unfavorable interview</label>
+            </value>
+            <value>
+                <fullName>Unresponsive candidate</fullName>
+                <default>false</default>
+                <label>Unresponsive candidate</label>
+            </value>
+            <value>
+                <fullName>Unsubscribed</fullName>
+                <default>false</default>
+                <label>Unsubscribed</label>
+            </value>
+            <value>
+                <fullName>Was not considered</fullName>
+                <default>false</default>
+                <label>Was not considered</label>
+            </value>
+            <value>
+                <fullName>Withdrew application</fullName>
+                <default>false</default>
+                <label>Withdrew application</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

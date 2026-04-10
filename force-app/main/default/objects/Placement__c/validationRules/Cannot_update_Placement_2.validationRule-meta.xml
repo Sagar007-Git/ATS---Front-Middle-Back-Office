@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cannot_update_Placement_2</fullName>
+    <active>true</active>
+    <description>When Placement Status= Pending Confirmation, the candidate has a Vendor assigned, and the vendor’s Vendor_Offer_Letter_Contact__c is empty. Displays validation message</description>
+    <errorConditionFormula>TEXT(Placement_Status__c) = &apos;Pending Confirmation&apos; &amp;&amp;  Candidate__r.Vendor__c &lt;&gt; NULL &amp;&amp;   Candidate__r.Vendor__r.Vendor_Offer_Letter_Contact__c = NULL</errorConditionFormula>
+    <errorMessage>Vendor Offer Letter Contact Required for Offer Letter Distribution. Please update on Vendor Account Record.</errorMessage>
+</ValidationRule>

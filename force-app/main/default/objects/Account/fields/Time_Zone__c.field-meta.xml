@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Time_Zone__c</fullName>
+    <label>Time Zone</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>-CST</fullName>
+                <default>false</default>
+                <label>-CST</label>
+            </value>
+            <value>
+                <fullName>-EST</fullName>
+                <default>false</default>
+                <label>-EST</label>
+            </value>
+            <value>
+                <fullName>-GMT</fullName>
+                <default>false</default>
+                <label>-GMT</label>
+            </value>
+            <value>
+                <fullName>-MST</fullName>
+                <default>false</default>
+                <label>-MST</label>
+            </value>
+            <value>
+                <fullName>-PST</fullName>
+                <default>false</default>
+                <label>-PST</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

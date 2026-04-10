@@ -13,7 +13,7 @@
                     </lightning-input>
                 </div>
             </template>
-            <lightning-button label="Refresh Data" icon-name="utility:refresh" onclick={loadTimesheets}></lightning-button>
+            <lightning-button label="Refresh Data" icon-name="utility:refresh" onclick={loadUnbilledData}></lightning-button>
         </div>
 
         <template if:true={isLoading}>
@@ -26,21 +26,26 @@
                 <div class="slds-box slds-theme_default">
                     <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
                         <div class="slds-text-heading_medium">
-                            Pending Timesheets for: <strong>{drillDownTitle}</strong>
+                            Unbilled Records for: <strong>{drillDownTitle}</strong>
                         </div>
                         <lightning-button variant="neutral" label="Back to Dashboard" icon-name="utility:back" onclick={handleBack}></lightning-button>
                     </div>
 
                     <lightning-datatable
-                        key-field="timesheetId"
+                        key-field="projectId"
                         data={drillDownData}
-                        columns={timesheetColumns}
+                        columns={projectColumns}
                         onrowselection={handleRowSelection}>
                     </lightning-datatable>
 
                     <div class="slds-m-top_medium slds-text-align_right">
-                        <lightning-button label="Generate Timesheet PDFs" variant="neutral" icon-name="utility:pdf_ext" onclick={handleGeneratePDFs} disabled={isGenerateDisabled} class="slds-m-right_small"></lightning-button>
-                        <lightning-button label="Generate Selected Invoices" variant="brand" onclick={handleGenerate} disabled={isGenerateDisabled}></lightning-button>
+                        <lightning-button 
+                            label="Generate Selected Invoices" 
+                            variant="brand" 
+                            icon-name="utility:money"
+                            onclick={handleGenerate} 
+                            disabled={isGenerateDisabled}>
+                        </lightning-button>
                     </div>
                 </div>
             </template>

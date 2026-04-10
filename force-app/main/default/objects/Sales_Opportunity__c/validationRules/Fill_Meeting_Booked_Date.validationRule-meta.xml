@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fill_Meeting_Booked_Date</fullName>
+    <active>true</active>
+    <description>Prevents stage change to Meeting Booked if Meeting_Booked_Date_Time__c is empty.</description>
+    <errorConditionFormula>/* Moving INTO Telephone stage, appointment must be set */
+AND(
+ISCHANGED(Stage__c),
+ISPICKVAL(Stage__c, &quot;Meeting Booked&quot;),
+ISBLANK(Meeting_Booked_Date_Time__c)
+)</errorConditionFormula>
+    <errorMessage>Please Fill out &quot;Meeting Booked Date/Time&quot; field if stage is Meeting Booked</errorMessage>
+</ValidationRule>

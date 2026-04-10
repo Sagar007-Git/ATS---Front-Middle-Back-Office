@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Marketing_Status__c</fullName>
+    <label>Marketing Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Prospect ALF</fullName>
+                <default>false</default>
+                <label>Prospect ALF</label>
+            </value>
+            <value>
+                <fullName>Prospect Charter Schools</fullName>
+                <default>false</default>
+                <label>Prospect Charter Schools</label>
+            </value>
+            <value>
+                <fullName>Prospect Home Health / Hospice</fullName>
+                <default>false</default>
+                <label>Prospect Home Health / Hospice</label>
+            </value>
+            <value>
+                <fullName>Prospect Hospitals</fullName>
+                <default>false</default>
+                <label>Prospect Hospitals</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools</fullName>
+                <default>false</default>
+                <label>Prospect Schools</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools CT</fullName>
+                <default>false</default>
+                <label>Prospect Schools CT</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools FL</fullName>
+                <default>false</default>
+                <label>Prospect Schools FL</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools FL Districts</fullName>
+                <default>false</default>
+                <label>Prospect Schools FL Districts</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools GA</fullName>
+                <default>false</default>
+                <label>Prospect Schools GA</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools IN</fullName>
+                <default>false</default>
+                <label>Prospect Schools IN</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools KY</fullName>
+                <default>false</default>
+                <label>Prospect Schools KY</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools NC</fullName>
+                <default>false</default>
+                <label>Prospect Schools NC</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools ND</fullName>
+                <default>false</default>
+                <label>Prospect Schools ND</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools NY</fullName>
+                <default>false</default>
+                <label>Prospect Schools NY</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools OH</fullName>
+                <default>false</default>
+                <label>Prospect Schools OH</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools OK</fullName>
+                <default>false</default>
+                <label>Prospect Schools OK</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools PA</fullName>
+                <default>false</default>
+                <label>Prospect Schools PA</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools SC</fullName>
+                <default>false</default>
+                <label>Prospect Schools SC</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools SPED IL</fullName>
+                <default>false</default>
+                <label>Prospect Schools SPED IL</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools TN</fullName>
+                <default>false</default>
+                <label>Prospect Schools TN</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools VT</fullName>
+                <default>false</default>
+                <label>Prospect Schools VT</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools WA</fullName>
+                <default>false</default>
+                <label>Prospect Schools WA</label>
+            </value>
+            <value>
+                <fullName>Prospect Schools WI</fullName>
+                <default>false</default>
+                <label>Prospect Schools WI</label>
+            </value>
+            <value>
+                <fullName>Prospect SNF / LTC</fullName>
+                <default>false</default>
+                <label>Prospect SNF / LTC</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

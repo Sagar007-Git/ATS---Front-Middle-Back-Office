@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <label>Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Contract Placement</fullName>
+                <default>false</default>
+                <label>Contract Placement</label>
+            </value>
+            <value>
+                <fullName>Contract to Hire Placement</fullName>
+                <default>false</default>
+                <label>Contract to Hire Placement</label>
+            </value>
+            <value>
+                <fullName>Permanent Placement</fullName>
+                <default>false</default>
+                <label>Permanent Placement</label>
+            </value>
+            <value>
+                <fullName>Contract Full Time</fullName>
+                <default>false</default>
+                <label>Contract Full Time</label>
+            </value>
+            <value>
+                <fullName>Contract Part Time</fullName>
+                <default>false</default>
+                <label>Contract Part Time</label>
+            </value>
+            <value>
+                <fullName>Per Diem / PRN</fullName>
+                <default>false</default>
+                <label>Per Diem / PRN</label>
+            </value>
+            <value>
+                <fullName>Permanent</fullName>
+                <default>false</default>
+                <label>Permanent</label>
+            </value>
+            <value>
+                <fullName>Permanent Part Time</fullName>
+                <default>false</default>
+                <label>Permanent Part Time</label>
+            </value>
+            <value>
+                <fullName>Temp To Perm</fullName>
+                <default>false</default>
+                <label>Temp To Perm</label>
+            </value>
+            <value>
+                <fullName>Contract/Temp</fullName>
+                <default>false</default>
+                <label>Contract/Temp</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Extension</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <linkType>page</linkType>
+    <masterLabel>Extension</masterLabel>
+    <openType>replace</openType>
+    <page>PlacementExtensionPage</page>
+    <protected>false</protected>
+</WebLink>

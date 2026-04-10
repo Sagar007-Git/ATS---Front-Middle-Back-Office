@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Existing_Agreements_Text__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(INCLUDES(Existing_Agreements__c,&quot;Temp Nursing Agreement&quot;),&quot;Temp Nursing Agreement;&quot;,null)&amp;
+IF(INCLUDES(Existing_Agreements__c,&quot;Temp Therapy Agreement&quot;),&quot;Temp Therapy Agreement;&quot;,null)&amp;
+IF(INCLUDES(Existing_Agreements__c,&quot;Perm Nursing Agreement&quot;),&quot;Perm Nursing Agreement;&quot;,null)&amp;
+IF(INCLUDES(Existing_Agreements__c,&quot;Perm Therapy Agreement&quot;),&quot;Perm Therapy Agreement;&quot;,null)&amp;
+IF(INCLUDES(Existing_Agreements__c,&quot;Perm Physician Agreement&quot;),&quot;Perm Physician Agreement;&quot;,null)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Existing Agreements (Text)</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

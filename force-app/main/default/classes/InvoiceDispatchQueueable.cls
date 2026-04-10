@@ -9,7 +9,6 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
     public void execute(QueueableContext context) {
         if (allInvoiceIds == null || allInvoiceIds.isEmpty()) return;
 
-        // 🛡️ Batch size of 5 to protect CPU and Callout limits
         Integer batchSize = Math.min(allInvoiceIds.size(), 5);
         List<Id> processNow = new List<Id>();
         List<Id> processLater = new List<Id>();
@@ -20,33 +19,31 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
         }
 
         try {
-            // Step 1: Query Records
             List<Invoice__c> invoicesToProcess = queryInvoices(processNow);
+            System.debug('🔍 Queried ' + invoicesToProcess.size() + ' invoices');
 
-            // Step 2: Generate PDFs and Save to Salesforce Files
             Map<Id, Blob> invoiceIdToPdfBlob = new Map<Id, Blob>();
             List<ContentVersion> cvsToInsert = generatePdfs(invoicesToProcess, invoiceIdToPdfBlob);
             
             if (!cvsToInsert.isEmpty()) {
                 insert cvsToInsert;
+                System.debug('💾 Inserted ' + cvsToInsert.size() + ' ContentVersion records');
             }
 
-            // Step 3: Send Emails and Update Status (ONLY if email succeeds)
             sendEmailsAndUpdateStatus(invoicesToProcess, invoiceIdToPdfBlob);
 
         } catch (Exception e) {
-            System.debug(LoggingLevel.ERROR, 'Fatal Error in Dispatch Queueable: ' + e.getMessage() + '\n' + e.getStackTraceString());
+            System.debug(LoggingLevel.ERROR, '❌ Fatal Error in Dispatch Queueable: ' + e.getMessage());
+            System.debug(LoggingLevel.ERROR, 'Stack: ' + e.getStackTraceString());
+            // Optional: throw e; to mark job as Failed
         }
 
-        // Step 4: Chain the next batch of records if there are more
         if (!processLater.isEmpty()) {
             System.enqueueJob(new InvoiceDispatchQueueable(processLater));
+            System.debug('🔗 Enqueued next batch of ' + processLater.size() + ' invoices');
         }
     }
 
-    // =========================================================================
-    // HELPER 1: QUERY DATA
-    // =========================================================================
     private List<Invoice__c> queryInvoices(List<Id> invoiceIds) {
         return [
             SELECT Id, Name, Account__c, Account__r.Name, Account__r.Billing_Email__c,
@@ -56,9 +53,6 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
         ];
     }
 
-    // =========================================================================
-    // HELPER 2: GENERATE PDFs
-    // =========================================================================
     private List<ContentVersion> generatePdfs(List<Invoice__c> invoices, Map<Id, Blob> pdfMap) {
         List<ContentVersion> filesToInsert = new List<ContentVersion>();
         
@@ -67,6 +61,7 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
                 PageReference pdfPage = new PageReference('/apex/PxmInvoicePDF?id=' + inv.Id);
                 Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test PDF') : pdfPage.getContentAsPDF();
                 
+                System.debug('✅ PDF generated for ' + inv.Name + ', size: ' + pdfBlob.size());
                 pdfMap.put(inv.Id, pdfBlob);
                 
                 String fileName = 'Invoice - ' + inv.Name + ' - ' + inv.Account__r.Name;
@@ -75,23 +70,17 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
                     PathOnClient = fileName + '.pdf',
                     VersionData = pdfBlob,
                     IsMajorVersion = true,
-                    FirstPublishLocationId = inv.Id // Links file directly to the Invoice
+                    FirstPublishLocationId = inv.Id
                 ));
             } catch (Exception e) {
-                System.debug(LoggingLevel.ERROR, 'Failed to generate PDF for Invoice ' + inv.Name + ': ' + e.getMessage());
+                System.debug(LoggingLevel.ERROR, '🔴 PDF FAILED for Invoice ' + inv.Name + ': ' + e.getMessage());
             }
         }
         return filesToInsert;
     }
 
-    // =========================================================================
-    // HELPER 3: BUILD EMAILS & UPDATE STATUS
-    // =========================================================================
     private void sendEmailsAndUpdateStatus(List<Invoice__c> invoices, Map<Id, Blob> pdfMap) {
         List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
-        
-        // We use this map to track which email belongs to which invoice 
-        // so we can check if it sent successfully later.
         Map<Integer, Invoice__c> emailIndexToInvoiceMap = new Map<Integer, Invoice__c>();
         Integer emailIndex = 0;
 
@@ -99,18 +88,16 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
             if (pdfMap.containsKey(inv.Id) && String.isNotBlank(inv.Account__r.Billing_Email__c)) {
                 
                 Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-                
                 email.setToAddresses(new List<String>{ inv.Account__r.Billing_Email__c });
                 email.setReplyTo('sagar.patil@praxiomai.com'); 
                 email.setSenderDisplayName('Praxiom Billing Department');
                 email.setSubject('Invoice ' + inv.Name + ' from Praxiom');
                 
                 String body = 'Dear ' + inv.Account__r.Name + ' Billing Team,\n\n';
-                body += 'Please find attached your latest invoice (' + inv.Name + ') for the recent billing period.\n\n';
+                body += 'Please find attached your latest invoice (' + inv.Name + ').\n\n';
                 if(inv.Due_Date__c != null) {
                     body += 'Payment is due by ' + inv.Due_Date__c.format() + '.\n\n';
                 }
-                body += 'If you have any questions, please reply to this email.\n\n';
                 body += 'Thank you for your business!\n\nSagar Patil\nPraxiom';
                 email.setPlainTextBody(body);
                 
@@ -123,31 +110,36 @@ public class InvoiceDispatchQueueable implements Queueable, Database.AllowsCallo
                 emailsToSend.add(email);
                 emailIndexToInvoiceMap.put(emailIndex, inv);
                 emailIndex++;
+                
+                System.debug('✉️ Email prepared for Invoice ' + inv.Name);
             } else {
-                System.debug(LoggingLevel.WARN, 'Skipped emailing Invoice ' + inv.Name + '. Missing PDF or Billing Email.');
+                System.debug('⚠️ SKIPPED Invoice ' + inv.Name + ' (PDF: ' + pdfMap.containsKey(inv.Id) + ', Email: ' + String.isNotBlank(inv.Account__r.Billing_Email__c) + ')');
             }
         }
 
-        if (emailsToSend.isEmpty()) return;
+        if (emailsToSend.isEmpty()) {
+            System.debug('⚠️ No emails to send in this batch');
+            return;
+        }
 
-        // 🚀 FIRE EMAILS (false = allow partial success)
         Messaging.SendEmailResult[] emailResults = Messaging.sendEmail(emailsToSend, false);
         List<Invoice__c> invoicesToUpdate = new List<Invoice__c>();
 
-        // 🛡️ Verify Success: Only update the invoice to "Sent" if the email actually went out
         for (Integer i = 0; i < emailResults.size(); i++) {
             Invoice__c relatedInvoice = emailIndexToInvoiceMap.get(i);
             
             if (emailResults[i].isSuccess()) {
                 invoicesToUpdate.add(new Invoice__c(Id = relatedInvoice.Id, Status__c = 'Sent'));
+                System.debug('✅ Email SUCCESS for Invoice ' + relatedInvoice.Name);
             } else {
                 String errorMsg = emailResults[i].getErrors()[0].getMessage();
-                System.debug(LoggingLevel.ERROR, 'Failed to send email for Invoice ' + relatedInvoice.Name + ': ' + errorMsg);
+                System.debug(LoggingLevel.ERROR, '🔴 EMAIL FAILED for Invoice ' + relatedInvoice.Name + ': ' + errorMsg);
             }
         }
 
         if (!invoicesToUpdate.isEmpty()) {
             update invoicesToUpdate;
+            System.debug('🔄 Updated ' + invoicesToUpdate.size() + ' invoices to Status__c = Sent');
         }
     }
 }

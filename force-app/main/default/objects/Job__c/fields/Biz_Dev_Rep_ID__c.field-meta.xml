@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Biz_Dev_Rep_ID__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Full Time&quot;)), Client__r.Biz_Dev_Temp_Therapy__r.Id ,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Part Time&quot;)), Client__r.Biz_Dev_Temp_Therapy__r.Id,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Full Time&quot;)), Client__r.Biz_Dev_Temp_Nursing__r.Id ,
+IF(
+AND( ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Part Time&quot;)), Client__r.Biz_Dev_Temp_Nursing__r.Id ,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Full Time&quot;)), Client__r.Biz_Dev_Perm_Therapy__r.Id ,
+
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Part Time&quot;)), Client__r.Biz_Dev_Perm_Therapy__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Full Time&quot;)), Client__r.Biz_Dev_Perm_Nursing__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Part Time&quot;)), Client__r.Biz_Dev_Perm_Nursing__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Temp To Perm&quot;)), Client__r.Biz_Dev_Temp_Nursing__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Temp To Perm&quot;)), Client__r.Biz_Dev_Temp_Therapy__r.Id ,
+
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Full Time&quot;)), Client__r.Biz_Dev_Temp_Administration__r.Id ,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Contract Part Time&quot;)), Client__r.Biz_Dev_Temp_Administration__r.Id ,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Full Time&quot;)), Client__r.Biz_Dev_Perm_Administration__r.Id ,
+
+IF (
+AND (ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Permanent Part Time&quot;)), Client__r.Biz_Dev_Perm_Administration__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Temp To Perm&quot;)), Client__r.Biz_Dev_Temp_Administration__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Administrative&apos;), ISPICKVAL(Job_Type__c,&quot;Per Diem / PRN&quot;)), Client__r.Biz_Dev_Temp_Administration__r.Id ,
+IF (
+AND(ISPICKVAL(Job_Category__c,&apos;Nursing&apos;), ISPICKVAL(Job_Type__c,&quot;Per Diem / PRN&quot;)),Client__r.Biz_Dev_Temp_Nursing__r.Id ,
+IF (
+AND( ISPICKVAL(Job_Category__c,&apos;Allied&apos;), ISPICKVAL(Job_Type__c,&quot;Per Diem / PRN&quot;)), Client__r.Biz_Dev_Temp_Therapy__r.Id,
+
+IF (ISPICKVAL(Job_Category__c,&quot;Physician/Advanced Practice&quot;), Client__r.Biz_Dev_Perm_Physician__r.Id ,
+&quot;&quot;)
+)
+)
+)
+)))))
+))))
+))))))</formula>
+    <label>Biz Dev Rep ID</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

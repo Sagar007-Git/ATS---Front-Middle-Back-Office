@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Salary_Range_year__c</fullName>
+    <label>Salary Range(year)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Less than 25k</fullName>
+                <default>false</default>
+                <label>Less than 25k</label>
+            </value>
+            <value>
+                <fullName>25k - 35k</fullName>
+                <default>false</default>
+                <label>25k - 35k</label>
+            </value>
+            <value>
+                <fullName>35k - 45k</fullName>
+                <default>false</default>
+                <label>35k - 45k</label>
+            </value>
+            <value>
+                <fullName>55k - 65k</fullName>
+                <default>false</default>
+                <label>55k - 65k</label>
+            </value>
+            <value>
+                <fullName>65k - 75k</fullName>
+                <default>false</default>
+                <label>65k - 75k</label>
+            </value>
+            <value>
+                <fullName>75k - 85k</fullName>
+                <default>false</default>
+                <label>75k - 85k</label>
+            </value>
+            <value>
+                <fullName>85k - 95k</fullName>
+                <default>false</default>
+                <label>85k - 95k</label>
+            </value>
+            <value>
+                <fullName>Over 95k</fullName>
+                <default>false</default>
+                <label>Over 95k</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
