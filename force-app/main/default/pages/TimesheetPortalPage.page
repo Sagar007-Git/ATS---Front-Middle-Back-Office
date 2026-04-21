@@ -1,0 +1,46 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="true" applyBodyTag="true" docType="html-5.0">
+    <head>
+        <title>Employee Timesheet Portal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <style>
+            /* Reset body to allow your LWC to span edge-to-edge */
+            body { 
+                margin: 0; 
+                padding: 0; 
+                background-color: #F8F9FA; /* Matches your SaaS background */
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            }
+            #lwc-container { 
+                width: 100%; 
+                min-height: 100vh; 
+            }
+        </style>
+    </head>
+    <body>
+        <apex:includeLightning />
+
+        <div id="lwc-container"></div>
+
+        <script>
+            // Grab the contactId from the URL so we can pass it to the LWC
+            const urlParams = new URLSearchParams(window.location.search);
+            const contactIdParam = urlParams.get('contactId') || urlParams.get('c__contactId');
+
+            // Initialize the Aura App Bridge
+            $Lightning.use("c:TimesheetPortalApp", function() {
+                
+                // Inject the LWC into the div above
+                $Lightning.createComponent(
+                    "c:timesheetPortal", 
+                    {
+                        contactId: contactIdParam // Passes the ID as a property
+                    },
+                    "lwc-container",
+                    function(cmp) {
+                        console.log("Enterprise Timesheet Portal loaded successfully.");
+                    }
+                );
+            });
+        </script>
+    </body>
+</apex:page>

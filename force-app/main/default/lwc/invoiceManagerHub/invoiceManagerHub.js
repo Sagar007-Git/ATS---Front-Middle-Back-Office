@@ -4,6 +4,7 @@
     // ✅ IMPORTING THE NEW APEX METHODS
     import getUnbilledProjects from '@salesforce/apex/InvoiceConsoleController.getUnbilledProjects';
     import generateInvoices from '@salesforce/apex/InvoiceConsoleController.generateInvoices';
+    import reviewRecords from '@salesforce/apex/InvoiceConsoleController.reviewRecords';
 
     export default class InvoiceManagerHub extends LightningElement {
         @track isLoading = true;
@@ -14,8 +15,11 @@
         @track appliedSearchTerm = '';
         searchTimeout;
 
+        // --- Review & Reject State ---
+        @track isRejectModalOpen = false;
+        @track rejectReason = '';
+
         // --- Grouped Data for Tabs ---
-        @track accountGroups = [];
         @track projectGroups = [];
 
         // --- Drill-Down (Popup) State ---
@@ -23,6 +27,8 @@
         @track drillDownTitle = '';
         @track drillDownData = [];
         @track selectedRows = [];
+
+        @track candidateGroups = [];
 
         // --- Datatable Configuration (Updated to reflect Project aggregates) ---
         projectColumns = [
@@ -75,19 +81,22 @@
         applySearchAndGroup() {
             let dataToProcess = this.allData;
 
-            // Apply Search Term Filter across Account and Project names
+            // Apply Search Term Filter across Project and Candidate names ONLY
             if (this.appliedSearchTerm) {
                 dataToProcess = this.allData.filter(proj => {
-                    const acc = proj.accountName ? proj.accountName.toLowerCase() : '';
                     const pName = proj.projectName ? proj.projectName.toLowerCase() : '';
+                    const cName = proj.candidateName ? proj.candidateName.toLowerCase() : '';
                     
-                    return acc.includes(this.appliedSearchTerm) || pName.includes(this.appliedSearchTerm);
+                    return pName.includes(this.appliedSearchTerm) || 
+                           cName.includes(this.appliedSearchTerm);
                 });
             }
 
             // Rebuild the Data Groups for the UI Tabs
-            this.accountGroups = this.groupData(dataToProcess, 'accountId', 'accountName');
+            // ✅ DELETED the this.accountGroups mapping line
+            
             this.projectGroups = this.groupData(dataToProcess, 'projectId', 'projectName');
+            this.candidateGroups = this.groupData(dataToProcess, 'candidateId', 'candidateName');
         }
         
         groupData(dataList, keyField, nameField) {
@@ -137,7 +146,7 @@
             this.isLoading = true;
             
             // Extract the Project IDs from the selected rows
-            const ids = this.selectedRows.map(row => row.projectId);
+            const ids = [...new Set(this.selectedRows.map(row => row.projectId))];
             
             generateInvoices({ projectIds: ids })
                 .then(message => {
@@ -147,6 +156,62 @@
                 })
                 .catch(error => {
                     this.showToast('Generation Failed', this.extractErrorMessage(error), 'error');
+                    this.isLoading = false;
+                });
+        }
+
+        // ==========================================
+        // MANAGER REVIEW ACTIONS (Approve / Reject)
+        // ==========================================
+        handleApprove() {
+            if (this.selectedRows.length === 0) return;
+            this.isLoading = true;
+            
+            const keys = this.selectedRows.map(row => row.compositeKey);
+            
+            reviewRecords({ compositeKeys: keys, newStatus: 'Approved', rejectReason: '' })
+                .then(message => {
+                    this.showToast('Success', message, 'success');
+                    this.loadUnbilledData(); // Refresh the hub
+                })
+                .catch(error => {
+                    this.showToast('Approval Failed', this.extractErrorMessage(error), 'error');
+                    this.isLoading = false;
+                });
+        }
+
+        openRejectModal() {
+            if (this.selectedRows.length === 0) return;
+            this.rejectReason = '';
+            this.isRejectModalOpen = true;
+        }
+
+        closeRejectModal() {
+            this.isRejectModalOpen = false;
+        }
+
+        handleRejectReasonChange(event) {
+            this.rejectReason = event.target.value;
+        }
+
+        confirmReject() {
+            if (!this.rejectReason) {
+                this.showToast('Required', 'Please provide a reason for rejecting the timesheet.', 'warning');
+                return;
+            }
+
+            this.isLoading = true;
+            this.isRejectModalOpen = false;
+            
+            const keys = this.selectedRows.map(row => row.compositeKey);
+            
+            reviewRecords({ compositeKeys: keys, newStatus: 'Rejected', rejectReason: this.rejectReason })
+                .then(message => {
+                    this.showToast('Timesheets Rejected', 'The records have been sent back to the employee(s) for correction.', 'info');
+                    this.loadUnbilledData();
+                })
+                .catch(error => {
+                    this.showToast('Rejection Failed', this.extractErrorMessage(error), 'error');
                     this.isLoading = false;
                 });
         }

@@ -1,6 +1,9 @@
 import { LightningElement, track, wire } from 'lwc';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
+import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
+
 import getTimesheetData from '@salesforce/apex/TimesheetPortalController.getTimesheetData';
 import saveTimeEntry from '@salesforce/apex/TimesheetPortalController.saveTimeEntry';
 import moveTimeEntry from '@salesforce/apex/TimesheetPortalController.moveTimeEntry';
@@ -8,12 +11,14 @@ import deleteTimeEntry from '@salesforce/apex/TimesheetPortalController.deleteTi
 import submitWeek from '@salesforce/apex/TimesheetPortalController.submitWeek';
 import saveExpense from '@salesforce/apex/TimesheetPortalController.saveExpense';
 import deleteExpense from '@salesforce/apex/TimesheetPortalController.deleteExpense';
-import { NavigationMixin } from 'lightning/navigation';
+import EXPENSE_OBJECT from '@salesforce/schema/Expense__c';
+import CATEGORY_FIELD from '@salesforce/schema/Expense__c.Category__c';
+
+import getFilePreviewData from '@salesforce/apex/TimesheetPortalController.getFilePreviewData';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MODULE: Time Utilities
 // ─────────────────────────────────────────────────────────────────────────────
-
 const TimeUtils = {
     normalizeTime: function(timeValue) {
         if (timeValue === null || timeValue === undefined || timeValue === '') return null;
@@ -75,83 +80,75 @@ const DataUtils = {
     }
 };
 
-export default class extends NavigationMixin(LightningElement) {
+export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     @track contactId;
     @track contactName = '';
     @track contactTitle = '';
-    
-    // ✅ Navigation State
-    @track activeTab = 'timesheet'; // 'timesheet' | 'expenses'
-    @track activeView = 'weekly';   // 'weekly' | 'list'
-    
-    @track currentStartDate = new Date();
-    @track dateHeaders = [];
-    @track calendarColumns = [];
 
-    // ─── ADD THESE TRACK VARIABLES ───
-    @track listSortField = 'Date__c';
-    @track listSortDirection = 'desc';
-    @track expandedRowIds = []; // Tracks which rows have their notes expanded
+    // ==========================================
+    // 🗂️ GLOBAL UI & NAVIGATION STATE
+    // ==========================================
+    @track activeTab = 'timesheet';
+    @track activeView = 'weekly';
+    @track listTimeframe = 'Weekly';
+    @track currentStartDate = new Date();
+    @track unreadNotifications = 3; 
+
+    @track isPreviewModalOpen = false;
+    @track isPreviewLoading = false;
+    @track previewDataUrl = '';
+    @track previewFileType = '';
+    @track previewFileName = '';
     
     wiredResult;
     allProjectResources = [];
     allTimeEntries = [];
+    allProjectTasks = [];
     allExpenses = [];
-    // 🎨 CLEAN SAAS PALETTE (Vibrant borders, backgrounds handled by CSS)
+    
     _colorPalette = [
-        { border: '#0176D3', dot: '#0176D3' }, // Salesforce Blue
-        { border: '#41B658', dot: '#41B658' }, // Mint Green
-        { border: '#E96B54', dot: '#E96B54' }, // Coral
-        { border: '#7856FF', dot: '#7856FF' }, // Purple
-        { border: '#F29A2E', dot: '#F29A2E' }  // Orange
+        { border: '#0176D3', dot: '#0176D3' },
+        { border: '#41B658', dot: '#41B658' },
+        { border: '#E96B54', dot: '#E96B54' },
+        { border: '#7856FF', dot: '#7856FF' },
+        { border: '#F29A2E', dot: '#F29A2E' }
     ];
     _projectColorMap = {};
 
     @track searchTerm = '';
-    @track currentPage = 1;
+    @track listSearchTerm = '';
     @track recordsPerPage = 20;
     @track totalRecords = 0;
     @track totalPages = 1;
-    @track listSearchTerm = '';
 
-    // Time Entry State
+    @track searchTerm = '';
+    @track expandedProjectIds = [];
+
+    // ==========================================
+    // 📅 CALENDAR & TIMESHEET STATE
+    // ==========================================
+    @track currentDate = new Date(); 
+    @track viewedDate = new Date();  
+    @track miniCalendarWeeks = [];
+    @track currentMonthLabel = '';
+    @track dateHeaders = [];
+    @track calendarColumns = [];
+    @track weeklyTotalHours = '0.0';
+
+    // 🌟 WEEKLY COPY/PASTE STATE
+    @track copiedWeekEntries = null;
+    @track copiedWeekStartDate = null;
+
     @track isEntryModalOpen = false;
     @track selectedEntryId = null;
     @track entryDate = '';
     @track entryProjectId = '';
-    @track entryType = 'Regular';
+    @track entryTaskId = '';
     @track entryStartTime = '09:00';
     @track entryEndTime = '17:00';
     @track entryBreakTime = 0;
     @track entryComments = '';
-
-    @track attachedFileId = null; // ✅ Tracks the actual ID for previewing
-
-    // ✅ Restored Expense Modal State
-    @track isExpenseModalOpen = false;
-    @track selectedExpenseId = null;
-    @track expenseProjectId = '';
-    @track expenseDate = '';
-    @track expenseAmount = '';
-    @track expenseCategory = '';
-    @track expenseDescription = '';
-    @track expenseComments = '';
-
-    @track isDeleteConfirmOpen = false;
-    @track deleteType = '';
-    pendingDeleteId = null;
-
-    @track copiedEntry = null;
-    @track isCutAction = false;
-    cutEntryId = null;
-    actionHistory = [];
-    @track isUndoDisabled = true;
-
-    @track hoverCard = { visible: false };
-    _hoverTimeout = null;
-    _hoverEntryId = null;
-
-    @track listTimeframe = 'Weekly'; // 'Weekly' | 'Monthly'
+    @track entryDuration = '';
 
     _isDrawing = false;
     _drawStartY = 0;
@@ -165,67 +162,780 @@ export default class extends NavigationMixin(LightningElement) {
     _resizingEntryId = null;
     _resizingEl = null;
 
-    
+    @track copiedEntry = null;
+    @track isCutAction = false;
+    cutEntryId = null;
+    actionHistory = [];
+    @track isUndoDisabled = true;
     @track selectedEntryIds = [];
     @track isBulkModalOpen = false;
     @track bulkType = '';
     @track inlineEditEntryId = null;
-    @track weeklyTotalHours = '0.0';
 
-    // Expense Modal State
+    @track isSubmitReviewOpen = false;
+    @track submitSummary = [];
+    @track submitTotalHours = '0.00';
+    @track isAttested = false;
+    @track isDeleteConfirmOpen = false;
+    @track deleteType = '';
+    pendingDeleteId = null;
+    @track hoverCard = { visible: false };
+    _hoverTimeout = null;
+    _hoverEntryId = null;
+
+    @track showDeleteModal = false;
+
+    @track currentPage = 1;
+    @track pageSize = 10; // Default to 10 records
+    @track isSaving = false; // Prevents double-clicking the save button
+
+    // ==========================================
+    // 💰 EXPENSE DASHBOARD STATE
+    // ==========================================
+    @track allRawExpenses = [];
+    @track displayExpenses = [];
+    @track expenseFilterType = 'month';
+    @track expFilterStartDate = '';
+    @track expFilterEndDate = '';
+    @track activeStatusTab = 'All';
+    
+    @track tabCounts = { all: 0, draft: 0, submitted: 0, approved: 0, rejected: 0, invoiced: 0 };
+    @track kpiTotalApplied = '$0.00';
+    @track kpiTotalDraft = '$0.00';
+    @track kpiTotalPending = '$0.00';
+    @track kpiTotalApproved = '$0.00';
+    @track kpiTotalInvoiced = '$0.00';
+    // 🌟 SAAS STATE MANAGEMENT
+    @track listTimeframe = 'Weekly'; // CRITICAL: Must default to 'Weekly'
+
+    @track isExpenseModalOpen = false;
+    @track isMissingReceiptModalOpen = false;
+    @track selectedExpenseId = null;
+    @track expenseProjectId = '';
+    @track expenseDate = '';
+    @track expenseAmount = '';
+    @track expenseCategory = '';
+    @track expenseDescription = '';
+    @track expenseComments = '';
+    @track expenseStatus = 'Draft';
+    @track attachedFileId = null;
     @track attachedFileName = '';
-    fileBase64 = null; // Doesn't need to be tracked, just stored
+    fileBase64 = null;
+    @track expenseCategoryOptions = [];
+    expenseRecordTypeId;
 
-    expenseCategoryOptions = [
-        { label: '✈️ Travel', value: 'Travel' },
-        { label: '🍽 Meals', value: 'Meals' },
-        { label: '🏨 Lodging', value: 'Lodging' },
-        { label: '💻 Equipment', value: 'Equipment' },
-        { label: '🔧 Other', value: 'Other' }
-    ];
+    @track activeDatePreset = 'Month'; 
+    @track activeView = 'grid';
+
+    @track isDirty = false; // Tracks if the user has made unsaved changes
+
     recordsPerPageOptions = [
         { label: '10', value: '10' },
         { label: '20', value: '20' },
         { label: '50', value: '50' },
         { label: 'All', value: '1000' }
     ];
-    _typeClassMap = {
-        'Regular': 'entry-regular',
-        'Overtime': 'entry-overtime',
-        'Double Time': 'entry-doubletime',
-        'Sick': 'entry-sick',
-        'PTO': 'entry-pto',
-        'Holiday': 'entry-holiday',
-        'Training': 'entry-training'
-    };
-    _statusShortMap = {
-        'Draft': 'D',
-        'Submitted': 'S',
-        'Approved': 'A',
-        'Rejected': 'R'
-    };
+    _statusShortMap = { 'Draft': 'D', 'Submitted': 'S', 'Approved': 'A', 'Rejected': 'R' };
 
-    allProjectTasks = []; // ✅ Store dynamic tasks
-    @track expenseStatus = 'Draft'; 
+    @track isMiniCalendarOpen = true;
 
-    
-    
-    
-    // ─── GETTERS ─────────────────────────────────────────────────────────────
-    
-    // ✅ NEW: Getter to lock the UI if the expense is submitted/approved
-    get isExpenseReadOnly() {
-        return this.selectedExpenseId != null && this.expenseStatus !== 'Draft';
+    get calendarToggleIcon() {
+        return this.isMiniCalendarOpen ? 'utility:chevrondown' : 'utility:chevronright';
     }
 
-    get isTaskDisabled() { return !this.entryProjectId; } // ✅ Disable task dropdown if no project is selected
-    
-    get timeframeOptions() {
-        return [
-            { label: 'This Week', value: 'Weekly' },
-            { label: 'This Month', value: 'Monthly' }
-        ];
+    get isSaveDraftDisabled() {
+        // Disabled if saving, or if no changes have been made to an existing draft
+        return this.isSaving || !this.isDirty; 
     }
+
+    get showDeleteButton() {
+        // Only show delete if it's an existing Draft (not a brand new unsaved record)
+        return this.expenseStatus === 'Draft' && this.selectedExpenseId && this.selectedExpenseId !== 'NEW';
+    }
+    // 🌟 WEEKLY COPY/PASTE GETTERS
+    get isWeekCopied() { 
+        return this.copiedWeekEntries !== null && this.copiedWeekEntries.length > 0; 
+    }
+    
+    get isClipboardActive() { 
+        return this.isEntryCopied || this.isWeekCopied; 
+    }
+    
+    get copyWeekDisabled() {
+        // Disables the Copy button if there are zero entries in the currently viewed week
+        if (!this.dateHeaders || !this.dateHeaders.length) return true;
+        const startStr = this.dateHeaders[0].dateValue;
+        const endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
+        return !this.allTimeEntries.some(e => e.Date__c >= startStr && e.Date__c <= endStr);
+    }
+
+    toggleMiniCalendar() {
+        this.isMiniCalendarOpen = !this.isMiniCalendarOpen;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🚀 LIFECYCLE & APEX WIRE
+    // ─────────────────────────────────────────────────────────────────────────
+    connectedCallback() {
+        const p = new URLSearchParams(window.location.search);
+        this.contactId = p.get('contactId') || p.get('c__contactId');
+        if (!DataUtils.isValidSfId(this.contactId)) {
+            this.showToast('Authentication Error', 'Invalid Contact ID.', 'error');
+            return;
+        }
+        this.setInitialDates();
+        this.refreshAllViews();
+        this.entryDate = DataUtils.getLocalIsoDate();
+        this.expenseDate = DataUtils.getLocalIsoDate();
+        
+        // 🌟 Make the ESC listener global on load
+        window.addEventListener('keydown', this._handleKeyDown);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('mousemove', this._onDrawMove);
+        window.removeEventListener('mouseup', this._onDrawEnd);
+        window.removeEventListener('mousemove', this._onResizeMove);
+        window.removeEventListener('mouseup', this._onResizeEnd);
+        window.removeEventListener('keydown', this._handleKeyDown);
+    }
+
+    setInitialDates() {
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+        this.currentDate = new Date(d.setDate(diff));
+        this.currentDate.setHours(0,0,0,0);
+        this.viewedDate = new Date(this.currentDate);
+    }
+
+    @wire(getTimesheetData, { contactId: '$contactId' })
+    wiredData(res) {
+        this.wiredResult = res; 
+        if (res.data) {
+            try {
+                this.allProjectResources = res.data.projectResources ? DataUtils.deepClone(res.data.projectResources) : [];
+                this.allTimeEntries = res.data.timeEntries ? DataUtils.deepClone(res.data.timeEntries) : [];
+                this.allProjectTasks = res.data.projectTasks ? DataUtils.deepClone(res.data.projectTasks) : [];
+                this.allExpenses = res.data.expenses ? DataUtils.deepClone(res.data.expenses) : [];
+                
+                // Inside your @wire method:
+                if (res.data.expenses) {
+                    this.allRawExpenses = res.data.expenses.map(exp => {
+                        const attachedFiles = exp.ContentDocumentLinks?.records || exp.ContentDocumentLinks;
+                        const hasFile = attachedFiles && attachedFiles.length > 0;
+                        
+                        // Safely get filename with extension
+                        let fName = '';
+                        if (hasFile) {
+                            fName = attachedFiles[0].ContentDocument.Title;
+                            if (attachedFiles[0].ContentDocument.FileExtension) {
+                                fName += '.' + attachedFiles[0].ContentDocument.FileExtension;
+                            }
+                        }
+
+                        return {
+                            Id: exp.Id,
+                            projectId: exp.Project__c, // 🌟 THE FIX: Store the actual Project ID
+                            amountValue: exp.Amount__c || 0,
+                            displayAmount: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(exp.Amount__c || 0),
+                            dateValue: exp.Expense_Date__c,
+                            displayDate: new Date(exp.Expense_Date__c).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                            projectName: exp.Project__r?.Name || 'General',
+                            category: exp.Category__c || 'Uncategorized',
+                            status: exp.Status__c || 'Draft',
+                            notes: exp.Description__c || '',
+                            hasReceipt: hasFile,
+                            documentId: hasFile ? attachedFiles[0].ContentDocumentId : null, // 🌟 THE FIX: Grab correct ID
+                            receiptName: fName,
+                            masterItemClass: 'expense-item-card',
+                            isActionRequired: exp.Status__c === 'Rejected',
+                            pillClass: this.getPillClass(exp.Status__c)
+                        };
+                    });
+                    if (!this.expFilterStartDate) this.setExpFilterMonth(); 
+                    else this.processExpenseEngine();
+                }
+                
+                if (res.data.contact) {
+                    this.contactName = res.data.contact.Name || '';
+                    this.contactTitle = res.data.contact.Title || res.data.contact.Department || '';
+                }
+                
+                this._projectColorMap = {};
+                DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c).forEach((r, i) => {
+                    if (r.Project__c && !this._projectColorMap[r.Project__c]) {
+                        this._projectColorMap[r.Project__c] = this._colorPalette[i % this._colorPalette.length];
+                    }
+                });
+                
+                this.buildGrid();
+            } catch (e) {
+                console.error(e);
+                this.showToast('Data Error', 'Failed to load data.', 'error');
+            }
+        } else if (res.error) {
+            this.showToast('Load Error', res.error?.body?.message || 'Could not load timesheet.', 'error');
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🧭 NAVIGATION & SYNC
+    // ─────────────────────────────────────────────────────────────────────────
+    get hasNotifications() { return this.unreadNotifications > 0; }
+    openNotifications() { this.showToast('Notifications', 'You have pending approvals to review.', 'info'); }
+
+    switchToTimesheet() { 
+        this.activeTab = 'timesheet'; 
+        this.clearExpenseState(); // Wipe state when leaving
+    }
+
+    handleLoadMore() {
+        // Logic to fetch the next 20-50 records from Apex goes here.
+        // For example: this.offset += 50; this.fetchExpenses();
+        console.log('Lazy Loading triggered: Fetching next batch of expenses...');
+    }
+
+    // Global Keydown Listener for ESC
+    _handleKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            // Close File Preview if open
+            if (this.isPreviewModalOpen) {
+                this.closePreviewModal();
+            }
+            // Cancel Cut/Copy Paste mode if active
+            if (this.copiedEntry) {
+                this.clearClipboard();
+                this.showToast('Cancelled', 'Action cancelled. Clipboard cleared.', 'info');
+            }
+        }
+    };
+
+    clearExpenseState() {
+        this.selectedExpenseId = null;
+        this.expenseProjectId = '';
+        this.expenseDate = DataUtils.getLocalIsoDate();
+        this.expenseAmount = '';
+        this.expenseCategory = '';
+        this.expenseDescription = '';
+        this.expenseComments = '';
+        this.expenseStatus = 'Draft';
+        this.attachedFileName = '';
+        this.attachedFileId = null;
+        this.fileBase64 = null;
+    }
+    switchToExpenses() { 
+        this.activeTab = 'expenses';
+        this.clearExpenseState(); // Wipe state when returning
+        if (this.allRawExpenses && this.allRawExpenses.length > 0) {
+            this.processExpenseEngine();
+        }
+    }
+    switchToWeekly() { 
+        this.activeView = 'grid'; 
+        this.refreshAllViews(); 
+    }
+   switchToList() { 
+        this.activeView = 'list'; 
+        if (!this.listTimeframe) this.listTimeframe = 'Weekly'; // Failsafe
+        this.refreshAllViews(); 
+    }
+
+    handlePrevious() {
+        const d = new Date(this.currentDate);
+        d.setDate(d.getDate() - 7);
+        this.currentDate = d;
+        if (d.getMonth() !== this.viewedDate.getMonth()) this.viewedDate = new Date(d);
+        this.refreshAllViews();
+    }
+
+    // 🌟 THE MISSING FUNCTION: Handles the List View timeframe dropdown
+    handleTimeframeChange(event) {
+        this.listTimeframe = event.target.value; // Now accepts native select value
+        this.refreshAllViews();
+    }
+
+    // 🌟 SAAS SIDEBAR: Toggle Project Accordion
+    toggleProjectExpand(event) {
+        const projectId = event.currentTarget.dataset.id;
+        if (this.expandedProjectIds.includes(projectId)) {
+            this.expandedProjectIds = this.expandedProjectIds.filter(id => id !== projectId);
+        } else {
+            this.expandedProjectIds = [...this.expandedProjectIds, projectId];
+        }
+    }
+
+    // 🌟 UPGRADED SAAS SIDEBAR GETTER (Calculates Tasks & Hours)
+    get sidebarProjects() {
+        const up = DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c);
+        const f = up.filter(r => (r.Project__r?.Name || r.Name || '').toLowerCase().includes(this.searchTerm.toLowerCase()));
+        
+        return f.map(r => {
+            const c = this._projectColorMap[r.Project__c] || this._colorPalette[0];
+            
+            // 1. Get all entries for THIS project in the CURRENT week
+            const projectEntries = this.allTimeEntries.filter(e =>
+                e.Project__c === r.Project__c && this.dateHeaders.length &&
+                e.Date__c >= this.dateHeaders[0].dateValue && e.Date__c <= this.dateHeaders[this.dateHeaders.length - 1].dateValue
+            );
+
+            // 2. Calculate Total Week Hours for the Project
+            const totalWeekHours = projectEntries.reduce((s, e) => s + (parseFloat(e.Hours_Worked_Number_Format__c) || 0), 0);
+            
+            // 3. Group the hours by Task
+            const taskMap = {};
+            projectEntries.forEach(e => {
+                const taskId = e.Task__c || 'unassigned';
+                if (!taskMap[taskId]) {
+                    const taskObj = this.allProjectTasks.find(t => t.Id === taskId);
+                    taskMap[taskId] = {
+                        id: taskId,
+                        name: taskObj ? taskObj.Name : 'General / Unassigned',
+                        hours: 0
+                    };
+                }
+                taskMap[taskId].hours += (parseFloat(e.Hours_Worked_Number_Format__c) || 0);
+            });
+
+            // 4. Convert map to array and sort by most hours worked
+            const tasks = Object.values(taskMap)
+                .filter(t => t.hours > 0) // Only show tasks that actually have time logged
+                .map(t => ({ ...t, hoursFormatted: t.hours.toFixed(1) }))
+                .sort((a, b) => b.hours - a.hours); 
+
+            const fallbackCode = r.Project__c ? 'PRJ-' + r.Project__c.substring(11, 15).toUpperCase() : 'PRJ-001';
+            const isExpanded = this.expandedProjectIds.includes(r.Project__c);
+
+            return {
+                id: r.Project__c,
+                projectName: r.Project__r?.Name || r.Name,
+                projectCode: r.Project__r?.ProjectCode__c || fallbackCode,
+                weekHours: totalWeekHours.toFixed(1),
+                cardStyle: `border-left-color: ${c.border};`,
+                dotStyle: `background-color: ${c.dot};`,
+                tasks: tasks,
+                hasTasks: tasks.length > 0,
+                isExpanded: isExpanded,
+                chevronClass: isExpanded ? 'chevron-icon expanded' : 'chevron-icon',
+                contentClass: isExpanded ? 'project-task-list expanded' : 'project-task-list'
+            };
+        });
+    }
+
+    handleNext() {
+        const d = new Date(this.currentDate);
+        d.setDate(d.getDate() + 7);
+        this.currentDate = d;
+        if (d.getMonth() !== this.viewedDate.getMonth()) this.viewedDate = new Date(d);
+        this.refreshAllViews();
+    }
+
+    handleToday() {
+        this.setInitialDates();
+        this.refreshAllViews();
+    }
+
+    handleDatePick(e) {
+        if (!e.target.value) return;
+        const [y, m, d] = e.target.value.split('-');
+        this.currentStartDate = new Date(y, m - 1, d, 0, 0, 0, 0);
+        this.refreshAllViews();
+    }
+
+    refreshAllViews() {
+        this.currentStartDate = new Date(this.currentDate); 
+        this.generateDateHeaders();
+        this.generateMiniCalendar();
+        this.buildGrid();
+    }
+
+    // 🌟 UPGRADED MATRIX GETTER: Added try/catch and null-safety
+    // 🌟 UPGRADED MATRIX GETTER (Supports Dynamic Array Sizing)
+    // 🌟 BULLETPROOF MATRIX GETTER
+    get matrixViewData() {
+        try {
+            if (!this.dateHeaders || this.dateHeaders.length === 0) return { rows: [], footer: [], grandTotal: '0.00' };
+            
+            // 🌟 CRITICAL FIX: Unwrap the proxy to guarantee fresh data
+            const safeEntries = this.allTimeEntries ? JSON.parse(JSON.stringify(this.allTimeEntries)) : [];
+            const safeResources = this.allProjectResources ? JSON.parse(JSON.stringify(this.allProjectResources)) : [];
+            
+            const projectMap = {}; 
+            const dailyTotals = new Array(this.dateHeaders.length).fill(0);
+            let grandTotal = 0;
+            
+            // 1. Pre-fill known projects
+            safeResources.forEach(pr => {
+                if (pr.Project__c && !projectMap[pr.Project__c]) {
+                    projectMap[pr.Project__c] = { 
+                        id: pr.Project__c, 
+                        projectName: pr.Project__r?.Name || pr.Name || 'Unnamed Project', 
+                        days: new Array(this.dateHeaders.length).fill(0), 
+                        total: 0 
+                    };
+                }
+            });
+            
+            const dateIndexMap = {};
+            this.dateHeaders.forEach((dh, idx) => { dateIndexMap[dh.dateValue] = idx; });
+            
+            // 2. Map entries and calculate math
+            safeEntries.forEach(entry => {
+                const colIndex = dateIndexMap[entry.Date__c];
+                if (colIndex !== undefined) {
+                    
+                    if (!projectMap[entry.Project__c]) {
+                        projectMap[entry.Project__c] = {
+                            id: entry.Project__c || 'unknown',
+                            projectName: entry.Project__r?.Name || 'Other Project',
+                            days: new Array(this.dateHeaders.length).fill(0),
+                            total: 0
+                        };
+                    }
+                    
+                    let hours = parseFloat(entry.Hours_Worked_Number_Format__c);
+                    if (isNaN(hours) || hours === 0) {
+                        const sMins = TimeUtils.toMinutes(entry.Start_Time__c);
+                        let eMins = TimeUtils.toMinutes(entry.End_Time__c);
+                        if (eMins <= sMins) eMins += 1440; 
+                        hours = (eMins - sMins) / 60;
+                    }
+                    hours = isNaN(hours) ? 0 : hours;
+
+                    if (hours > 0) {
+                        projectMap[entry.Project__c].days[colIndex] += hours;
+                        projectMap[entry.Project__c].total += hours;
+                        dailyTotals[colIndex] += hours;
+                        grandTotal += hours;
+                    }
+                }
+            });
+            // 🌟 REMOVED THE FILTER: This forces all assigned projects to display permanently!
+            const activeRows = Object.values(projectMap)
+                .sort((a, b) => (a.projectName || '').localeCompare(b.projectName || ''));
+        
+            
+            const formattedRows = activeRows.map(r => ({
+                ...r,
+                formattedTotal: r.total > 0 ? r.total.toFixed(2) : '-',
+                formattedDays: r.days.map((d, i) => ({ 
+                    key: `${r.id}-${i}`, 
+                    value: d > 0 ? d.toFixed(2) : '-',
+                    cellClass: d > 0 ? 'matrix-cell-day has-hours' : 'matrix-cell-day empty-hours'
+                }))
+            }));
+            
+            const formattedFooter = dailyTotals.map((d, i) => ({ key: `footer-${i}`, value: d > 0 ? d.toFixed(2) : '-' }));
+            
+            return { rows: formattedRows, footer: formattedFooter, grandTotal: grandTotal > 0 ? grandTotal.toFixed(2) : '0.00' };
+            
+        } catch (error) {
+            console.error('Matrix View Error:', error);
+            return { rows: [], footer: [], grandTotal: '0.00' };
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 📅 MINI-CALENDAR ENGINE
+    // ─────────────────────────────────────────────────────────────────────────
+    generateMiniCalendar() {
+        if (!this.viewedDate) this.viewedDate = new Date();
+        const year = this.viewedDate.getFullYear();
+        const month = this.viewedDate.getMonth();
+        this.currentMonthLabel = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(this.viewedDate);
+
+        const firstDay = new Date(year, month, 1);
+        let start = new Date(firstDay);
+        const dayIdx = start.getDay(); 
+        start.setDate(start.getDate() - (dayIdx === 0 ? 6 : dayIdx - 1));
+
+        const gridWeekStart = new Date(this.currentDate);
+        const gridWeekEnd = new Date(this.currentDate);
+        gridWeekEnd.setDate(gridWeekEnd.getDate() + 6);
+
+        let weeks = [];
+        let tempDate = new Date(start);
+        
+        for (let i = 0; i < 6; i++) {
+            let week = { id: i, days: [], rowClass: 'mini-cal-week' };
+            let weekIsActive = false;
+
+            for (let j = 0; j < 7; j++) {
+                const isToday = tempDate.toDateString() === new Date().toDateString();
+                if (tempDate >= gridWeekStart && tempDate <= gridWeekEnd) weekIsActive = true;
+
+                week.days.push({
+                    id: tempDate.getTime(),
+                    label: tempDate.getDate(),
+                    className: `mini-cal-day ${tempDate.getMonth() !== month ? 'muted' : ''} ${isToday ? 'today' : ''}`,
+                    dateValue: tempDate.toISOString()
+                });
+                tempDate.setDate(tempDate.getDate() + 1);
+            }
+            if (weekIsActive) week.rowClass += ' active-week';
+            weeks.push(week);
+        }
+        this.miniCalendarWeeks = weeks;
+    }
+
+    handleMiniCalDayClick(event) {
+        const clickedDate = new Date(event.currentTarget.dataset.date);
+        const day = clickedDate.getDay();
+        const diff = clickedDate.getDate() - day + (day === 0 ? -6 : 1);
+        this.currentDate = new Date(clickedDate);
+        this.currentDate.setDate(diff);
+        this.currentDate.setHours(0,0,0,0);
+        
+        if (this.currentDate.getMonth() !== this.viewedDate.getMonth()) {
+            this.viewedDate = new Date(this.currentDate);
+        }
+        this.refreshAllViews();
+    }
+
+    handleMiniCalPrevMonth() {
+        this.viewedDate = new Date(this.viewedDate.setMonth(this.viewedDate.getMonth() - 1));
+        this.generateMiniCalendar();
+    }
+
+    handleMiniCalNextMonth() {
+        this.viewedDate = new Date(this.viewedDate.setMonth(this.viewedDate.getMonth() + 1));
+        this.generateMiniCalendar();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🧠 EXPENSE PROCESSING ENGINE & FILTERS
+    // ─────────────────────────────────────────────────────────────────────────
+    get tabAllClass() { return this.activeStatusTab === 'All' ? 'saas-segment active' : 'saas-segment'; }
+    get tabDraftClass() { return this.activeStatusTab === 'Draft' ? 'saas-segment active' : 'saas-segment'; }
+    get tabSubmittedClass() { return this.activeStatusTab === 'Submitted' ? 'saas-segment active' : 'saas-segment'; }
+    get tabApprovedClass() { return this.activeStatusTab === 'Approved' ? 'saas-segment active' : 'saas-segment'; }
+    get tabInvoicedClass() { return this.currentTab === 'Invoiced' ? 'saas-tab active' : 'saas-tab'; }
+    get tabRejectedClass() { return this.activeStatusTab === 'Rejected' ? 'saas-segment active' : 'saas-segment'; }
+// Add this to your Tab Class Getters
+    get filterTodayVariant() { return this.expenseFilterType === 'today' ? 'brand' : 'neutral'; }
+    get filterYesterdayVariant() { return this.expenseFilterType === 'yesterday' ? 'brand' : 'neutral'; }
+    get filterWeekVariant() { return this.expenseFilterType === 'week' ? 'brand' : 'neutral'; }
+    get filterMonthVariant() { return this.expenseFilterType === 'month' ? 'brand' : 'neutral'; }
+    get isListWeekly() { return this.listTimeframe === 'Weekly'; }
+    get isListMonthly() { return this.listTimeframe === 'Monthly'; }
+
+    // 🌟 FILTER BAR PRESETS (Expense Tab)
+    get presetTodayClass() { return this.activeDatePreset === 'Today' ? 'preset-btn active' : 'preset-btn'; }
+    get presetYesterdayClass() { return this.activeDatePreset === 'Yesterday' ? 'preset-btn active' : 'preset-btn'; }
+    get presetMonthClass() { return this.activeDatePreset === 'Month' ? 'preset-btn active' : 'preset-btn'; }
+
+    // 🌟 VIEW TOGGLES (Timesheet Tab)
+    get viewGridClass() { return this.activeView === 'grid' ? 'saas-toggle-btn active' : 'saas-toggle-btn'; }
+    get viewListClass() { return this.activeView === 'list' ? 'saas-toggle-btn active' : 'saas-toggle-btn'; }
+    
+    getLocalDateString(dateObj) { return new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
+
+    setExpFilterToday() {
+        this.activeDatePreset = 'Today';
+        this.expenseFilterType = 'today';
+        const d = this.getLocalDateString(new Date());
+        this.expFilterStartDate = d; this.expFilterEndDate = d;
+        this.processExpenseEngine();
+    }
+    setExpFilterYesterday() {
+        this.activeDatePreset = 'Yesterday';
+        this.expenseFilterType = 'yesterday';
+        let y = new Date(); y.setDate(y.getDate() - 1);
+        const d = this.getLocalDateString(y);
+        this.expFilterStartDate = d; this.expFilterEndDate = d;
+        this.processExpenseEngine();
+    }
+    setExpFilterWeek() {
+        this.expenseFilterType = 'week';
+        let curr = new Date();
+        let first = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
+        this.expFilterStartDate = this.getLocalDateString(new Date(curr.setDate(first)));
+        this.expFilterEndDate = this.getLocalDateString(new Date(curr.setDate(first + 6)));
+        this.processExpenseEngine();
+    }
+    setExpFilterMonth() {
+        this.activeDatePreset = 'Month';
+        this.expenseFilterType = 'month';
+        let curr = new Date();
+        this.expFilterStartDate = this.getLocalDateString(new Date(curr.getFullYear(), curr.getMonth(), 1));
+        this.expFilterEndDate = this.getLocalDateString(new Date(curr.getFullYear(), curr.getMonth() + 1, 0));
+        this.processExpenseEngine();
+    }
+
+    handleExpStartDateChange(e) { this.expFilterStartDate = e.target.value; this.expenseFilterType = 'custom'; this.processExpenseEngine(); }
+    handleExpEndDateChange(e) { this.expFilterEndDate = e.target.value; this.expenseFilterType = 'custom'; this.processExpenseEngine(); }
+    handleStatusTabChange(e) { 
+        this.currentPage = 1;
+        this.activeStatusTab = e.currentTarget.dataset.tab; this.processExpenseEngine(); }
+
+    processExpenseEngine() {
+        if (!this.allRawExpenses) return;
+
+        // 1. DATE FILTERING
+        const startStr = this.expFilterStartDate || '1900-01-01';
+        const endStr = this.expFilterEndDate || '2099-12-31';
+        const dateFiltered = this.allRawExpenses.filter(exp => exp.dateValue >= startStr && exp.dateValue <= endStr);
+
+        // 2. KPI MATH & TAB COUNTS
+        this.tabCounts = { all: 0, draft: 0, submitted: 0, approved: 0, rejected: 0, invoiced: 0 };
+        let tApplied = 0, tDraft = 0, tSubmitted = 0, tApproved = 0, tRejected = 0, tInvoiced = 0;
+
+        dateFiltered.forEach(exp => {
+            this.tabCounts.all++;
+            if (exp.status === 'Draft') this.tabCounts.draft++;
+            if (exp.status === 'Submitted' || exp.status === 'Pending') this.tabCounts.submitted++;
+            if (exp.status === 'Approved') this.tabCounts.approved++;
+            if (exp.status === 'Rejected') this.tabCounts.rejected++;
+            if (exp.status === 'Invoiced') this.tabCounts.invoiced++;
+
+            tApplied += exp.amountValue;
+            if (exp.status === 'Draft') tDraft += exp.amountValue;
+            if (exp.status === 'Submitted' || exp.status === 'Pending') tSubmitted += exp.amountValue;
+            if (exp.status === 'Approved') tApproved += exp.amountValue;
+            if (exp.status === 'Rejected') tRejected += exp.amountValue;
+            if (exp.status === 'Invoiced') tInvoiced += exp.amountValue;
+        });
+
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        this.kpiTotalApplied = formatter.format(tApplied);
+        this.kpiTotalDraft = formatter.format(tDraft);
+        this.kpiTotalPending = formatter.format(tSubmitted);
+        this.kpiTotalApproved = formatter.format(tApproved);
+        this.kpiTotalInvoiced = formatter.format(tInvoiced);
+
+        // 3. TAB FILTERING & CSS FORMATTING
+        this.displayExpenses = dateFiltered
+            .filter(exp => {
+                if (this.activeStatusTab === 'All') return true;
+                if (this.activeStatusTab === 'Submitted') return exp.status === 'Submitted' || exp.status === 'Pending';
+                return exp.status === this.activeStatusTab;
+            })
+            .map(exp => {
+                // Dynamically applies the blue border to the clicked card
+                return {
+                    ...exp,
+                    masterItemClass: this.selectedExpenseId === exp.Id ? 'expense-item-card active' : 'expense-item-card'
+                };
+            });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+    // 📁 LIVE ATTACHMENT HANDLERS
+    // ─────────────────────────────────────────────────────────────────────────
+    handleUploadFinished(event) {
+        if (event.detail.files.length > 0) {
+            this.showToast('Success', 'Receipt attached securely.', 'success');
+            refreshApex(this.wiredResult);
+        }
+    }
+    
+    async removeAttachment() {
+        if (this.selectedExpenseId && this.attachedFileId) {
+            try {
+                // await deleteExpenseAttachment({ expenseId: this.selectedExpenseId });
+                this.showToast('Deleted', 'File removed.', 'success');
+            } catch (error) {
+                console.error(error);
+                this.showToast('Error', 'Failed to remove file.', 'error');
+            }
+        }
+        this.attachedFileName = ''; 
+        this.fileBase64 = null;
+        this.attachedFileId = null;
+        refreshApex(this.wiredResult);
+    }
+
+    // 🌟 BULLETPROOF FILE PREVIEW FOR SITES & GUEST USERS
+    previewFile(event) {
+        if (event) { event.stopPropagation(); event.preventDefault(); }
+
+        if (this.fileBase64 && this.attachedFileName) {
+            this._openLocalPreview();
+            return;
+        }
+
+        if (!this.attachedFileId) {
+            this.showToast('Error', 'No file found to preview.', 'error');
+            return;
+        }
+
+        this.isPreviewModalOpen = true;
+        this.isPreviewLoading = true;
+        window.addEventListener('keydown', this._handleKeyDown); // Attach Listener
+
+        getFilePreviewData({ documentId: this.attachedFileId })
+            .then(result => {
+                this.previewDataUrl = result.base64;
+                this.previewFileType = result.fileType;
+                this.previewFileName = result.title;
+                this.isPreviewLoading = false;
+            })
+            .catch(err => {
+                this.closePreviewModal();
+                this.showToast('Preview Error', err.body?.message || 'Failed to load file.', 'error');
+            });
+    }
+
+    closePreviewModal() {
+        this.isPreviewModalOpen = false;
+        this.previewDataUrl = '';
+        this.previewFileType = '';
+        window.removeEventListener('keydown', this._handleKeyDown); // Detach Listener
+    }
+
+    _openLocalPreview() {
+        let ext = this.attachedFileName.split('.').pop().toLowerCase();
+        let mime = 'image/jpeg';
+        if (ext === 'png') mime = 'image/png';
+        if (ext === 'pdf') mime = 'application/pdf';
+
+        this.previewDataUrl = `data:${mime};base64,${this.fileBase64}`;
+        this.previewFileType = ext;
+        this.previewFileName = this.attachedFileName;
+        this.isPreviewLoading = false;
+        this.isPreviewModalOpen = true;
+        window.addEventListener('keydown', this._handleKeyDown); // Attach Listener
+    }
+
+    downloadPreview() {
+        if (!this.previewDataUrl) return;
+        const a = document.createElement('a');
+        a.href = this.previewDataUrl;
+        a.download = this.previewFileName || 'Receipt_Download';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    get isPreviewImage() { return ['png', 'jpg', 'jpeg'].includes(this.previewFileType); }
+    get isPreviewPdf() { return this.previewFileType === 'pdf'; }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🎛️ GENERAL GETTERS & HANDLERS
+    // ─────────────────────────────────────────────────────────────────────────
+    handleInputChange(event) {
+        const fieldName = event.target.name;
+        let fieldValue = event.detail && event.detail.value !== undefined ? event.detail.value : event.target.value;
+        
+        if (fieldName) { 
+            this[fieldName] = fieldValue; 
+            
+            // 🌟 ENTERPRISE FORM STATE: Flag the form as changed
+            this.isDirty = true; 
+        }
+    }
+    
+    getPillClass(status) {
+        if (status === 'Draft') return 'saas-pill pill-neutral';
+        if (status === 'Submitted' || status === 'Pending') return 'saas-pill pill-warning';
+        if (status === 'Approved' || status === 'Invoiced') return 'saas-pill pill-success';
+        if (status === 'Rejected') return 'saas-pill pill-danger';
+        return 'saas-pill pill-neutral';
+    }
+
+    get isExpenseReadOnly() { return this.selectedExpenseId != null && this.expenseStatus !== 'Draft'; }
+    get isTaskDisabled() { return !this.entryProjectId; }
+    
+    get timeframeOptions() { return [{ label: 'This Week', value: 'Weekly' }, { label: 'This Month', value: 'Monthly' }]; }
     
     get listRangeLabel() {
         if (this.listTimeframe === 'Monthly') {
@@ -233,18 +943,63 @@ export default class extends NavigationMixin(LightningElement) {
         }
         return this.weekRangeLabel;
     }
-    // ✅ Restored Tab Getters
+
+    get isExpenseLocked() { return this.expenseStatus && this.expenseStatus !== 'Draft'; }
+    get expenseLockBannerClass() {
+        const status = this.expenseStatus;
+
+        if (status === 'Rejected') {
+            return 'saas-alert-banner alert-rejected';
+        } else if (status === 'Submitted' || status === 'Pending') {
+            return 'saas-alert-banner alert-submitted';
+        } else if (status === 'Approved' || status === 'Invoiced') {
+            return 'saas-alert-banner alert-approved';
+        }
+        
+        return 'saas-alert-banner';
+    }
+    // 1. Determines the text message
+    get expenseLockMessage() {
+        // Assuming you track the selected expense's status in a variable called this.expenseStatus
+        const status = this.expenseStatus; 
+
+        if (status === 'Rejected') {
+            return 'Please review manager comments and submit a new expense.';
+        } else if (status === 'Submitted' || status === 'Pending') {
+            return 'This expense is currently under review by finance.';
+        } else if (status === 'Approved') {
+            return 'This expense has been approved for payout.';
+        } else if (status === 'Invoiced') {
+            return 'This expense has been successfully processed and invoiced.';
+        }
+        
+        // Fallback for any other locked state
+        return 'This expense is locked and cannot be modified.';
+    }
+
+    // 3. Determines the specific SVG Icon
+    get expenseLockIcon() {
+        const status = this.expenseStatus;
+
+        if (status === 'Rejected') {
+            return 'utility:error'; // X icon
+        } else if (status === 'Submitted' || status === 'Pending') {
+            return 'utility:clock'; // Clock icon
+        } else if (status === 'Approved' || status === 'Invoiced') {
+            return 'utility:success'; // Checkmark icon
+        }
+        
+        return 'utility:lock'; // Default lock icon
+    }
+
     get isTimesheetTab() { return this.activeTab === 'timesheet'; }
     get isExpensesTab() { return this.activeTab === 'expenses'; }
-    get timesheetTabClass() { return `portal-tab ${this.activeTab === 'timesheet' ? 'tab-active' : ''}`; }
-    get expensesTabClass() { return `portal-tab ${this.activeTab === 'expenses' ? 'tab-active' : ''}`; }
-    
-    get isWeeklyView() { return this.activeView === 'weekly'; }
+    get timesheetTabClass() { return this.activeTab === 'timesheet' ? 'saas-main-tab active' : 'saas-main-tab'; }
+    get expensesTabClass() { return this.activeTab === 'expenses' ? 'saas-main-tab active' : 'saas-main-tab'; }
+    get isWeeklyView() { return this.activeView === 'grid'; }
     get isListView() { return this.activeView === 'list'; }
     get weeklyTabClass() { return `portal-tab ${this.activeView === 'weekly' ? 'tab-active' : ''}`; }
     get listTabClass() { return `portal-tab ${this.activeView === 'list' ? 'tab-active' : ''}`; }
-    
-
     get weeklyButtonVariant() { return this.activeView === 'weekly' ? 'brand' : 'neutral'; }
     get listButtonVariant() { return this.activeView === 'list' ? 'brand' : 'neutral'; }
 
@@ -253,13 +1008,17 @@ export default class extends NavigationMixin(LightningElement) {
     get pageIndicatorLabel() { return `Page ${this.currentPage} of ${this.totalPages || 1}`; }
     get paginationStart() { return this.totalRecords === 0 ? 0 : (this.currentPage - 1) * this.recordsPerPage + 1; }
     get paginationEnd() { return Math.min(this.currentPage * this.recordsPerPage, this.totalRecords); }
+    
     get isEntryEdit() { return !!this.selectedEntryId; }
     get entryModalHeader() { return this.selectedEntryId ? 'Edit Time Entry' : 'Log Time'; }
-    get isExpenseEdit() { return !!this.selectedExpenseId; } // ✅ Restored Expense Getter
+    get isExpenseEdit() { return !!this.selectedExpenseId; }
     get hasSelectedEntries() { return this.selectedEntryIds.length > 0; }
     get selectedEntriesCount() { return this.selectedEntryIds.length; }
+    
     get isEntryCopied() { return this.copiedEntry !== null; }
     get isCutActive() { return this.isCutAction && this.copiedEntry !== null; }
+    // 🌟 CSS Getter for Paste Mode Crosshair Cursor
+    get daysGridClass() { return this.isEntryCopied ? 'days-grid is-pasting' : 'days-grid'; }
 
     get timeSlots() {
         const s = [];
@@ -277,410 +1036,247 @@ export default class extends NavigationMixin(LightningElement) {
         const l = new Date(this.dateHeaders[this.dateHeaders.length - 1].dateValue + 'T00:00:00');
         return `${f.toLocaleDateString('en-US', o)} – ${l.toLocaleDateString('en-US', { ...o, year: 'numeric' })}`;
     }
+    
     get projectOptions() {
         return DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c).map(r => ({
             label: r.Project__r?.Name || 'Unnamed Project',
             value: r.Project__c
         }));
     }
-    get expenseProjectOptions() { return this.projectOptions; } // ✅ Restored Expense Project Mapper
-    
-    get processedExpenses() {
-        return this.allExpenses.map(e => ({
-            ...e,
-            displayDate: e.Expense_Date__c ? new Date(e.Expense_Date__c + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-            projectName: e.Project__r?.Name || '—',
-            displayAmount: e.Amount__c != null ? `$${parseFloat(e.Amount__c).toFixed(2)}` : '—',
-            pillClass: 'status-pill ' + (e.Status__c === 'Approved' ? 'pill-confirmed' : e.Status__c === 'Submitted' ? 'pill-active' : 'pill-pending'),
-            status: e.Status__c || 'Draft',
-            // Adds our new base class, plus the selected class if clicked
-            masterItemClass: this.selectedExpenseId === e.Id ? 'expense-card-item master-item-selected' : 'expense-card-item'
-        }));
+    get expenseProjectOptions() {
+        if (!this.allProjectResources) return [];
+        const uniqueProjects = [];
+        const projectIds = new Set();
+        this.allProjectResources.forEach(pr => {
+            if (pr.Project__c && !projectIds.has(pr.Project__c)) {
+                projectIds.add(pr.Project__c);
+                uniqueProjects.push({ label: pr.Project__r.Name, value: pr.Project__c });
+            }
+        });
+        return uniqueProjects;
+    }
+
+    // 🌟 SAAS MONTHLY BOARD GETTER (Structured by Weeks with Totals)
+    get monthlyBoardView() {
+        try {
+            if (this.activeView !== 'list' || this.listTimeframe !== 'Monthly') return null;
+
+            const year = this.currentStartDate.getFullYear();
+            const month = this.currentStartDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const startOffset = firstDay.getDay(); 
+            const gridStart = new Date(firstDay);
+            gridStart.setDate(firstDay.getDate() - startOffset);
+
+            const todayIso = DataUtils.getLocalIsoDate(new Date());
+            let grandTotal = 0;
+            const weeks = [];
+            let currentDate = new Date(gridStart);
+
+            // Build 5 Weeks
+            for (let w = 0; w < 5; w++) {
+                const week = { id: `week-${w}`, days: [], weekTotal: 0 };
+
+                // Build 7 Days per week
+                for (let d = 0; d < 7; d++) {
+                    const iso = DataUtils.getLocalIsoDate(currentDate);
+                    const isCurrentMonth = currentDate.getMonth() === month;
+                    const dayEntries = this.allTimeEntries ? this.allTimeEntries.filter(e => e.Date__c === iso) : [];
+                    
+                    let dayTotal = 0;
+                    const projMap = {};
+
+                    dayEntries.forEach(entry => {
+                        let hours = parseFloat(entry.Hours_Worked_Number_Format__c);
+                        if (isNaN(hours) || hours === 0) {
+                            const sMins = TimeUtils.toMinutes(entry.Start_Time__c);
+                            let eMins = TimeUtils.toMinutes(entry.End_Time__c);
+                            if (eMins <= sMins) eMins += 1440; 
+                            hours = (eMins - sMins) / 60;
+                        }
+                        hours = isNaN(hours) ? 0 : hours;
+
+                        if (hours > 0) {
+                            dayTotal += hours;
+                            week.weekTotal += hours;
+                            grandTotal += hours;
+                            
+                            if (!projMap[entry.Project__c]) {
+                                const pr = this.allProjectResources.find(r => r.Project__c === entry.Project__c);
+                                const colorPalette = this._projectColorMap[entry.Project__c] || { dot: '#9CA3AF', bg: '#F3F4F6', border: '#D1D5DB' };
+                                projMap[entry.Project__c] = {
+                                    id: entry.Project__c || 'unknown',
+                                    name: pr?.Project__r?.Name || pr?.Name || 'Unnamed Project',
+                                    hours: 0,
+                                    pillStyle: `background: ${colorPalette.bg}; border: 1px solid ${colorPalette.border};`,
+                                    dotStyle: `background: ${colorPalette.dot};`
+                                };
+                            }
+                            projMap[entry.Project__c].hours += hours;
+                        }
+                    });
+
+                    week.days.push({
+                        id: iso,
+                        dateNum: currentDate.getDate(),
+                        cellClass: isCurrentMonth ? 'board-day-cell' : 'board-day-cell muted-day',
+                        headerClass: iso === todayIso ? 'day-num today-num' : 'day-num',
+                        totalFormatted: dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : null,
+                        projects: Object.values(projMap).map(p => ({ ...p, hoursFormatted: p.hours.toFixed(1) }))
+                    });
+
+                    currentDate.setDate(currentDate.getDate() + 1); // Move to next day
+                }
+
+                // Format Week Totals
+                week.weekTotalFormatted = week.weekTotal > 0 ? `${week.weekTotal.toFixed(1)}h` : '-';
+                week.weekTotalClass = week.weekTotal > 0 ? 'board-week-total has-hours' : 'board-week-total';
+                weeks.push(week);
+            }
+
+            return {
+                weeks: weeks,
+                grandTotalFormatted: grandTotal > 0 ? `${grandTotal.toFixed(1)}h` : '0.0h'
+            };
+
+        } catch (error) {
+            console.error('Monthly Board Error:', error);
+            return null;
+        }
+    }
+
+    get dynamicTaskOptions() {
+        if (!this.entryProjectId) return [{ label: 'Select a project...', value: '' }];
+        const filteredTasks = this.allProjectTasks.filter(t => t.Project__c === this.entryProjectId);
+        if (filteredTasks.length === 0) return [{ label: 'No tasks found', value: '' }];
+        return filteredTasks.map(t => ({ label: t.Name, value: t.Id }));
+    }
+    processExpenseEngine() {
+        if (!this.allRawExpenses) return;
+
+        // 1. DATE FILTERING
+        const startStr = this.expFilterStartDate || '1900-01-01';
+        const endStr = this.expFilterEndDate || '2099-12-31';
+        const dateFiltered = this.allRawExpenses.filter(exp => exp.dateValue >= startStr && exp.dateValue <= endStr);
+
+        // 2. KPI MATH & TAB COUNTS
+        this.tabCounts = { all: 0, draft: 0, submitted: 0, approved: 0, rejected: 0, invoiced: 0 };
+        let tApplied = 0, tDraft = 0, tSubmitted = 0, tApproved = 0, tRejected = 0, tInvoiced = 0;
+
+        dateFiltered.forEach(exp => {
+            this.tabCounts.all++;
+            if (exp.status === 'Draft') this.tabCounts.draft++;
+            if (exp.status === 'Submitted' || exp.status === 'Pending') this.tabCounts.submitted++;
+            if (exp.status === 'Approved') this.tabCounts.approved++;
+            if (exp.status === 'Rejected') this.tabCounts.rejected++;
+            if (exp.status === 'Invoiced') this.tabCounts.invoiced++;
+
+            tApplied += exp.amountValue;
+            if (exp.status === 'Draft') tDraft += exp.amountValue;
+            if (exp.status === 'Submitted' || exp.status === 'Pending') tSubmitted += exp.amountValue;
+            if (exp.status === 'Approved') tApproved += exp.amountValue;
+            if (exp.status === 'Rejected') tRejected += exp.amountValue;
+            if (exp.status === 'Invoiced') tInvoiced += exp.amountValue;
+        });
+
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        this.kpiTotalApplied = formatter.format(tApplied);
+        this.kpiTotalDraft = formatter.format(tDraft);
+        this.kpiTotalPending = formatter.format(tSubmitted);
+        this.kpiTotalApproved = formatter.format(tApproved);
+        this.kpiTotalInvoiced = formatter.format(tInvoiced);
+
+        // 3. TAB FILTERING & CSS FORMATTING
+        this.displayExpenses = dateFiltered
+            .filter(exp => {
+                if (this.activeStatusTab === 'All') return true;
+                if (this.activeStatusTab === 'Submitted') return exp.status === 'Submitted' || exp.status === 'Pending';
+                return exp.status === this.activeStatusTab;
+            })
+            .map(exp => {
+                // Maps the active highlight card CSS dynamically
+                return {
+                    ...exp,
+                    masterItemClass: this.selectedExpenseId === exp.Id ? 'expense-item-card active' : 'expense-item-card'
+                };
+            });
     }
 
     get hasExpenses() { return this.processedExpenses.length > 0; }
+    get masterContainerClass() { return this.selectedExpenseId ? 'split-view-master split-view-master-active' : 'split-view-master'; }
+// ==========================================
+    // 🎛️ DETAIL PANE HEADER & LOCK STATE
+    // ==========================================
 
-    // Controls the CSS class for the split view animation
-    get masterContainerClass() {
-        return this.selectedExpenseId 
-            ? 'split-view-master split-view-master-active' 
-            : 'split-view-master';
-    }
-
-    // ✅ NEW: Dynamic Titles for the right-side detail panel
+    // 1. Controls the Title (e.g., "Software License - Apr 20, 2026")
     get expenseDetailTitle() {
-        return this.selectedExpenseId === 'NEW' ? 'New Expense' : 'Expense Details';
+        if (!this.selectedExpenseId) return 'Expense Details';
+        
+        // 🌟 THE FIX: Intercept the new record state
+        if (this.selectedExpenseId === 'NEW') {
+            return 'Create New Expense'; 
+        }
+        
+        const cat = this.expenseCategory || 'Uncategorized';
+        const dte = this.expenseDate ? new Date(this.expenseDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        
+        return dte ? `${cat} • ${dte}` : cat;
     }
-    
+
+    // 2. Controls the Monospace Tech Badge
     get expenseDetailSubtitle() {
-        return this.selectedExpenseId === 'NEW' ? 'Unsaved Record' : `ID: ${this.selectedExpenseId}`;
+        if (!this.selectedExpenseId) return '';
+        return `REF: ${this.selectedExpenseId}`; 
     }
+
+    // 3. 🌟 CRITICAL: Locks the form inputs so users can't edit approved data
+    get isExpenseLocked() {
+        const s = this.expenseStatus;
+        // In enterprise SaaS, 'Rejected' usually unlocks the form so the user can fix it.
+        // Submitted, Pending, Approved, and Invoiced are strictly locked.
+        return s === 'Submitted' || s === 'Pending' || s === 'Approved' || s === 'Invoiced';
+    }    
+    get expenseDetailSubtitle() { return this.selectedExpenseId === 'NEW' ? 'Unsaved Record' : `ID: ${this.selectedExpenseId}`; }
     
-    // ✅ ENTERPRISE SIDEBAR GETTER (Strictly Code + Truncated Name)
-    get sidebarProjects() {
-        const up = DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c);
-        const f = up.filter(r => (r.Project__r?.Name || r.Name || '').toLowerCase().includes(this.searchTerm));
-        
-        return f.map(r => {
-            const c = this._projectColorMap[r.Project__c] || this._colorPalette[0];
-            const wh = this.allTimeEntries.filter(e =>
-                e.Project__c === r.Project__c &&
-                this.dateHeaders.length &&
-                e.Date__c >= this.dateHeaders[0].dateValue &&
-                e.Date__c <= this.dateHeaders[this.dateHeaders.length - 1].dateValue
-            ).reduce((s, e) => s + (parseFloat(e.Hours_Worked_Number_Format__c) || 0), 0);
 
-            // Enterprise Project Code (Uses actual field if available, otherwise generates a clean fallback)
-            const fallbackCode = r.Project__c ? 'PRJ-' + r.Project__c.substring(11, 15).toUpperCase() : 'PRJ-001';
+    get expensesActionRequired() { return this.processedExpenses.filter(e => e.status === 'Rejected'); }
+    get expensesDrafts() { return this.processedExpenses.filter(e => e.status === 'Draft'); }
+    get expensesPending() { return this.processedExpenses.filter(e => e.status === 'Submitted' || e.status === 'Pending'); }
+    get expensesCompleted() { return this.processedExpenses.filter(e => e.status === 'Invoiced'); }
 
-            return {
-                id: r.Project__c,
-                projectName: r.Project__r?.Name || r.Name,
-                projectCode: r.Project__r?.ProjectCode__c || fallbackCode,
-                weekHours: wh.toFixed(1),
-                cardStyle: `border-left: 6px solid ${c.border};`
-            };
-        });
-    }
-
-    // ✅ NEW: Dynamically filter tasks based on the selected Project
-    get dynamicTaskOptions() {
-        if (!this.entryProjectId) {
-            return [{ label: 'Select a project first...', value: '' }];
-        }
-        
-        const filteredTasks = this.allProjectTasks.filter(t => t.Project__c === this.entryProjectId);
-        
-        if (filteredTasks.length === 0) {
-            return [{ label: 'No tasks found for this project', value: '' }];
-        }
-
-        return filteredTasks.map(t => ({
-            label: t.Name,
-            value: t.Name // Storing the Name to map to your existing Shift_Type__c field
-        }));
-    }
-
-    // ✅ NEW: Enterprise Matrix View Data Transformation (Shows ALL Projects)
-    get matrixViewData() {
-        if (!this.dateHeaders || this.dateHeaders.length === 0) {
-            return { rows: [], footer: [], grandTotal: '0.00' };
-        }
-
-        const projectMap = {}; 
-        const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
-        let grandTotal = 0;
-
-        // 1. Initialize the grid with ALL projects the user is assigned to
-        this.allProjectResources.forEach(pr => {
-            if (pr.Project__c && !projectMap[pr.Project__c]) {
-                projectMap[pr.Project__c] = {
-                    id: pr.Project__c,
-                    projectName: pr.Project__r?.Name || pr.Name,
-                    days: [0, 0, 0, 0, 0, 0, 0], // 7 days initialized to 0
-                    total: 0
-                };
-            }
-        });
-
-        // 2. Create a fast lookup for which date corresponds to which column index (0-6)
-        const dateIndexMap = {};
-        this.dateHeaders.forEach((dh, idx) => {
-            dateIndexMap[dh.dateValue] = idx;
-        });
-
-        // 3. Populate the grid with hours
-        this.allTimeEntries.forEach(entry => {
-            const colIndex = dateIndexMap[entry.Date__c];
-            
-            // If the entry falls within this week's dates and we have the project mapped
-            if (colIndex !== undefined && projectMap[entry.Project__c]) {
-                const hours = parseFloat(entry.Hours_Worked_Number_Format__c) || 0;
-                
-                projectMap[entry.Project__c].days[colIndex] += hours;
-                projectMap[entry.Project__c].total += hours;
-                dailyTotals[colIndex] += hours;
-                grandTotal += hours;
-            }
-        });
-
-        // 4. Format the data for the HTML template
-        // ✅ FIX: Removed the filter so ALL projects show, even if total is 0
-        const activeRows = Object.values(projectMap)
-            .sort((a, b) => a.projectName.localeCompare(b.projectName));
-
-        const formattedRows = activeRows.map(r => ({
-            ...r,
-            // If total is 0, show '-', otherwise show the number
-            formattedTotal: r.total > 0 ? r.total.toFixed(2) : '-', 
-            formattedDays: r.days.map((d, i) => ({
-                key: `${r.id}-${i}`,
-                value: d > 0 ? d.toFixed(2) : '-' // Use '-' for empty cells for a cleaner look
-            }))
-        }));
-
-        const formattedFooter = dailyTotals.map((d, i) => ({
-            key: `footer-${i}`,
-            value: d > 0 ? d.toFixed(2) : '-'
-        }));
-
-        return {
-            rows: formattedRows,
-            footer: formattedFooter,
-            grandTotal: grandTotal > 0 ? grandTotal.toFixed(2) : '0.00'
-        };
-    }
-    get listViewEntries() {
-        // 1. Calculate Date Bounds based on Weekly/Monthly selection
-        let startStr, endStr;
-        if (this.listTimeframe === 'Monthly') {
-            const d = new Date(this.currentStartDate);
-            const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
-            const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-            startStr = DataUtils.getLocalIsoDate(firstDay);
-            endStr = DataUtils.getLocalIsoDate(lastDay);
-        } else {
-            if (!this.dateHeaders.length) return [];
-            startStr = this.dateHeaders[0].dateValue;
-            endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
-        }
-
-        // ✅ NEW: Pre-calculate clashes globally for the List View
-        const clashingIds = new Set();
-        const entriesByDate = {};
-        this.allTimeEntries.forEach(e => {
-            if (!entriesByDate[e.Date__c]) entriesByDate[e.Date__c] = [];
-            entriesByDate[e.Date__c].push(e);
-        });
-
-        // Apply strict time overlap formula to find clashing IDs
-        Object.values(entriesByDate).forEach(dayEntries => {
-            const processed = dayEntries.map(e => {
-                let sMins = TimeUtils.toMinutes(e.Start_Time__c);
-                let eMins = TimeUtils.toMinutes(e.End_Time__c);
-                if (eMins <= sMins) eMins += 1440; // Handle overnight
-                return { id: e.Id, start: sMins, end: eMins };
-            });
-
-            for (let i = 0; i < processed.length; i++) {
-                for (let j = i + 1; j < processed.length; j++) {
-                    if (processed[i].start < processed[j].end && processed[i].end > processed[j].start) {
-                        clashingIds.add(processed[i].id);
-                        clashingIds.add(processed[j].id);
-                    }
-                }
-            }
-        });
-
-        // 2. Filter & Map entries within bounds
-        let entries = this.allTimeEntries
-            .filter(e => e.Date__c >= startStr && e.Date__c <= endStr)
-            .map(e => {
-                const res = this.allProjectResources.find(r => r.Project__c === e.Project__c);
-                const c = this._projectColorMap[e.Project__c] || this._colorPalette[0];
-                const hasNotes = !!e.Additional_Comments__c;
-                const isClashing = clashingIds.has(e.Id); // ✅ Check our calculated set
-                
-                return {
-                    ...e,
-                    Id: e.Id,
-                    displayDate: e.Date__c ? new Date(e.Date__c + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '',
-                    projectName: res?.Project__r?.Name || '—',
-                    typeLabel: e.Shift_Type__c || 'Regular',
-                    startTime: TimeUtils.formatTime12h(e.Start_Time__c) || '—',
-                    endTime: TimeUtils.formatTime12h(e.End_Time__c) || '—',
-                    hours: parseFloat(e.Hours_Worked_Number_Format__c) || 0,
-                    pillClass: 'status-pill ' + (e.Time_Status__c === 'Approved' ? 'pill-confirmed' : e.Time_Status__c === 'Submitted' ? 'pill-active' : e.Time_Status__c === 'Rejected' ? 'pill-rejected' : 'pill-pending'),
-                    status: e.Time_Status__c || 'Draft',
-                    colorDot: `background:${c.dot};`,
-                    isExpanded: this.expandedRowIds.includes(e.Id),
-                    expandIcon: this.expandedRowIds.includes(e.Id) ? 'utility:chevrondown' : 'utility:chevronright',
-                    hasNotes: hasNotes,
-                    notesWarning: !hasNotes,
-                    fullNotes: e.Additional_Comments__c || 'No notes provided.',
-                    isClashing: isClashing, // ✅ Pass flag to HTML
-                    rowClass: isClashing ? 'list-row-clashing' : '' // ✅ Assign red highlight class
-                };
-            });
-
-        // 3. Apply Filters and Sorting
-        if (this.listSearchTerm) {
-            const t = this.listSearchTerm.toLowerCase();
-            entries = entries.filter(e => e.projectName.toLowerCase().includes(t) || e.typeLabel.toLowerCase().includes(t) || (e.fullNotes && e.fullNotes.toLowerCase().includes(t)));
-        }
-        entries.sort((a, b) => {
-            let valA = a[this.listSortField] || ''; let valB = b[this.listSortField] || '';
-            if (this.listSortField === 'projectName') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
-            else if (this.listSortField === 'hours') { valA = Number(valA); valB = Number(valB); }
-            let result = valA < valB ? -1 : valA > valB ? 1 : 0;
-            return this.listSortDirection === 'asc' ? result : -result;
-        });
-
-        return entries;
-    }
-
-    // Handle clicking column headers to sort
-    handleSort(e) {
-        const field = e.currentTarget.dataset.field;
-        if (this.listSortField === field) {
-            this.listSortDirection = this.listSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.listSortField = field;
-            this.listSortDirection = field === 'Date__c' ? 'desc' : 'asc';
-        }
-    }
-
-    // Expand/Collapse the notes row
-    toggleRowExpand(e) {
-        const id = e.currentTarget.dataset.id;
-        if (this.expandedRowIds.includes(id)) {
-            this.expandedRowIds = this.expandedRowIds.filter(rowId => rowId !== id);
-        } else {
-            this.expandedRowIds = [...this.expandedRowIds, id];
-        }
-    }
-
-    // Duplicate an entry straight from the list view
-    handleListDuplicate(e) {
-        e.stopPropagation();
-        const id = e.currentTarget.dataset.id;
-        const en = this.allTimeEntries.find(x => x.Id === id);
-        if (en) {
-            // Open modal with data, but CLEAR the ID so it saves as a new record
-            this._openEntryModal(null, en.Date__c, en.Project__c);
-            this.entryType = en.Shift_Type__c || 'Regular';
-            this.entryStartTime = TimeUtils.normalizeTime(en.Start_Time__c) || '09:00';
-            this.entryEndTime = TimeUtils.normalizeTime(en.End_Time__c) || '17:00';
-            this.entryBreakTime = en.Break_Time__c || 0;
-            this.entryComments = en.Additional_Comments__c || '';
-            this.showToast('Duplicating', 'Adjust the date or times, then save.', 'info');
-        }
-    }
-
-    // ─── LIFECYCLE & WIRE ────────────────────────────────────────────────────
-    connectedCallback() {
-        const p = new URLSearchParams(window.location.search);
-        this.contactId = p.get('contactId') || p.get('c__contactId');
-        if (!DataUtils.isValidSfId(this.contactId)) {
-            this.showToast('Authentication Error', 'Invalid Contact ID.', 'error');
-            return;
-        }
-        const d = new Date(), dy = d.getDay();
-        d.setDate(d.getDate() - dy + (dy === 0 ? -6 : 1));
-        this.currentStartDate = new Date(d);
-        this.currentStartDate.setHours(0, 0, 0, 0);
-        this.generateDateHeaders();
-        this.entryDate = DataUtils.getLocalIsoDate();
-        this.expenseDate = DataUtils.getLocalIsoDate(); // ✅ Reset expense date
-    }
-
-    disconnectedCallback() {
-        window.removeEventListener('mousemove', this._onDrawMove);
-        window.removeEventListener('mouseup', this._onDrawEnd);
-        window.removeEventListener('mousemove', this._onResizeMove);
-        window.removeEventListener('mouseup', this._onResizeEnd);
-    }
-
-    @wire(getTimesheetData, { contactId: '$contactId' })
-    wiredData(res) {
-        this.wiredResult = res;
-        if (res.data) {
-            try {
-                this.allProjectResources = res.data.projectResources ? DataUtils.deepClone(res.data.projectResources) : [];
-                this.allTimeEntries = res.data.timeEntries ? DataUtils.deepClone(res.data.timeEntries) : [];
-                this.allExpenses = res.data.expenses ? DataUtils.deepClone(res.data.expenses) : [];
-                this.allProjectTasks = res.data.projectTasks ? DataUtils.deepClone(res.data.projectTasks) : [];
-                if (res.data.contact) {
-                    this.contactName = res.data.contact.Name || '';
-                    this.contactTitle = res.data.contact.Title || res.data.contact.Department || '';
-                }
-                this._projectColorMap = {};
-                DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c).forEach((r, i) => {
-                    if (r.Project__c && !this._projectColorMap[r.Project__c]) {
-                        this._projectColorMap[r.Project__c] = this._colorPalette[i % this._colorPalette.length];
-                    }
-                });
-                this.buildGrid();
-            } catch (e) {
-                console.error(e);
-                this.showToast('Data Error', 'Failed to load data.', 'error');
-            }
-        } else if (res.error) {
-            this.showToast('Load Error', res.error?.body?.message || 'Could not load timesheet.', 'error');
-        }
-    }
-
-    // ─── NAVIGATION ──────────────────────────────────────────────────────────
-    switchToTimesheet() { this.activeTab = 'timesheet'; } // ✅ Restored
-    switchToExpenses() { this.activeTab = 'expenses'; }   // ✅ Restored
-    switchToWeekly() { this.activeView = 'weekly'; this.buildGrid(); }
-    switchToList() { this.activeView = 'list'; }
-    handlePrevious() {
-        if (this.activeView === 'list' && this.listTimeframe === 'Monthly') {
-            this.currentStartDate.setMonth(this.currentStartDate.getMonth() - 1);
-        } else {
-            this.currentStartDate.setDate(this.currentStartDate.getDate() - 7);
-        }
-        this._alignDateToWeekStart();
-        this.generateDateHeaders(); 
-        this.buildGrid(); 
-    }
-    
-    handleNext() {
-        if (this.activeView === 'list' && this.listTimeframe === 'Monthly') {
-            this.currentStartDate.setMonth(this.currentStartDate.getMonth() + 1);
-        } else {
-            this.currentStartDate.setDate(this.currentStartDate.getDate() + 7);
-        }
-        this._alignDateToWeekStart();
-        this.generateDateHeaders(); 
-        this.buildGrid(); 
-    }
-    
-   handleToday() {
-        // 1. Set to exactly right now
-        this.currentStartDate = new Date();
-        
-        // 2. Let your helper function align it to Monday at 00:00:00
-        this._alignDateToWeekStart();
-        
-        // 3. Rebuild the UI
-        this.generateDateHeaders();
-        this.buildGrid();
-    }
-    handleDatePick(e) {
-        if (!e.target.value) return;
-        const [y, m, d] = e.target.value.split('-');
-        this.currentStartDate = new Date(y, m - 1, d, 0, 0, 0, 0);
-        this.generateDateHeaders();
-        this.buildGrid();
-    }
-
-    _alignDateToWeekStart() {
-        const dy = this.currentStartDate.getDay();
-        this.currentStartDate.setDate(this.currentStartDate.getDate() - dy + (dy === 0 ? -6 : 1));
-        this.currentStartDate.setHours(0, 0, 0, 0);
-    }
-
-    handleTimeframeChange(e) {
-        this.listTimeframe = e.detail.value;
-    }
-    handleSearch(e) { this.searchTerm = e.target.value?.toLowerCase() || ''; this.currentPage = 1; }
-    handleListSearch(e) { this.listSearchTerm = e.target.value?.toLowerCase() || ''; }
-    handleRecordsPerPageChange(e) { this.recordsPerPage = parseInt(e.detail.value || e.target.value, 10) || 20; this.currentPage = 1; }
-    handlePrevPage() { if (this.currentPage > 1) { this.currentPage--; this.buildGrid(); } }
-    handleNextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.buildGrid(); } }
-
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🛠️ GRID BUILDER & MAPPERS
+    // ─────────────────────────────────────────────────────────────────────────
     generateDateHeaders() {
-        const h = [], b = new Date(this.currentStartDate), ts = DataUtils.getLocalIsoDate();
-        for (let i = 0; i < 7; i++) {
-            const d = new Date(b);
-            d.setDate(b.getDate() + i);
+        const h = [];
+        const ts = DataUtils.getLocalIsoDate();
+        let startDate = new Date(this.currentStartDate);
+        let daysToGenerate = 7;
+
+        // 🌟 DYNAMIC LOGIC: Weekly vs Monthly
+        if (this.activeView === 'list' && this.listTimeframe === 'Monthly') {
+            startDate = new Date(this.currentStartDate.getFullYear(), this.currentStartDate.getMonth(), 1);
+            const nextMonth = new Date(this.currentStartDate.getFullYear(), this.currentStartDate.getMonth() + 1, 0);
+            daysToGenerate = nextMonth.getDate(); // Will be 28, 29, 30, or 31
+        } else {
+            const day = startDate.getDay();
+            const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
+            startDate.setDate(diff);
+        }
+
+        for (let i = 0; i < daysToGenerate; i++) {
+            const d = new Date(startDate);
+            d.setDate(startDate.getDate() + i);
             const iso = DataUtils.getLocalIsoDate(d);
+            
+            // Format: '15' for Monthly, 'Mon 15' for Weekly
+            let displayStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            if (this.activeView === 'list' && this.listTimeframe === 'Monthly') {
+                displayStr = d.toLocaleDateString('en-US', { day: '2-digit' }); 
+            }
+
             h.push({
-                columnId: iso,
-                dateValue: iso,
-                display: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+                columnId: iso, dateValue: iso, display: displayStr,
                 headerCellClass: iso === ts ? 'header-cell header-cell-today' : 'header-cell',
                 todayLabelClass: iso === ts ? 'today-label' : '',
                 isWeekend: d.getDay() === 0 || d.getDay() === 6
@@ -689,174 +1285,228 @@ export default class extends NavigationMixin(LightningElement) {
         this.dateHeaders = h;
     }
 
-    // ─── GRID BUILDER ────────────────────────────────────────────────────────
     buildGrid() {
         if (!this.allProjectResources?.length || !this.dateHeaders?.length) return;
-
         const todayStr = DataUtils.getLocalIsoDate();
         let weekTotalMs = 0;
         const searchTermStr = this.searchTerm.toLowerCase();
         const projectMap = DataUtils.buildProjectNameMap(this.allProjectResources);
-
         let visualBlocks = [];
         this.allTimeEntries.forEach(entry => {
             const sMins = TimeUtils.toMinutes(entry.Start_Time__c);
             const eMinsRaw = TimeUtils.toMinutes(entry.End_Time__c);
-
             if (entry.Start_Time__c && entry.End_Time__c && eMinsRaw <= sMins) {
-                visualBlocks.push({
-                    ...entry, visualDate: entry.Date__c, vStartMins: sMins, vEndMins: 1440,
-                    isOvernightPart: 'start', renderKey: entry.Id + '-start'
-                });
+                visualBlocks.push({ ...entry, visualDate: entry.Date__c, vStartMins: sMins, vEndMins: 1440, isOvernightPart: 'start', renderKey: entry.Id + '-start' });
                 const nextDay = new Date(entry.Date__c + 'T00:00:00');
                 nextDay.setDate(nextDay.getDate() + 1);
-                visualBlocks.push({
-                    ...entry, visualDate: DataUtils.getLocalIsoDate(nextDay), vStartMins: 0, vEndMins: eMinsRaw,
-                    isOvernightPart: 'end', renderKey: entry.Id + '-end'
-                });
+                visualBlocks.push({ ...entry, visualDate: DataUtils.getLocalIsoDate(nextDay), vStartMins: 0, vEndMins: eMinsRaw, isOvernightPart: 'end', renderKey: entry.Id + '-end' });
             } else {
-                visualBlocks.push({
-                    ...entry, visualDate: entry.Date__c, vStartMins: sMins,
-                    vEndMins: entry.End_Time__c ? eMinsRaw : (sMins + 60),
-                    isOvernightPart: false, renderKey: entry.Id
-                });
+                visualBlocks.push({ ...entry, visualDate: entry.Date__c, vStartMins: sMins, vEndMins: entry.End_Time__c ? eMinsRaw : (sMins + 60), isOvernightPart: false, renderKey: entry.Id });
             }
         });
-
         this.calendarColumns = this.dateHeaders.map(header => {
             let dayBlocks = visualBlocks.filter(vb => vb.visualDate === header.dateValue);
-            if (searchTermStr) {
-                dayBlocks = dayBlocks.filter(vb => (projectMap[vb.Project__c] || '').toLowerCase().includes(searchTermStr));
-            }
+            if (searchTermStr) dayBlocks = dayBlocks.filter(vb => (projectMap[vb.Project__c] || '').toLowerCase().includes(searchTermStr));
             let clonedBlocks = DataUtils.deepClone(dayBlocks);
-
-            // ✅ FIX 1: Sort the blocks by start time first so they cascade neatly
             clonedBlocks.sort((a, b) => a.vStartMins - b.vStartMins);
-
-            // Reset clash flag for a clean slate
-            clonedBlocks.forEach(b => b.isClashing = false); 
-
-            // ✅ FIX 2: Strict Time-Based Overlap Logic
+            clonedBlocks.forEach(b => b.isClashing = false);
             clonedBlocks.forEach((b1, idx) => {
                 b1._level = 0;
                 for (let i = 0; i < idx; i++) {
                     const b2 = clonedBlocks[i];
-                    
-                    // STRICT TIME OVERLAP FORMULA
-                    // This ONLY returns true if the actual minutes intersect.
-                    // Touching edges (e.g., 11:00 to 12:00 and 12:00 to 1:00) safely bypass this!
                     const isOverlapping = (b1.vStartMins < b2.vEndMins) && (b1.vEndMins > b2.vStartMins);
-
                     if (isOverlapping) {
-                        b1.isClashing = true; // Mark card 1 as clashing
-                        b2.isClashing = true; // Mark card 2 as clashing
-                        
-                        // Visually push the clashing card to the right (side-by-side)
-                        if (b1._level <= b2._level) {
-                            b1._level = b2._level + 1;
-                        }
+                        b1.isClashing = true; b2.isClashing = true;
+                        if (b1._level <= b2._level) b1._level = b2._level + 1;
                     }
                 }
             });
-
             const mappedEntries = clonedBlocks.map(vb => {
                 const pr = this.allProjectResources.find(r => r.Project__c === vb.Project__c);
                 const color = this._projectColorMap[vb.Project__c] || this._colorPalette[0];
                 return this._mapEntry(vb, pr, color);
             });
-
             const originalDayEntries = this.allTimeEntries.filter(e => e.Date__c === header.dateValue);
             const dayHrs = originalDayEntries.reduce((s, e) => s + (parseFloat(e.Hours_Worked_Number_Format__c) || 0), 0);
             weekTotalMs += dayHrs * 3600000;
-
-            return { 
-                ...header, 
-                isPast: header.dateValue < todayStr,
-                isDrawingGhost: this.activeGhostId === header.dateValue, 
-                entries: mappedEntries 
-            };
+            return { ...header, isPast: header.dateValue < todayStr, isDrawingGhost: this.activeGhostId === header.dateValue, entries: mappedEntries };
         });
-
         this.weeklyTotalHours = (weekTotalMs / 3600000).toFixed(1);
     }
 
     _mapEntry(vb, r, c) {
         const ss = this._statusShortMap[vb.Time_Status__c] || 'D';
         const sl = (vb.Time_Status__c || 'draft').toLowerCase();
-        
         let css = `shift-box border-${sl}`;
         if (this.selectedEntryIds.includes(vb.Id)) css += ' selected-shift';
         if (this.isCutAction && this.cutEntryId === vb.Id) css += ' cut-pending';
         if (this.inlineEditEntryId === vb.Id) css += ' is-editing';
-        if (vb.Time_Status__c === 'Approved') css += ' is-locked';
-
+        const isStrictlyLocked = vb.Time_Status__c === 'Submitted' || vb.Time_Status__c === 'In Review' || vb.Time_Status__c === 'Approved';
+        if (isStrictlyLocked) css += ' is-locked readonly-shift';
         if (vb.isOvernightPart === 'start') css += ' overnight-start';
         if (vb.isOvernightPart === 'end') css += ' overnight-end';
-
-        // ✅ NEW: Calculate exact hours based on the pixel height to determine if it's a short shift
         const topPx = vb.vStartMins;
         const heightPx = Math.max(15, vb.vEndMins - vb.vStartMins);
-        const shiftDurationHours = heightPx / 60; // 60 pixels = 1 hour
-
-        // ✅ NEW: Apply the 'short-shift' class if it's 1.5 hours (90 mins) or less
-        if (shiftDurationHours <= 1.5) {
-            css += ' short-shift';
-        }
-
+        const shiftDurationHours = heightPx / 60;
+        if (shiftDurationHours <= 1.5) css += ' short-shift';
         const h = parseFloat(vb.Hours_Worked_Number_Format__c) || 0;
-        const tr = (vb.Start_Time__c && vb.End_Time__c) 
-            ? `${TimeUtils.formatTime12h(vb.Start_Time__c)} – ${TimeUtils.formatTime12h(vb.End_Time__c)}` 
-            : `${h.toFixed(1)}h`;
-
+        const tr = (vb.Start_Time__c && vb.End_Time__c) ? `${TimeUtils.formatTime12h(vb.Start_Time__c)} – ${TimeUtils.formatTime12h(vb.End_Time__c)}` : `${h.toFixed(1)}h`;
         let pc = 'status-pill pill-pending';
         if (vb.Time_Status__c === 'Approved') pc = 'pill-confirmed';
         else if (vb.Time_Status__c === 'Submitted') pc = 'pill-active';
         else if (vb.Time_Status__c === 'Rejected') pc = 'pill-rejected';
-
         const lp = 4 + (vb._level * 18);
         const zi = 3 + vb._level;
-        const glassyBgColor = c.bg + 'D9';
         if (vb.isClashing) css += ' clashing-shift';
-
+        let taskName = 'Time Entry';
+        if (vb.Task__c) { 
+            const foundTask = this.allProjectTasks.find(t => t.Id === vb.Task__c);
+            if (foundTask) taskName = foundTask.Name;
+        }
         return {
-            ...vb,
-            id: vb.Id,
-            isClashing: vb.isClashing,
-            renderKey: vb.renderKey,
-            description: vb.Additional_Comments__c || vb.Shift_Type__c || 'Time Entry',
-            shortDesc: this._shortDesc(vb.Additional_Comments__c || vb.Shift_Type__c || ''),
-            timeRange: tr,
-            hours: h.toFixed(1),
+            ...vb, id: vb.Id, isClashing: vb.isClashing, renderKey: vb.renderKey,
+            description: vb.Additional_Comments__c || taskName,
+            shortDesc: this._shortDesc(vb.Additional_Comments__c || taskName),
+            timeRange: tr, hours: h.toFixed(1),
             displayDate: vb.Date__c ? new Date(vb.Date__c + 'T00:00:00').toLocaleDateString() : '',
             cssClass: css,
             dynamicStyle: `top:${topPx}px; height:${heightPx}px; left:${lp}px; z-index:${zi}; border-left-color: ${c.border};`,
-            pillClass: pc,
-            statusShort: ss,
-            typeLabel: vb.Shift_Type__c || 'Regular',
-            isEditable: vb.Time_Status__c !== 'Approved',
-            isLocked: vb.Time_Status__c === 'Approved',
+            pillClass: pc, statusShort: ss, typeLabel: taskName,
+            isEditable: !isStrictlyLocked, isLocked: isStrictlyLocked,
+            
+            // 🌟 THE DRAG FIX: Directly maps HTML5 draggable attribute
+            draggableAttr: !isStrictlyLocked ? 'true' : 'false',
+            
+            btnCutClass: isStrictlyLocked ? 'btn-disabled' : 'action-btn btn-cut',
+            btnDeleteClass: isStrictlyLocked ? 'btn-disabled' : 'action-btn btn-delete',
             isCutPending: this.isCutAction && this.cutEntryId === vb.Id,
             isSelected: this.selectedEntryIds.includes(vb.Id),
             projectName: r?.Project__r?.Name || '—',
             colorDot: `background:${c.dot};`,
-            btnCutClass: vb.Time_Status__c !== 'Approved' ? 'action-btn btn-cut' : 'btn-disabled',
-            btnDeleteClass: vb.Time_Status__c !== 'Approved' ? 'action-btn btn-delete' : 'btn-disabled',
-            showResizeTop: vb.Time_Status__c !== 'Approved' && vb.isOvernightPart !== 'end',
-            showResizeBottom: vb.Time_Status__c !== 'Approved' && vb.isOvernightPart !== 'start'
+            showResizeTop: !isStrictlyLocked && vb.isOvernightPart !== 'end',
+            showResizeBottom: !isStrictlyLocked && vb.isOvernightPart !== 'start'
         };
     }
+    _shortDesc(t) { if (!t) return ''; const w = t.trim().split(/\s+/); return w.length <= 3 ? t : w.slice(0, 3).join(' ') + '…'; }
 
-    _shortDesc(t) {
-        if (!t) return '';
-        const w = t.trim().split(/\s+/);
-        return w.length <= 3 ? t : w.slice(0, 3).join(' ') + '…';
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🖱️ TIMESHEET MODALS & CREATION
+    // ─────────────────────────────────────────────────────────────────────────
+    openNewTimeEntry() { this._openEntryModal(null, this.formattedCurrentDate, null); }
+    get durationOptions() {
+        return [
+            { label: 'Custom / Manual', value: '' },
+            { label: '15 mins', value: '15' }, { label: '30 mins', value: '30' },
+            { label: '45 mins', value: '45' }, { label: '1 hr', value: '60' },
+            { label: '1.5 hrs', value: '90' }, { label: '2 hrs', value: '120' },
+            { label: '3 hrs', value: '180' }, { label: '4 hrs', value: '240' },
+            { label: '8 hrs', value: '480' }
+        ];
+    }
+    _addMinutesToTime(timeStr, addMins) {
+        if (!timeStr) return null;
+        let [h, m] = timeStr.split(':').map(Number);
+        let totalMins = h * 60 + m + parseInt(addMins, 10);
+        let newH = Math.floor(totalMins / 60) % 24;
+        let newM = totalMins % 60;
+        return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+    }
+    _getDiffInMinutes(startStr, endStr) {
+        if (!startStr || !endStr) return 0;
+        let [sh, sm] = startStr.split(':').map(Number);
+        let [eh, em] = endStr.split(':').map(Number);
+        let diff = (eh * 60 + em) - (sh * 60 + sm);
+        if (diff < 0) diff += 1440;
+        return diff;
+    }
+    handleStartTimeChange(e) {
+        this.entryStartTime = e.detail.value;
+        if (this.entryDuration) this.entryEndTime = this._addMinutesToTime(this.entryStartTime, this.entryDuration);
+        else this._syncDurationFromTimes();
+    }
+    handleDurationChange(e) {
+        this.entryDuration = e.detail.value;
+        if (this.entryDuration && this.entryStartTime) this.entryEndTime = this._addMinutesToTime(this.entryStartTime, this.entryDuration);
+    }
+    handleEndTimeChange(e) {
+        this.entryEndTime = e.detail.value;
+        this._syncDurationFromTimes();
+    }
+    _syncDurationFromTimes() {
+        if (this.entryStartTime && this.entryEndTime) {
+            const diff = String(this._getDiffInMinutes(this.entryStartTime, this.entryEndTime));
+            const matchesOption = this.durationOptions.some(opt => opt.value === diff);
+            this.entryDuration = matchesOption ? diff : '';
+        }
+    }
+    handleEntryProjectChange(e) { this.entryProjectId = e.detail.value; }
+
+    handleCardDoubleClick(e) {
+        if (e.target.closest('.shift-action-bar') || e.target.classList.contains('resize-handle')) return;
+        const eid = e.currentTarget.dataset.id, en = this.allTimeEntries.find(x => x.Id === eid);
+        if (!en) return;
+        if (en.Time_Status__c === 'Submitted' || en.Time_Status__c === 'In Review' || en.Time_Status__c === 'Approved') {
+            this.showToast('Locked', 'This entry is under review and cannot be edited.', 'info');
+            return; 
+        }
+        this.selectedEntryId = en.Id;
+        this.entryDate = en.Date__c;
+        this.entryProjectId = en.Project__c;
+        this.entryTaskId = en.Task__c || '';
+        this.entryStartTime = TimeUtils.normalizeTime(en.Start_Time__c) || '09:00';
+        this._syncDurationFromTimes();
+        this.entryEndTime = TimeUtils.normalizeTime(en.End_Time__c) || '17:00';
+        this._syncDurationFromTimes();
+        this.entryBreakTime = en.Break_Time__c || 0;
+        this.entryComments = en.Additional_Comments__c || '';
+        this.isEntryModalOpen = true;
+    }
+    _openEntryModal(eid, date, pid) {
+        this.selectedEntryId = eid;
+        this.entryDate = date;
+        this.entryProjectId = pid || '';
+        this.entryTaskId = '';
+        if (!this.entryStartTime) this.entryStartTime = '09:00';
+        if (!this.entryEndTime) this.entryEndTime = '17:00';
+        this.entryBreakTime = 0;
+        this.entryComments = '';
+        this.isEntryModalOpen = true;
+    }
+    closeEntryModal() { this.isEntryModalOpen = false; }
+    
+    // 🌟 NULL LOOKUP FIX
+    saveEntryModal() {
+        if (!DataUtils.isValidSfId(this.contactId)) { this.showToast('Error', 'Contact ID missing.', 'error'); return; }
+        if (!this.entryProjectId) { this.showToast('Required', 'Select a project.', 'warning'); return; }
+        if (!this.entryDate || !this.entryStartTime || !this.entryEndTime) { this.showToast('Required', 'Fill date/time.', 'warning'); return; }
+        const [sH, sM] = this.entryStartTime.split(':').map(Number), [eH, eM] = this.entryEndTime.split(':').map(Number);
+        if (eH === sH && eM === sM) { this.showToast('Invalid', 'Start/End cannot be equal.', 'error'); return; }
+        const pr = this.allProjectResources.find(r => r.Project__c === this.entryProjectId);
+        if (!pr) { this.showToast('Error', 'Project not found.', 'error'); return; }
+        
+        saveTimeEntry({
+            contactId: this.contactId, 
+            projectResourceId: pr.Id, 
+            projectId: this.entryProjectId,
+            taskId: this.entryTaskId ? this.entryTaskId : null, // 🌟 Safe Null
+            entryDate: this.entryDate,
+            startHour: sH, startMinute: sM, endHour: eH, endMinute: eM,
+            breakTime: parseFloat(this.entryBreakTime) || 0, 
+            comments: this.entryComments || '', 
+            existingId: this.selectedEntryId ? this.selectedEntryId : null
+        }).then(() => {
+            this.showToast('Saved', 'Time entry saved.', 'success');
+            this.isEntryModalOpen = false;
+            return refreshApex(this.wiredResult);
+        }).catch(err => this.showToast('Error', err?.body?.message || err?.message || 'Save failed', 'error'));
     }
 
-    // ─── DRAG TO CREATE ──────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🖱️ DRAG TO CREATE
+    // ─────────────────────────────────────────────────────────────────────────
     handleCreateDragStart(e) {
-        if (this.isEntryCopied) {
-            return;
-        }
+        if (this.isWeekLocked) { this.showToast('Timesheet Locked', 'This week is under review.', 'warning'); return; }
+        if (this.copiedEntry) return; // Prevent drawing if pasting!
         if (e.target.closest('.shift-box')) return;
         e.preventDefault();
         this._isDrawing = true;
@@ -870,14 +1520,12 @@ export default class extends NavigationMixin(LightningElement) {
         window.addEventListener('mousemove', this._onDrawMove, { passive: false });
         window.addEventListener('mouseup', this._onDrawEnd);
     }
-
     _onDrawMove = (e) => {
         if (!this._isDrawing) return;
         e.preventDefault();
         const dy = e.clientY - this._drawStartY, h = Math.max(15, Math.round(dy / 15) * 15);
         this.ghostStyle = `top:${this._dragStartMins}px;height:${h}px;left:4px;right:4px;`;
     };
-
     _onDrawEnd = () => {
         if (!this._isDrawing) return;
         this._isDrawing = false;
@@ -891,155 +1539,80 @@ export default class extends NavigationMixin(LightningElement) {
         this.buildGrid();
         this._openEntryModal(null, this._drawStartCell.dataset.date, null);
     };
-
     handleDragMouseUp() { if (this._isDrawing) { this._onDrawEnd(); } }
 
-    // ─── CARD CLICKS & ENTRY MODAL ───────────────────────────────────────────
-    handleCardDoubleClick(e) {
-        if (e.target.closest('.shift-action-bar') || e.target.classList.contains('resize-handle')) return;
-        const eid = e.currentTarget.dataset.id, en = this.allTimeEntries.find(x => x.Id === eid);
-        if (!en) return;
-        if (en.Time_Status__c === 'Approved') {
-            this.showToast('Read Only', 'Approved entries are locked.', 'info');
-            return;
-        }
-        this.selectedEntryId = en.Id;
-        this.entryDate = en.Date__c;
-        this.entryProjectId = en.Project__c;
-        this.entryType = en.Shift_Type__c || 'Regular';
-        this.entryStartTime = TimeUtils.normalizeTime(en.Start_Time__c) || '09:00';
-        this.entryEndTime = TimeUtils.normalizeTime(en.End_Time__c) || '17:00';
-        this.entryBreakTime = en.Break_Time__c || 0;
-        this.entryComments = en.Additional_Comments__c || '';
-        this.isEntryModalOpen = true;
-    }
-
-    _openEntryModal(eid, date, pid) {
-        this.selectedEntryId = eid;
-        this.entryDate = date;
-        this.entryProjectId = pid || '';
-        this.entryType = 'Regular';
-        if (!this.entryStartTime) this.entryStartTime = '09:00';
-        if (!this.entryEndTime) this.entryEndTime = '17:00';
-        this.entryBreakTime = 0;
-        this.entryComments = '';
-        this.isEntryModalOpen = true;
-    }
-
-    closeEntryModal() { this.isEntryModalOpen = false; }
-
-    saveEntryModal() {
-        if (!DataUtils.isValidSfId(this.contactId)) {
-            this.showToast('Error', 'Contact ID missing.', 'error');
-            return;
-        }
-        if (!this.entryProjectId) {
-            this.showToast('Required', 'Select a project.', 'warning');
-            return;
-        }
-        if (!this.entryDate || !this.entryStartTime || !this.entryEndTime) {
-            this.showToast('Required', 'Fill date/time.', 'warning');
-            return;
-        }
-        const [sH, sM] = this.entryStartTime.split(':').map(Number), [eH, eM] = this.entryEndTime.split(':').map(Number);
-        if (eH === sH && eM === sM) {
-            this.showToast('Invalid', 'Start/End cannot be equal.', 'error');
-            return;
-        }
-        const pr = this.allProjectResources.find(r => r.Project__c === this.entryProjectId);
-        if (!pr) {
-            this.showToast('Error', 'Project not found.', 'error');
-            return;
-        }
-        saveTimeEntry({
-            contactId: this.contactId,
-            projectResourceId: pr.Id,
-            projectId: this.entryProjectId,
-            shiftType: this.entryType,
-            entryDate: this.entryDate,
-            startHour: sH,
-            startMinute: sM,
-            endHour: eH,
-            endMinute: eM,
-            breakTime: parseFloat(this.entryBreakTime) || 0,
-            comments: this.entryComments,
-            existingId: this.selectedEntryId
-        }).then(() => {
-            this.showToast('Saved', 'Time entry saved.', 'success');
-            this.isEntryModalOpen = false;
-            return refreshApex(this.wiredResult);
-        }).catch(err => this.showToast('Error', err?.body?.message || err?.message || 'Save failed', 'error'));
-    }
-
-    // ─── CARD DRAG & DROP ────────────────────────────────────────────────────
-    _dragCardOffsetY = 0; // Add this near the top of your class with your other variables
-
-    // ─── CARD DRAG & DROP ────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🖱️ DRAG TO MOVE
+    // ─────────────────────────────────────────────────────────────────────────
+    _dragCardOffsetY = 0;
+    _draggedEntryId = null; // 🌟 Bypasses Locker Service data stripping
+    
     handleDragStart(e) {
-        if (e.currentTarget.dataset.editable !== 'true') { e.preventDefault(); return; }
-        const eid = e.currentTarget.dataset.id, sn = this.allTimeEntries.find(x => x.Id === eid);
+        if (e.currentTarget.dataset.editable !== 'true') { 
+            e.preventDefault(); 
+            return; 
+        }
         
-        // ✅ NEW: Record exactly where the user's mouse grabbed the card (offset from the top)
+        const eid = e.currentTarget.dataset.id;
+        if (!eid) return;
+
+        this._draggedEntryId = eid; // Store in memory instead of dataTransfer
+        const sn = this.allTimeEntries.find(x => x.Id === eid);
         const rect = e.currentTarget.getBoundingClientRect();
         this._dragCardOffsetY = e.clientY - rect.top;
-
+        
         if (sn) this.pushToUndoStack('MOVE', { ...sn });
+        
+        // Keep this for browser compatibility, but we won't rely on it
         e.dataTransfer.setData('text/plain', eid);
+        e.dataTransfer.effectAllowed = 'move';
+        e.currentTarget.classList.add('is-dragging');
     }
+    
     handleDragOver(e) { e.preventDefault(); }
-    handleCardMouseDown(e) {
-        if (!e.target.closest('.resize-handle')) {
-            const el = e.currentTarget;
-            if (el.dataset.editable === 'true') {
-                el.setAttribute('draggable', 'true');
-                el.classList.add('is-dragging');
-            }
-        }
-    }
-    handleCardMouseUp(e) { e.currentTarget.removeAttribute('draggable'); e.currentTarget.classList.remove('is-dragging'); }
-    handleDragEnd(e) { e.currentTarget.removeAttribute('draggable'); e.currentTarget.classList.remove('is-dragging'); }
-
+    handleDragEnd(e) { e.currentTarget.classList.remove('is-dragging'); this._draggedEntryId = null; }
+    
     handleDrop(e) {
+        if (this.isWeekLocked) return;
         e.preventDefault();
-        const eid = e.dataTransfer.getData('text/plain'), td = e.currentTarget.dataset.date;
+        
+        // 🌟 Grab from memory first! This saves it on Sites.
+        const eid = this._draggedEntryId || e.dataTransfer.getData('text/plain');
+        const td = e.currentTarget.dataset.date;
+        
+        if (!eid || !td) return;
+
         const orig = this.allTimeEntries.find(x => x.Id === eid);
         if (!orig) return;
+        
         const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
         if (!pr) { this.showToast('Error', 'Project not found.', 'error'); return; }
         
-        let sH = 9, sM = 0, n = TimeUtils.normalizeTime(orig.Start_Time__c);
-        if (n) [sH, sM] = n.split(':').map(Number);
-        
         const rect = e.currentTarget.getBoundingClientRect();
-        
-        // ✅ NEW: Calculate the TRUE top of the card by subtracting the grab offset
         const rawTopPx = (e.clientY - rect.top) - (this._dragCardOffsetY || 0);
-
-        // ✅ NEW: Force the top of the card to snap to the nearest 15-minute interval
-        const dm = Math.max(0, Math.round(rawTopPx / 15) * 15); 
-        
-        // Calculate the original duration so the card doesn't stretch/shrink
-        const dur = (orig.End_Time__c ? TimeUtils.toMinutes(orig.End_Time__c) : (sH * 60 + sM + 60)) - (sH * 60 + sM);
-
-        sH = Math.floor(dm / 60);
-        sM = dm % 60;
-        
-        const endM = dm + (dur > 0 ? dur : 60);
-        const eH = Math.floor(endM / 60) % 24;
-        const eM = endM % 60;
+        const dm = Math.max(0, Math.round(rawTopPx / 15) * 15);
+        const sH = Math.floor(dm / 60); 
+        const sM = dm % 60;
 
         moveTimeEntry({
-            entryId: eid, newProjectResourceId: pr.Id, newProjectId: orig.Project__c,
-            newDate: td, startHour: sH, startMinute: sM, endHour: eH, endMinute: eM
+            entryId: eid, 
+            newProjectResourceId: pr.Id, 
+            newProjectId: orig.Project__c,
+            newDate: td, 
+            startHour: sH, 
+            startMinute: sM
         }).then(() => refreshApex(this.wiredResult)).catch(err => {
             this.showToast('Error', err.body?.message || 'Move failed.', 'error');
             this.actionHistory.pop();
             this.isUndoDisabled = this.actionHistory.length === 0;
             return refreshApex(this.wiredResult);
         });
+
     }
 
-    // ─── CARD RESIZING ───────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🖱️ RESIZING
+    // ─────────────────────────────────────────────────────────────────────────
     handleResizeStart(e) {
         e.stopPropagation(); e.preventDefault();
         this._isResizing = true;
@@ -1047,119 +1620,92 @@ export default class extends NavigationMixin(LightningElement) {
         this._resizingEntryId = e.target.dataset.id;
         this._resizeDirection = e.target.dataset.direction; 
         this._resizingEl = e.target.closest('.shift-box');
-        
         const entry = this.allTimeEntries.find(x => x.Id === this._resizingEntryId);
         if (!entry) return;
-        
         this._originalStartMins = TimeUtils.toMinutes(entry.Start_Time__c);
         this._originalEndMins = TimeUtils.toMinutes(entry.End_Time__c);
         this._originalTop = parseInt(this._resizingEl.style.top, 10) || this._originalStartMins;
         this._originalHeight = parseInt(this._resizingEl.style.height, 10) || (this._originalEndMins - this._originalStartMins);
-        
         window.addEventListener('mousemove', this._onResizeMove, { passive: false });
         window.addEventListener('mouseup', this._onResizeEnd);
     }
-
     _onResizeMove = (e) => {
         if (!this._isResizing) return;
         e.preventDefault();
-        
         const entry = this.allTimeEntries.find(x => x.Id === this._resizingEntryId);
         if (!entry) return;
-        
         const dy = e.clientY - this._resizeStartY;
         const pixelsPerMinute = 1;
-        
         let newStartMins = this._originalStartMins;
         let newEndMins = this._originalEndMins;
-
-        // 1. Calculate the proposed new times FIRST
         if (this._resizeDirection === 'top') {
             let deltaMins = Math.round(dy / pixelsPerMinute);
             newStartMins = this._originalStartMins + deltaMins;
-            
-            // ✅ NEW: Force resize to snap to 15-minute intervals (0, 15, 30, 45)
             newStartMins = Math.round(newStartMins / 15) * 15;
-
             const minStart = Math.max(0, this._originalEndMins - 1440); 
             const maxStart = this._originalEndMins - 15; 
             newStartMins = Math.max(minStart, Math.min(newStartMins, maxStart));
         } else {
             let deltaMins = Math.round(dy / pixelsPerMinute);
             newEndMins = this._originalEndMins + deltaMins;
-            
-            // ✅ NEW: Force resize to snap to 15-minute intervals (0, 15, 30, 45)
             newEndMins = Math.round(newEndMins / 15) * 15;
-
             const minEnd = this._originalStartMins + 15;
             const maxEnd = this._originalStartMins + 1440; 
             newEndMins = Math.max(minEnd, Math.min(newEndMins, maxEnd));
         }
-
-        // 2. STRICT OVERLAP CHECK (Touching edges safely pass this check)
         const wouldOverlap = this.allTimeEntries.some(other => {
             if (other.Id === entry.Id || other.Date__c !== entry.Date__c) return false;
-            
             const otherStart = TimeUtils.toMinutes(other.Start_Time__c);
             let otherEnd = TimeUtils.toMinutes(other.End_Time__c);
             if (otherEnd <= otherStart) otherEnd += 1440; 
-            
             return Math.max(newStartMins, otherStart) < Math.min(newEndMins, otherEnd);
         });
-
-        // 3. Block the resize drag visually if it's hitting another card
         if (wouldOverlap) {
             this.resizeTooltip.text = '⚠️ Time Conflict';
             this.resizeTooltip.style = `left:${e.clientX+20}px;top:${e.clientY}px;color:#ea001e;`;
             return; 
         }
-        
-        // 4. If no overlap, apply the visual CSS updates
         if (this._resizeDirection === 'top') {
             const newTopPx = newStartMins;
             const newHeightPx = this._originalEndMins - newStartMins;
             this._resizingEl.style.top = `${newTopPx}px`;
             this._resizingEl.style.height = `${newHeightPx}px`;
-            
             const newSH = Math.floor(newStartMins / 60) % 24, newSM = newStartMins % 60;
             this.resizeTooltip = { visible: true, text: `Start: ${String(newSH).padStart(2,'0')}:${String(newSM).padStart(2,'0')}`, style: `left:${e.clientX+20}px;top:${e.clientY}px;` };
-            
         } else {
             const newHeightPx = newEndMins - this._originalStartMins;
             this._resizingEl.style.height = `${newHeightPx}px`;
-            
             const newEH = Math.floor(newEndMins / 60) % 24, newEM = newEndMins % 60;
             this.resizeTooltip = { visible: true, text: `End: ${String(newEH).padStart(2,'0')}:${String(newEM).padStart(2,'0')}`, style: `left:${e.clientX+20}px;top:${e.clientY}px;` };
         }
     };
-
     _onResizeEnd = () => {
         if (!this._isResizing) return;
         this._isResizing = false;
         this.resizeTooltip = { visible: false, text: '', style: '' };
-        
         window.removeEventListener('mousemove', this._onResizeMove);
         window.removeEventListener('mouseup', this._onResizeEnd);
-        
         const entry = this.allTimeEntries.find(x => x.Id === this._resizingEntryId);
         if (!entry) { this.buildGrid(); return; }
-        
         const finalTop = parseInt(this._resizingEl.style.top, 10);
         const finalHeight = parseInt(this._resizingEl.style.height, 10);
         const finalStartMins = this._resizeDirection === 'top' ? finalTop : this._originalStartMins;
         const finalEndMins = this._resizeDirection === 'bottom' ? finalTop + finalHeight : this._originalEndMins;
-        
         const sH = Math.floor(finalStartMins / 60) % 24, sM = finalStartMins % 60;
         const eH = Math.floor(finalEndMins / 60) % 24, eM = finalEndMins % 60;
-        
         const projectRes = this.allProjectResources.find(r => r.Project__c === entry.Project__c);
         if (!projectRes) { this.buildGrid(); return; }
         
         saveTimeEntry({
-            contactId: this.contactId, projectResourceId: projectRes.Id, projectId: entry.Project__c,
-            shiftType: entry.Shift_Type__c, entryDate: entry.Date__c,
+            contactId: this.contactId, 
+            projectResourceId: projectRes.Id, 
+            projectId: entry.Project__c,
+            taskId: entry.Task__c ? entry.Task__c : null, // Null Check!
+            entryDate: entry.Date__c,
             startHour: sH, startMinute: sM, endHour: eH, endMinute: eM,
-            breakTime: entry.Break_Time__c || 0, comments: entry.Additional_Comments__c, existingId: entry.Id
+            breakTime: entry.Break_Time__c || 0, 
+            comments: entry.Additional_Comments__c || '', 
+            existingId: entry.Id
         }).then(() => refreshApex(this.wiredResult)).catch(err => {
             this.showToast('Error', err.body?.message || 'Failed to save changes.', 'error');
             this._resizingEl.style.top = `${this._originalTop}px`;
@@ -1168,16 +1714,23 @@ export default class extends NavigationMixin(LightningElement) {
         });
     };
 
-    // ─── CUT/COPY/PASTE ──────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // ✂️ SEAMLESS CUT, COPY & CLICK-TO-PASTE
+    // ─────────────────────────────────────────────────────────────────────────
     handleBtnCut(e) {
         e.stopPropagation();
-        const en = this.allTimeEntries.find(x => x.Id === e.currentTarget.dataset.id);
+        e.preventDefault();
+        
+        // 🌟 currentTarget guarantees we get the ID from the div, not the icon
+        const entryId = e.currentTarget.dataset.id; 
+        const en = this.allTimeEntries.find(x => x.Id === entryId);
         if (!en) return;
+        
         this.copiedEntry = { ...en };
         this.isCutAction = true;
         this.cutEntryId = en.Id;
         this.buildGrid();
-        this.showToast('Cut', 'Entry ready to move.', 'info');
+        this.showToast('Cut', 'Click ANYWHERE on a day column to paste.', 'info');
     }
 
     handleBtnCopy(e) {
@@ -1188,76 +1741,166 @@ export default class extends NavigationMixin(LightningElement) {
         this.isCutAction = false;
         this.cutEntryId = null;
         this.buildGrid();
-        this.showToast('Copied', 'Entry copied.', 'info');
+        this.showToast('Copied', 'Click anywhere on the calendar column to paste.', 'info');
     }
-
+    // 🌟 UPDATED: Clears both single entry and full week clipboards
     clearClipboard() {
         this.copiedEntry = null;
         this.isCutAction = false;
         this.cutEntryId = null;
+        this.copiedWeekEntries = null;
+        this.copiedWeekStartDate = null;
         this.buildGrid();
     }
 
-    handlePaste(e) {
-        e.stopPropagation();
-        if (!this.copiedEntry) return;
-        const dc = e.currentTarget.closest('.day-column'), td = dc?.dataset.date;
+    // ==========================================
+    // 📋 ENTERPRISE BULK WEEK COPY & PASTE
+    // ==========================================
+    handleCopyWeek() {
+        if (!this.dateHeaders || !this.dateHeaders.length) return;
+        const startStr = this.dateHeaders[0].dateValue;
+        const endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
+
+        // Grab all entries for the current week
+        this.copiedWeekEntries = this.allTimeEntries.filter(e => e.Date__c >= startStr && e.Date__c <= endStr);
+        this.copiedWeekStartDate = startStr;
+
+        if(this.copiedWeekEntries.length === 0) {
+            this.showToast('Empty Week', 'There are no entries to copy this week.', 'warning');
+            return;
+        }
+
+        // Clear single entry clipboard to avoid UX confusion
+        this.copiedEntry = null; 
+        this.isCutAction = false;
+
+        this.showToast('Week Copied', 'Navigate to another week and click Paste Week.', 'info');
+    }
+
+    handlePasteWeek() {
+        if (!this.isWeekCopied || !this.dateHeaders.length) return;
+        if (this.isWeekLocked) {
+            this.showToast('Locked', 'Cannot paste into a locked week.', 'warning');
+            return;
+        }
+
+        this.isSaving = true; // Lock UI to prevent double-clicks
+
+        const currentStartStr = this.dateHeaders[0].dateValue;
+        const sourceStart = new Date(this.copiedWeekStartDate + 'T00:00:00');
+        const targetStart = new Date(currentStartStr + 'T00:00:00');
+
+        // Calculate exactly how many days we moved forward or backward
+        const dayOffset = Math.round((targetStart - sourceStart) / (1000 * 60 * 60 * 24));
+
+        if (dayOffset === 0) {
+            this.showToast('Warning', 'You cannot paste into the exact same week you copied from.', 'warning');
+            this.isSaving = false;
+            return;
+        }
+
+        // Build a massive array of promises to save all entries simultaneously 
+        const promises = this.copiedWeekEntries.map(orig => {
+            const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
+            if (!pr) return Promise.resolve({ status: 'skipped' });
+
+            // Shift the date by the exact offset amount
+            const origDate = new Date(orig.Date__c + 'T00:00:00');
+            origDate.setDate(origDate.getDate() + dayOffset);
+            const newDateStr = DataUtils.getLocalIsoDate(origDate);
+
+            // Calculate standard hours
+            const sMins = TimeUtils.toMinutes(orig.Start_Time__c);
+            const sH = Math.floor(sMins / 60), sM = sMins % 60;
+            let eMins = TimeUtils.toMinutes(orig.End_Time__c);
+            if (eMins <= sMins) eMins += 1440; // Overnight handler
+            const eH = Math.floor(eMins / 60) % 24, eM = eMins % 60;
+
+            // Fire Apex (Existing ID = null forces it to create a NEW clone)
+            return saveTimeEntry({
+                contactId: this.contactId,
+                projectResourceId: pr.Id,
+                projectId: orig.Project__c,
+                taskId: orig.Task__c ? orig.Task__c : null,
+                entryDate: newDateStr,
+                startHour: sH, startMinute: sM, endHour: eH, endMinute: eM,
+                breakTime: parseFloat(orig.Break_Time__c) || 0,
+                comments: orig.Additional_Comments__c || '',
+                existingId: null 
+            });
+        });
+
+        // Resolve all promises concurrently
+        Promise.allSettled(promises).then(results => {
+            const successes = results.filter(r => r.status === 'fulfilled').length;
+            this.showToast('Week Pasted', `Successfully pasted ${successes} entries.`, 'success');
+            this.clearClipboard();
+            this.isSaving = false;
+            return refreshApex(this.wiredResult);
+        });
+    }
+
+    // 🌟 SAAS FEATURE: QUICK DURATION PILLS
+    setQuickDuration(event) {
+        const addedMins = parseInt(event.currentTarget.dataset.mins, 10);
+        if (!this.entryStartTime) {
+            this.entryStartTime = '09:00'; // Default if empty
+        }
+        
+        // Calculate new End Time
+        this.entryEndTime = this._addMinutesToTime(this.entryStartTime, addedMins);
+        
+        // Sync the dropdown state just in case
+        this._syncDurationFromTimes();
+    }
+
+    handleDayColumnClick(e) {
+        if (!this.copiedEntry) return; 
+        if (this.isWeekLocked) { this.showToast('Locked', 'Cannot paste into a locked week.', 'warning'); return; }
+        
+        const td = e.currentTarget.dataset.date;
         if (!td) return;
-        const orig = this.copiedEntry, wasCut = this.isCutAction;
-        this.clearClipboard();
-        const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
-        if (!pr) { this.showToast('Error', 'Project not found.', 'error'); return; }
-        const sn = TimeUtils.normalizeTime(orig.Start_Time__c), en = TimeUtils.normalizeTime(orig.End_Time__c);
-        let [sH, sM] = sn ? sn.split(':').map(Number) : [9, 0];
-        let [eH, eM] = en ? en.split(':').map(Number) : [17, 0];
-        const rect = dc.getBoundingClientRect(), off = e.clientY - rect.top;
-        if (off >= 0) {
-            const dm = Math.round(off / 15) * 15, dur = (eH * 60 + eM) - (sH * 60 + sM);
-            sH = Math.floor(dm / 60);
-            sM = dm % 60;
-            const endM = dm + (dur > 0 ? dur : 60);
-            eH = Math.floor(endM / 60) % 24;
-            eM = endM % 60;
-        }
+
+        const orig = this.copiedEntry;
+        const wasCut = this.isCutAction;
+        
+        // If it was a CUT, clear clipboard. If COPY, keep it active for multi-paste!
         if (wasCut) {
-            moveTimeEntry({ entryId: orig.Id, newProjectResourceId: pr.Id, newProjectId: orig.Project__c, newDate: td, startHour: sH, startMinute: sM })
-            .then(() => refreshApex(this.wiredResult)).catch(err => this.showToast('Error', err.body?.message, 'error'));
+            this.clearClipboard(); 
+        }
+
+        const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
+        if (!pr) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const dm = Math.max(0, Math.round((e.clientY - rect.top) / 15) * 15);
+        const sH = Math.floor(dm / 60), sM = dm % 60;
+
+        if (wasCut) {
+            moveTimeEntry({ 
+                entryId: orig.Id, newProjectResourceId: pr.Id, newProjectId: orig.Project__c, 
+                newDate: td, startHour: sH, startMinute: sM 
+            }).then(() => refreshApex(this.wiredResult)).catch(err => this.showToast('Error', err.body?.message, 'error'));
         } else {
-            saveTimeEntry({ contactId: this.contactId, projectResourceId: pr.Id, projectId: orig.Project__c, shiftType: orig.Shift_Type__c, entryDate: td, startHour: sH, startMinute: sM, endHour: eH, endMinute: eM, breakTime: orig.Break_Time__c || 0, comments: orig.Additional_Comments__c, existingId: null })
-            .then(() => refreshApex(this.wiredResult)).catch(err => this.showToast('Error', err.body?.message, 'error'));
+            const origStartMins = TimeUtils.toMinutes(orig.Start_Time__c);
+            let origEndMins = TimeUtils.toMinutes(orig.End_Time__c);
+            if (origEndMins <= origStartMins) origEndMins += 1440;
+            const endM = dm + (origEndMins - origStartMins);
+
+            saveTimeEntry({ 
+                contactId: this.contactId, projectResourceId: pr.Id, projectId: orig.Project__c, 
+                taskId: orig.Task__c || null, // 🌟 Safe Null
+                entryDate: td, 
+                startHour: sH, startMinute: sM, endHour: Math.floor(endM / 60) % 24, endMinute: endM % 60, 
+                breakTime: parseFloat(orig.Break_Time__c) || 0, comments: orig.Additional_Comments__c || '', 
+                existingId: null // 🌟 CRITICAL FIX: Apex rejects '' as an ID. It must be null.
+            }).then(() => refreshApex(this.wiredResult)).catch(err => this.showToast('Error', err.body?.message, 'error'));
         }
     }
 
-    // ─── INLINE EDIT ─────────────────────────────────────────────────────────
-    handleInlineEditStart(e) {
-        e.stopPropagation();
-        if (e.currentTarget.dataset.editable === 'false') return;
-        this.inlineEditEntryId = e.currentTarget.dataset.id;
-        this.hoverCard = { ...this.hoverCard, visible: false };
-        this.buildGrid();
-        setTimeout(() => {
-            const el = this.template.querySelector(`input.inline-edit-input[data-id="${this.inlineEditEntryId}"]`);
-            if (el) { el.focus(); el.select(); }
-        }, 50);
-    }
-    handleInlineEditBlur(e) { this._saveInlineEdit(e.target.dataset.id, e.target.value); }
-    handleInlineEditKey(e) {
-        if (e.key === 'Enter') e.target.blur();
-        else if (e.key === 'Escape') { this.inlineEditEntryId = null; this.buildGrid(); }
-    }
-    _saveInlineEdit(eid, nc) {
-        if (!eid) return;
-        this.inlineEditEntryId = null;
-        const en = this.allTimeEntries.find(x => x.Id === eid);
-        if (!en || en.Additional_Comments__c === nc) { this.buildGrid(); return; }
-        const sn = TimeUtils.normalizeTime(en.Start_Time__c), [sH, sM] = sn ? sn.split(':').map(Number) : [9, 0];
-        const en2 = TimeUtils.normalizeTime(en.End_Time__c), [eH, eM] = en2 ? en2.split(':').map(Number) : [17, 0];
-        const pr = this.allProjectResources.find(r => r.Project__c === en.Project__c);
-        if (!pr) return;
-        saveTimeEntry({ contactId: this.contactId, projectResourceId: pr.Id, projectId: en.Project__c, shiftType: en.Shift_Type__c, entryDate: en.Date__c, startHour: sH, startMinute: sM, endHour: eH, endMinute: eM, breakTime: en.Break_Time__c || 0, comments: nc, existingId: eid }).then(() => refreshApex(this.wiredResult)).catch(() => this.buildGrid());
-    }
-
-    // ─── BULK EDIT & LIST VIEW ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // 📋 BULK EDIT & SELECTION
+    // ─────────────────────────────────────────────────────────────────────────
     handleEntrySelection(e) {
         e.stopPropagation();
         const id = e.target.dataset.id;
@@ -1275,255 +1918,75 @@ export default class extends NavigationMixin(LightningElement) {
             const en2 = TimeUtils.normalizeTime(en.End_Time__c), [eH, eM] = en2 ? en2.split(':').map(Number) : [17, 0];
             const pr = this.allProjectResources.find(r => r.Project__c === en.Project__c);
             if (!pr) return Promise.resolve({ status: 'skipped' });
-            return saveTimeEntry({ contactId: this.contactId, projectResourceId: pr.Id, projectId: en.Project__c, shiftType: this.bulkType || en.Shift_Type__c, entryDate: en.Date__c, startHour: sH, startMinute: sM, endHour: eH, endMinute: eM, breakTime: en.Break_Time__c || 0, comments: en.Additional_Comments__c, existingId: id })
+            return saveTimeEntry({ contactId: this.contactId, projectResourceId: pr.Id, projectId: en.Project__c, taskId: this.bulkType || en.Task__c, entryDate: en.Date__c, startHour: sH, startMinute: sM, endHour: eH, endMinute: eM, breakTime: en.Break_Time__c || 0, comments: en.Additional_Comments__c, existingId: id })
             .then(r => ({ status: 'fulfilled', id, r })).catch(err => ({ status: 'rejected', id, reason: err?.body?.message }));
         });
         Promise.allSettled(ps).then(res => {
-            const f = res.filter(r => r.status === 'fulfilled' && r.value?.status === 'fulfilled');
-            const j = res.filter(r => r.status === 'rejected' || r.value?.status === 'rejected');
-            let m = `${f.length} updated.`;
-            if (j.length) m += ` ${j.length} failed.`;
-            this.showToast(j.length === res.length ? 'Error' : 'Bulk Edit Complete', m, j.length === res.length ? 'error' : j.length ? 'warning' : 'success');
+            this.showToast('Bulk Edit Complete', 'Entries updated.', 'success');
             this.isBulkModalOpen = false;
             this.clearSelection();
             return refreshApex(this.wiredResult);
         });
     }
 
-    handleSubmitWeek() {
-        if (!this.dateHeaders?.length) return;
-        submitWeek({ contactId: this.contactId, weekStart: this.dateHeaders[0].dateValue, weekEnd: this.dateHeaders[this.dateHeaders.length - 1].dateValue })
-        .then(c => { this.showToast(c === 0 ? 'Info' : 'Success', c === 0 ? 'No drafts found.' : `${c} entries submitted.`, c === 0 ? 'info' : 'success'); return refreshApex(this.wiredResult); })
-        .catch(err => this.showToast('Error', err.body?.message || 'Submit failed.', 'error'));
+    // ─────────────────────────────────────────────────────────────────────────
+    // 🛡️ SECURITY & WEEK LOCKING
+    // ─────────────────────────────────────────────────────────────────────────
+    get isWeekLocked() {
+        if (!this.dateHeaders || !this.dateHeaders.length) return false;
+        const startStr = this.dateHeaders[0].dateValue;
+        const endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
+        const weekEntries = this.allTimeEntries.filter(e => e.Date__c >= startStr && e.Date__c <= endStr);
+        return weekEntries.length > 0 && weekEntries.some(e => 
+            e.Time_Status__c === 'Submitted' || e.Time_Status__c === 'In Review' || e.Time_Status__c === 'Approved'
+        );
     }
-    handleListEdit(e) {
-        e.stopPropagation();
-        this.selectedEntryId = e.currentTarget.dataset.id;
-        const en = this.allTimeEntries.find(x => x.Id === this.selectedEntryId);
-        if (en) {
-            this.entryDate = en.Date__c;
-            this.entryProjectId = en.Project__c;
-            this.entryType = en.Shift_Type__c || 'Regular';
-            this.entryStartTime = TimeUtils.normalizeTime(en.Start_Time__c) || '09:00';
-            this.entryEndTime = TimeUtils.normalizeTime(en.End_Time__c) || '17:00';
-            this.entryBreakTime = en.Break_Time__c || 0;
-            this.entryComments = en.Additional_Comments__c || '';
-            this.isEntryModalOpen = true;
-        }
-    }
+    get calendarContainerClass() { return this.isWeekLocked ? 'calendar-container locked-week-container' : 'calendar-container'; }
+    get disableSubmitWeekBtn() { return this.isWeekLocked || this.weeklyTotalHours === '0.0'; }
 
-
-
-
-    // ✅ Handle clicking a record in the 35% left list
-    handleExpenseSelect(e) {
-        const expId = e.currentTarget.dataset.id;
-        const exp = this.allExpenses.find(x => x.Id === expId);
-        
-        if (exp) {
-            this.selectedExpenseId = exp.Id;
-            this.expenseProjectId = exp.Project__c;
-            this.expenseDate = exp.Expense_Date__c;
-            this.expenseAmount = exp.Amount__c != null ? String(exp.Amount__c) : '';
-            this.expenseCategory = exp.Category__c || '';
-            this.expenseDescription = exp.Description__c || '';
-            this.expenseComments = exp.Comments__c || '';
-            this.expenseStatus = exp.Status__c || 'Draft';
-            
-            // ✅ NEW: Check if Apex returned an attached file for this record
-            if (exp.ContentDocumentLinks && exp.ContentDocumentLinks.length > 0) {
-                const link = exp.ContentDocumentLinks[0];
-                const doc = link.ContentDocument;
-                this.attachedFileName = doc.Title + (doc.FileExtension ? '.' + doc.FileExtension : '');
-                
-                // ✅ NEW: Save the ID for the previewer
-                this.attachedFileId = link.ContentDocumentId;
-            } else {
-                this.attachedFileName = ''; 
-            }
-            
-            // Always clear the base64 data so we don't accidentally re-upload an old file
-            this.fileBase64 = null; 
-        }
-    }
-
-    // ✅ NEW: Opens the native Salesforce File Previewer
-    // ✅ FIXED: Bulletproof file preview launcher
-    previewFile(event) {
-        // Prevent the click from triggering anything else on the page
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
-        // Failsafe check
-        if (!this.attachedFileId) {
-            this.showToast('Notice', 'File ID is missing. Try refreshing the page.', 'warning');
+    openSubmitReview() {
+        const startStr = this.dateHeaders[0].dateValue;
+        const endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
+        const draftEntries = this.allTimeEntries.filter(e => 
+            e.Date__c >= startStr && e.Date__c <= endStr && 
+            (e.Time_Status__c === 'Draft' || e.Time_Status__c === 'Rejected')
+        );
+        if (draftEntries.length === 0) {
+            this.showToast('Notice', 'No Draft or Rejected entries found to submit.', 'info');
             return;
         }
-        
-        // Command Salesforce to open the theater-mode previewer
-        this[NavigationMixin.Navigate]({
-            type: 'standard__namedPage',
-            attributes: {
-                pageName: 'filePreview'
-            },
-            state: {
-                selectedRecordId: this.attachedFileId
+        let summaryMap = {};
+        let totalHrs = 0;
+        draftEntries.forEach(e => {
+            let key = `${e.Project__c}_${e.Task__c}`;
+            if (!summaryMap[key]) {
+                const pr = this.allProjectResources.find(r => r.Project__c === e.Project__c);
+                const tsk = this.allProjectTasks.find(t => t.Id === e.Task__c);
+                summaryMap[key] = { id: key, projectName: pr?.Project__r?.Name || 'Unknown Project', taskName: tsk?.Name || 'Unassigned Task', hours: 0 };
             }
+            let h = parseFloat(e.Hours_Worked_Number_Format__c) || 0;
+            summaryMap[key].hours += h;
+            totalHrs += h;
         });
+        this.submitSummary = Object.values(summaryMap).map(s => ({ ...s, hours: s.hours.toFixed(2) }));
+        this.submitTotalHours = totalHrs.toFixed(2);
+        this.isAttested = false;
+        this.isSubmitReviewOpen = true;
     }
-    // ─── EXPENSE HANDLING (✅ RESTORED) ───────────────────────────────────────
-    openAddExpense() {
-        this.selectedExpenseId = 'NEW';
-        this.expenseProjectId = '';
-        this.expenseDate = DataUtils.getLocalIsoDate();
-        this.expenseAmount = '';
-        this.expenseCategory = '';
-        this.expenseDescription = '';
-        this.expenseComments = '';
-        this.expenseStatus = 'Draft'; 
-        this.removeAttachmentLocalOnly(); 
-    }
-
-    handleEditExpense(e) {
-        e.stopPropagation();
-        const exp = this.allExpenses.find(x => x.Id === e.currentTarget.dataset.id);
-        if (!exp) return;
-        this.selectedExpenseId = exp.Id;
-        this.expenseProjectId = exp.Project__c;
-        this.expenseDate = exp.Expense_Date__c || DataUtils.getLocalIsoDate();
-        this.expenseAmount = exp.Amount__c != null ? String(exp.Amount__c) : '';
-        this.expenseCategory = exp.Category__c || '';
-        this.expenseDescription = exp.Description__c || '';
-        this.expenseComments = exp.Comments__c || '';
-        this.isExpenseModalOpen = true;
-    }
-
-    closeExpenseModal() { this.isExpenseModalOpen = false;
-        this.removeAttachment();
-     }
-
-    // ✅ Keep your original function name
-    // ✅ UPDATED: Bulletproof Save Function with deep error tracking
-    saveExpenseModal() {
-        if (!this.expenseProjectId || !this.expenseDate || !this.expenseAmount) {
-            this.showToast('Required', 'Please fill all required fields.', 'warning');
-            return;
-        }
-
-        // If it's a brand new record (ID is 'NEW'), pass null to Apex so it creates a new record
-        const existingIdToPass = this.selectedExpenseId === 'NEW' ? null : this.selectedExpenseId;
-
-        saveExpense({
-            contactId: this.contactId,
-            projectId: this.expenseProjectId,
-            expenseDate: this.expenseDate,
-            amount: parseFloat(this.expenseAmount),
-            category: this.expenseCategory,
-            description: this.expenseDescription,
-            comments: this.expenseComments,
-            existingId: existingIdToPass, 
-            fileName: this.attachedFileName, 
-            base64Data: this.fileBase64      
-        })
-        .then(newId => {
-            this.showToast('Saved', 'Expense saved successfully.', 'success');
-            this.selectedExpenseId = newId; 
-            this.removeAttachmentLocalOnly(); 
-            
-            // ✅ This is what was likely crashing if refreshApex wasn't imported!
+    closeSubmitReview() { this.isSubmitReviewOpen = false; }
+    handleAttestationChange(e) { this.isAttested = e.target.checked; }
+    confirmSubmitWeek() {
+        if (!this.isAttested) return;
+        const weekStart = this.dateHeaders[0].dateValue;
+        const weekEnd = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
+        submitWeek({ contactId: this.contactId, weekStart: weekStart, weekEnd: weekEnd })
+        .then(count => {
+            this.showToast('Success', `Timesheet Submitted. ${count} entries locked for review.`, 'success');
+            this.isSubmitReviewOpen = false;
             return refreshApex(this.wiredResult);
-        })
-        .catch(err => {
-            // ✅ Make the error LOUD so we know exactly what is failing
-            console.error('SAVE EXPENSE ERROR CAUGHT:', err);
-            
-            // Extract the deepest error message Salesforce provides
-            let errorMessage = 'Save failed. Check console.';
-            if (err.body && err.body.message) {
-                errorMessage = err.body.message;
-            } else if (err.message) {
-                errorMessage = err.message;
-            }
-            
-            this.showToast('Error', errorMessage, 'error');
-        });
+        }).catch(err => { this.showToast('Error', err.body?.message || 'Submission failed.', 'error'); });
     }
 
-    // ─── EXPENSE FILE UPLOAD LOGIC ───
-    handleFileChange(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // Ensure file is under 3MB to respect Salesforce Apex limits
-        if (file.size > 3000000) {
-            this.showToast('File Too Large', 'Please select a file smaller than 3MB.', 'error');
-            return;
-        }
-
-        this.attachedFileName = file.name;
-        
-        // Read file as Base64 string
-        const reader = new FileReader();
-        reader.onload = () => {
-            // Strip the metadata prefix (e.g., "data:image/png;base64,")
-            this.fileBase64 = reader.result.split(',')[1]; 
-        };
-        reader.readAsDataURL(file);
-    }
-
-    async removeAttachment() {
-        if (this.selectedExpenseId) {
-            try {
-                // Call Apex to delete the actual ContentDocument
-                await deleteExpenseAttachment({ expenseId: this.selectedExpenseId });
-                this.showToast('Deleted', 'File permanently removed from the record.', 'success');
-            } catch (error) {
-                this.showToast('Error', 'Failed to delete file from org.', 'error');
-                console.error(error);
-            }
-        }
-        this.removeAttachmentLocalOnly();
-    }
-
-    // ─── DELETE LOGIC ────────────────────────────────────────────────────────
-    handleBtnDelete(e) {
-        e.stopPropagation();
-        this.pendingDeleteId = e.currentTarget.dataset.id;
-        this.deleteType = 'entry';
-        this.isDeleteConfirmOpen = true;
-    }
-
-    // Helper to just clear UI state
-    removeAttachmentLocalOnly() {
-        this.attachedFileName = '';
-        this.fileBase64 = null;
-    }
-    
-    // ✅ RESTORED Delete Expense trigger
-    handleDeleteExpense(e) {
-        e.stopPropagation();
-        this.pendingDeleteId = e.currentTarget.dataset.id;
-        this.deleteType = 'expense';
-        this.isDeleteConfirmOpen = true;
-    }
-
-    cancelDelete() { this.isDeleteConfirmOpen = false; this.pendingDeleteId = null; }
-    
-    confirmDelete() {
-        const id = this.pendingDeleteId;
-        this.isDeleteConfirmOpen = false;
-        this.pendingDeleteId = null;
-        if (!id) return;
-        const act = this.deleteType === 'expense' ? deleteExpense({ expenseId: id }) : deleteTimeEntry({ entryId: id });
-        act.then(() => {
-            this.showToast('Deleted', 'Record removed.', 'success');
-            return refreshApex(this.wiredResult);
-        }).catch(err => this.showToast('Error', err.body?.message, 'error'));
-    }
-
-    // ─── UI HOVERS & UTILS ───────────────────────────────────────────────────
     handleShiftMouseEnter(e) {
         const id = e.currentTarget.dataset.id;
         if (!id) return;
@@ -1539,16 +2002,15 @@ export default class extends NavigationMixin(LightningElement) {
             let l = rect.right + 12, t = rect.top;
             if (l + 290 > window.innerWidth - 8) l = rect.left - 290 - 12;
             if (t + 220 > window.innerHeight - 8) t = window.innerHeight - 220 - 8;
+            const taskName = en.Task__r?.Name || 'Unassigned Task';
             this.hoverCard = {
-                visible: true,
-                style: `left:${Math.max(8, l)}px;top:${Math.max(8, t)}px;`,
+                visible: true, style: `left:${Math.max(8, l)}px;top:${Math.max(8, t)}px;`,
                 headerStyle: `background:${c.border};color:#fff;padding:10px 12px;`,
-                description: en.Additional_Comments__c || en.Shift_Type__c || 'Time Entry',
+                description: en.Additional_Comments__c || taskName,
                 timeRange: (en.Start_Time__c && en.End_Time__c) ? `${TimeUtils.formatTime12h(en.Start_Time__c)} – ${TimeUtils.formatTime12h(en.End_Time__c)}` : '—',
                 hours: (parseFloat(en.Hours_Worked_Number_Format__c) || 0).toFixed(1),
                 displayDate: en.Date__c ? new Date(en.Date__c + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '',
-                projectName: pr?.Project__r?.Name || 'Unknown Project',
-                taskType: en.Shift_Type__c || '—',
+                projectName: pr?.Project__r?.Name || 'Unknown Project', taskType: taskName, 
                 status: en.Time_Status__c || 'Draft',
                 pillClass: en.Time_Status__c === 'Approved' ? 'pill-confirmed' : en.Time_Status__c === 'Submitted' ? 'pill-active' : 'pill-pending',
                 notes: en.Additional_Comments__c ? en.Additional_Comments__c : 'No notes added.'
@@ -1560,36 +2022,280 @@ export default class extends NavigationMixin(LightningElement) {
         if (this._hoverTimeout) clearTimeout(this._hoverTimeout);
         if (this.hoverCard.visible) this.hoverCard = { ...this.hoverCard, visible: false };
     }
-
-    pushToUndoStack(type, rec) {
-        this.actionHistory = [...this.actionHistory, { type, record: { ...rec } }];
-        this.isUndoDisabled = false;
-    }
+    
+// Pushes the original state of the record to memory before a drag happens
+    pushToUndoStack(type, rec) { 
+        this.actionHistory.push({ type, record: { ...rec } }); 
+        this.isUndoDisabled = false; 
+    } 
+    
     handleUndo() {
-        if (!this.actionHistory.length) return;
-        const last = this.actionHistory.pop();
+        if (this.actionHistory.length === 0) return;
+        
+        const lastAction = this.actionHistory.pop();
         this.isUndoDisabled = this.actionHistory.length === 0;
-        if (last.type === 'MOVE') {
-            const r = last.record, n = TimeUtils.normalizeTime(r.Start_Time__c);
-            const [sH, sM] = n ? n.split(':').map(Number) : [9, 0];
-            const pr = this.allProjectResources.find(p => p.Project__c === r.Project__c);
+
+        if (lastAction.type === 'MOVE') {
+            const orig = lastAction.record;
+            const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
+            
             if (!pr) return;
+
+            const sMins = TimeUtils.toMinutes(orig.Start_Time__c);
+            const sH = Math.floor(sMins / 60);
+            const sM = sMins % 60;
+
+            // Silently move it back to its original day and time
             moveTimeEntry({
-                entryId: r.Id, newProjectResourceId: pr.Id, newProjectId: r.Project__c,
-                newDate: r.Date__c, startHour: sH, startMinute: sM
-            }).then(() => refreshApex(this.wiredResult)).catch(() => {
-                this.actionHistory.push(last);
-                this.isUndoDisabled = false;
+                entryId: orig.Id,
+                newProjectResourceId: pr.Id,
+                newProjectId: orig.Project__c,
+                newDate: orig.Date__c,
+                startHour: sH,
+                startMinute: sM
+            }).then(() => {
+                this.showToast('Undo Successful', 'Time entry restored to its previous position.', 'success');
+                return refreshApex(this.wiredResult);
+            }).catch(err => {
+                this.showToast('Undo Failed', err.body?.message || 'Could not revert entry.', 'error');
             });
         }
     }
 
+    handleBtnDelete(e) { 
+        e.stopPropagation(); 
+        e.preventDefault();
+        
+        const targetId = e.currentTarget.dataset.id;
+        if (!targetId) return;
+        
+        this.pendingDeleteId = targetId; 
+        this.deleteType = 'entry'; 
+        this.isDeleteConfirmOpen = true; 
+    }
+    
+    cancelDelete() { 
+        this.showDeleteModal = false; 
+        this.isDeleteConfirmOpen = false;
+        this.pendingDeleteId = null;
+    }
+    confirmDelete() {
+        // 🌟 1. Handle Expense Deletion
+        if (this.showDeleteModal && this.selectedExpenseId) {
+            this.showDeleteModal = false; 
+            deleteExpense({ expenseId: this.selectedExpenseId })
+                .then(() => { 
+                    this.showToast('Deleted', 'Draft expense removed.', 'success'); 
+                    this.selectedExpenseId = null; 
+                    return refreshApex(this.wiredResult); 
+                })
+                .catch(err => this.showToast('Error', err.body?.message || 'Failed to delete.', 'error'));
+            return;
+        }
+
+        // 🌟 2. Handle Time Entry Deletion
+        if (this.isDeleteConfirmOpen && this.pendingDeleteId) {
+            this.isDeleteConfirmOpen = false;
+            
+            // Note: Ensure 'deleteTimeEntry' is imported from Apex at the top of your file!
+            deleteTimeEntry({ entryId: this.pendingDeleteId })
+                .then(() => { 
+                    this.showToast('Deleted', 'Time entry removed.', 'success'); 
+                    this.pendingDeleteId = null;
+                    this.clearSelection();
+                    return refreshApex(this.wiredResult); 
+                })
+                .catch(err => this.showToast('Error', err.body?.message || 'Failed to delete.', 'error'));
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+    // 💰 EXPENSE MODALS & ACTIONS
+    // ─────────────────────────────────────────────────────────────────────────
+    @wire(getObjectInfo, { objectApiName: EXPENSE_OBJECT })
+    expenseObjectInfo({ data, error }) {
+        if (data) this.expenseRecordTypeId = data.defaultRecordTypeId;
+    }
+    @wire(getPicklistValues, { recordTypeId: '$expenseRecordTypeId', fieldApiName: CATEGORY_FIELD })
+    categoryPicklistValues({ data, error }) {
+        if (data) this.expenseCategoryOptions = data.values.map(v => ({ label: v.label, value: v.value }));
+        else if (error) this.expenseCategoryOptions = [{ label: 'Error loading categories', value: '' }];
+    }
+
+    handleSelectExpense(e) {
+        this.isDirty = false;
+        const expId = e.currentTarget.dataset.id;
+        const exp = this.allRawExpenses.find(x => x.Id === expId) || this.allExpenses.find(x => x.Id === expId);
+        if (exp) {
+            this.selectedExpenseId = exp.Id;
+            this.expenseProjectId = exp.projectId;
+            this.expenseDate = exp.Expense_Date__c || exp.dateValue;
+            this.expenseAmount = exp.Amount__c != null ? String(exp.Amount__c) : (exp.amountValue != null ? String(exp.amountValue) : '');
+            this.expenseCategory = exp.Category__c || exp.category || '';
+            this.expenseDescription = exp.Description__c || exp.notes || '';
+            this.expenseComments = exp.Comments__c || '';
+            let s = exp.Status__c || exp.status || 'Draft';
+            this.expenseStatus = s === 'Open' ? 'Draft' : s; 
+            if (exp.ContentDocumentLinks && (exp.ContentDocumentLinks.records || exp.ContentDocumentLinks).length > 0) {
+                const links = exp.ContentDocumentLinks.records || exp.ContentDocumentLinks;
+                const link = links[0];
+                const doc = link.ContentDocument;
+                this.attachedFileName = doc.Title + (doc.FileExtension ? '.' + doc.FileExtension : '');
+                this.attachedFileId = link.ContentDocumentId;
+            } else if (exp.hasReceipt) {
+                this.attachedFileName = exp.receiptName || '';
+                this.attachedFileId = exp.documentId;
+            } else {
+                this.attachedFileName = ''; this.attachedFileId = null;
+            }
+            this.fileBase64 = null; 
+            
+            // 🌟 THE FIX: Re-run the engine so the Active UI highlight updates
+            this.processExpenseEngine();
+        }
+    }
+
+    openAddExpense() {
+        this.selectedExpenseId = 'NEW';
+        this.expenseProjectId = '';
+        this.expenseDate = DataUtils.getLocalIsoDate();
+        this.expenseAmount = '';
+        this.expenseCategory = '';
+        this.expenseDescription = '';
+        this.expenseComments = '';
+        this.expenseStatus = 'Draft'; 
+        this.attachedFileName = ''; 
+        this.fileBase64 = null;
+        this.attachedFileId = null;
+    }
+
+    // ==========================================
+    // 🧮 PAGINATION & FORM STATE VARIABLES
+    // ==========================================
+    @track isSaving = false; // Prevents double-clicking the save button
+
+    // ==========================================
+    // 🌟 PAGINATION GETTERS & LOGIC
+    // ==========================================
+    get totalPages() {
+        const list = this.displayExpenses || [];
+        const size = Number(this.pageSize) || 10; 
+        return Math.ceil(list.length / size) || 1;
+    }
+
+    get paginatedExpenses() {
+        const list = this.displayExpenses || [];
+        const size = Number(this.pageSize) || 10; 
+        const page = Number(this.currentPage) || 1; 
+        
+        const start = (page - 1) * size;
+        return list.slice(start, start + size);
+    }
+
+    get isFirstPage() { 
+        return Number(this.currentPage) <= 1; 
+    }
+    get isLastPage() { 
+        return Number(this.currentPage) >= this.totalPages; 
+    }
+
+    handlePageSizeChange(event) {
+        // 🌟 Ensure the dropdown value is converted to a strict Number immediately
+        this.pageSize = Number(event.target.value) || 10; // Default to 10 if invalid
+        this.currentPage = 1; // Snap back to page 1
+    }
+
+    handlePrevPage() { 
+        if (Number(this.currentPage) > 1) {
+            this.currentPage = Number(this.currentPage) - 1; 
+        }
+    }
+    handleNextPage() { 
+        if (Number(this.currentPage) < this.totalPages) {
+            this.currentPage = Number(this.currentPage) + 1; 
+        }
+    }
+
+    closeExpenseModal() { this.isExpenseModalOpen = false; this.removeAttachmentLocalOnly(); }
+    handleSaveDraft() { this.executeExpenseSave('Draft'); }
+    handleSubmitExpense() {
+        if (!this.expenseProjectId || !this.expenseDate || !this.expenseAmount) {
+            this.showToast('Required Fields Missing', 'Please fill Project, Date, and Amount.', 'warning');
+            return;
+        }
+        if (!this.attachedFileId && !this.fileBase64) this.isMissingReceiptModalOpen = true;
+        else this.executeExpenseSave('Submitted');
+    }
+    confirmSubmitWithoutReceipt() { this.isMissingReceiptModalOpen = false; this.executeExpenseSave('Submitted'); }
+    cancelSubmit() { this.isMissingReceiptModalOpen = false; }
+    executeExpenseSave(targetStatus) {
+        // 🌟 1. THE CONCURRENCY LOCK: Kills double-clicks instantly
+        if (this.isSaving) return; 
+
+        // Validation
+        if (!this.expenseProjectId || !this.expenseAmount || this.expenseAmount <= 0) {
+            this.showToast('Validation Error', 'Please select a Project and enter a valid amount.', 'error'); 
+            return;
+        }
+
+        // 🌟 2. ENGAGE THE LOCK
+        this.isSaving = true; 
+        this.expenseStatus = targetStatus; 
+
+        saveExpense({
+            contactId: this.contactId, 
+            projectId: this.expenseProjectId, 
+            expenseDate: this.expenseDate,
+            amount: parseFloat(this.expenseAmount), 
+            category: this.expenseCategory,
+            description: this.expenseDescription, 
+            comments: this.expenseComments,
+            existingId: this.selectedExpenseId === 'NEW' ? null : this.selectedExpenseId, 
+            fileName: this.attachedFileName, 
+            base64Data: this.fileBase64, 
+            status: targetStatus 
+        })
+        .then(newId => {
+            this.showToast('Success', `Expense ${targetStatus === 'Draft' ? 'saved as draft' : 'submitted for approval'}.`, 'success');
+            
+            // 🌟 1. BIND THE NEW ID
+            this.selectedExpenseId = newId; 
+            this.isDirty = false;
+            
+            // 🚨 DELETED: this.attachedFileName = ''; (Let the name stay on screen!)
+            
+            // 🌟 2. CLEAR HEAVY DATA: Only clear the base64 string so we don't upload it twice
+            this.fileBase64 = null;
+            
+            // 🌟 3. REFRESH SERVER DATA
+            return refreshApex(this.wiredResult);
+        })
+        .catch(err => {
+            this.expenseStatus = 'Draft'; // Revert status on failure
+            this.showToast('Error', err.body?.message || err.message || 'Save failed.', 'error');
+        })
+        .finally(() => {
+            // 🌟 4. RELEASE THE LOCK: Always runs, whether success or fail
+            this.isSaving = false; 
+        });
+    }
+
+    handleDeleteDraft() {
+        // 🌟 1. NO MORE confirm()! Just open our beautiful custom modal
+        this.showDeleteModal = true; 
+    }
+
+    handleFileChange(event) {
+        this.isDirty = true;
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 3000000) { this.showToast('File Too Large', 'Please select a file smaller than 3MB.', 'error'); return; }
+        this.attachedFileName = file.name;
+        const reader = new FileReader();
+        reader.onload = () => { this.fileBase64 = reader.result.split(',')[1]; };
+        reader.readAsDataURL(file);
+    }
+    removeAttachmentLocalOnly() { this.attachedFileName = ''; this.fileBase64 = null; }
     showToast(t, m, v) { this.dispatchEvent(new ShowToastEvent({ title: t, message: m, variant: v })); }
     stopPropagation(e) { e.stopPropagation(); }
     preventDrag(e) { e.preventDefault(); e.stopPropagation(); }
-    handleEntryProjectChange(e) { this.entryProjectId = e.detail.value; }
-    handleInputChange(e) {
-        const v = e.detail?.value !== undefined ? e.detail.value : e.target?.value;
-        if (v !== undefined) this[e.target.name] = v;
-    }
 }

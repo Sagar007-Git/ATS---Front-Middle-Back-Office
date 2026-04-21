@@ -4,11 +4,15 @@ public with sharing class InvoiceConsoleController {
     // 1. DATA WRAPPERS
     // ==========================================
     public class InvoiceDataWrapper {
+        @AuraEnabled public String compositeKey { get; set; }
         @AuraEnabled public Id projectId { get; set; }       
         @AuraEnabled public String projectName { get; set; } 
         @AuraEnabled public Id accountId { get; set; }
         @AuraEnabled public String accountName { get; set; }
-        @AuraEnabled public String candidateName { get; set; } // ✅ Required for "By Candidate" tab
+        
+        // ✅ ENTERPRISE FIX: Added Candidate ID for strict UI grouping
+        @AuraEnabled public Id candidateId { get; set; } 
+        @AuraEnabled public String candidateName { get; set; } 
         
         @AuraEnabled public Integer unbilledTimeEntries { get; set; }
         @AuraEnabled public Decimal totalHours { get; set; }
@@ -58,41 +62,53 @@ public with sharing class InvoiceConsoleController {
         return (setting != null && setting.Default_Due_Date_Offset__c != null) ? Integer.valueOf(String.valueOf(setting.Default_Due_Date_Offset__c)) : 30;
     }
 
+    private static List<String> getTargetStatuses() {
+        // ✅ ENTERPRISE FIX: Look for BOTH Submitted and Approved records so they show up in the hub!
+        return new List<String>{'Submitted', 'Approved'}; 
+    }
+
     // ==========================================
     // 3. THE SWEEP: READ UNBILLED PROJECTS
     // ==========================================
     @AuraEnabled(cacheable=true)
     public static List<InvoiceDataWrapper> getUnbilledProjects() {
         try {
-            String targetStatus = getTargetStatus(); 
-            // ✅ Composite Map Key (Project + Candidate) prevents multiple candidates on one project from overwriting each other
+            List<String> targetStatuses = getTargetStatuses();
             Map<String, InvoiceDataWrapper> recordMap = new Map<String, InvoiceDataWrapper>();
 
             // 1. Sweep Aggregate Time Entries 
             for (AggregateResult ar : [
                 SELECT Project__c projId, Project__r.Name projName, 
                        Project__r.Client__c accId, Project__r.Client__r.Name accName, 
-                       Project_Resource__r.Candidate_Employee__r.Name candName, // ✅ Query Candidate
+                       Project_Resource__r.Candidate_Employee__c candId, 
+                       Project_Resource__r.Candidate_Employee__r.Name candName, 
                        COUNT(Id) entryCount, SUM(Hours_Worked_Number_Format__c) totalHours
                 FROM Time_Entry__c
-                WHERE Approval_Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
-                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name, Project_Resource__r.Candidate_Employee__r.Name
+                // ✅ CRITICAL FIX: Changed Approval_Status__c to Time_Status__c
+                WHERE Time_Status__c IN :targetStatuses AND Pxm_Invoice_Line__c = null
+                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name, 
+                         Project_Resource__r.Candidate_Employee__c, Project_Resource__r.Candidate_Employee__r.Name
             ]) {
                 Id pId = (Id)ar.get('projId');
+                Id cId = (Id)ar.get('candId');
                 String candName = (String)ar.get('candName');
+                
                 if (String.isBlank(candName)) candName = 'Unknown Resource';
                 
-                String compositeKey = pId + '_' + candName;
+                // Composite key based on strict IDs
+                String compositeKey = String.valueOf(pId) + '_' + String.valueOf(cId);
 
                 InvoiceDataWrapper wrap = new InvoiceDataWrapper();
                 wrap.projectId = pId;
                 wrap.projectName = (String)ar.get('projName');
                 wrap.accountId = (Id)ar.get('accId');
                 wrap.accountName = (String)ar.get('accName');
+                wrap.candidateId = cId; // ✅ Bind ID
                 wrap.candidateName = candName;
                 wrap.unbilledTimeEntries = (Integer)ar.get('entryCount');
                 wrap.totalHours = (Decimal)ar.get('totalHours');
                 wrap.totalExpenses = 0.0;
+                wrap.compositeKey = compositeKey;
                 
                 recordMap.put(compositeKey, wrap);
             }
@@ -101,14 +117,21 @@ public with sharing class InvoiceConsoleController {
             for (AggregateResult ar : [
                 SELECT Project__c projId, Project__r.Name projName, 
                        Project__r.Client__c accId, Project__r.Client__r.Name accName, 
+                       Contact__c candId, Contact__r.Name candName, 
                        SUM(Amount__c) totalExp
                 FROM Expense__c
-                WHERE Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
-                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name
+                // ✅ Update to check multiple statuses just like Time Entries
+                WHERE Status__c IN :targetStatuses AND Pxm_Invoice_Line__c = null
+                GROUP BY Project__c, Project__r.Name, Project__r.Client__c, Project__r.Client__r.Name,
+                         Contact__c, Contact__r.Name
             ]) {
                 Id pId = (Id)ar.get('projId');
-                String candName = 'Project Expenses'; // Expenses usually apply to the whole project
-                String compositeKey = pId + '_' + candName;
+                Id cId = (Id)ar.get('candId');
+                String candName = (String)ar.get('candName');
+                
+                if (String.isBlank(candName)) candName = 'Unassigned Expense';
+
+                String compositeKey = String.valueOf(pId) + '_' + String.valueOf(cId);
 
                 if (!recordMap.containsKey(compositeKey)) {
                     InvoiceDataWrapper wrap = new InvoiceDataWrapper();
@@ -116,10 +139,12 @@ public with sharing class InvoiceConsoleController {
                     wrap.projectName = (String)ar.get('projName');
                     wrap.accountId = (Id)ar.get('accId');
                     wrap.accountName = (String)ar.get('accName');
+                    wrap.candidateId = cId; // ✅ Bind ID
                     wrap.candidateName = candName;
                     wrap.unbilledTimeEntries = 0;
                     wrap.totalHours = 0.0;
                     wrap.totalExpenses = (Decimal)ar.get('totalExp');
+                    wrap.compositeKey = compositeKey;
                     recordMap.put(compositeKey, wrap);
                 } else {
                     recordMap.get(compositeKey).totalExpenses += (Decimal)ar.get('totalExp');
@@ -129,7 +154,7 @@ public with sharing class InvoiceConsoleController {
             return recordMap.values();
 
         } catch (Exception e) {
-            throw createAuraException('Failed to fetch unbilled projects: ' + e.getMessage());
+            throw handleException('Failed to fetch unbilled projects', e); // Unified error handler
         }
     }
 
@@ -139,13 +164,14 @@ public with sharing class InvoiceConsoleController {
     @AuraEnabled
     public static String generateInvoices(List<Id> projectIds) {
         if (projectIds == null || projectIds.isEmpty()) {
-            throw createAuraException('No Projects provided for invoice generation.');
+            throw handleException('No Projects provided for invoice generation.', null);
         }
 
         Savepoint sp = Database.setSavepoint();
 
         try {
-            String targetStatus = getTargetStatus();
+            // ✅ CRITICAL FIX 1: Grab the LIST of valid statuses (Submitted & Approved)
+            List<String> targetStatuses = getTargetStatuses(); 
             String invoicedStatus = getInvoicedStatus();
             Integer dueOffset = getDueDateOffset();
 
@@ -157,19 +183,21 @@ public with sharing class InvoiceConsoleController {
                        Project_Resource__r.Bill_Rate__c, Project_Resource__r.Placement__r.Bill_Rate__c,
                        Task__c, Task__r.Name, Task__r.Bill_Rate__c
                 FROM Time_Entry__c
-                WHERE Project__c IN :projectIds AND Approval_Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                // ✅ CRITICAL FIX 2: Check Time_Status__c instead of Approval_Status__c
+                WHERE Project__c IN :projectIds AND Time_Status__c IN :targetStatuses AND Pxm_Invoice_Line__c = null
                 FOR UPDATE
             ];
 
             List<Expense__c> expensesToBill = [
                 SELECT Id, Amount__c, Project__c, Project__r.Client__c, Project__r.Name, Description__c 
                 FROM Expense__c
-                WHERE Project__c IN :projectIds AND Status__c = :targetStatus AND Pxm_Invoice_Line__c = null
+                // ✅ CRITICAL FIX 3: Check against the list of targetStatuses
+                WHERE Project__c IN :projectIds AND Status__c IN :targetStatuses AND Pxm_Invoice_Line__c = null
                 FOR UPDATE
             ];
 
             if (timeEntriesToBill.isEmpty() && expensesToBill.isEmpty()) {
-                throw new CustomException('No Approved Time Entries or Expenses found for the selected Projects.');
+                throw new CustomException('No valid Time Entries or Expenses found for the selected Projects. Ensure they are Submitted or Approved.');
             }
 
             // --- STEP 2: CREATE INVOICE HEADERS ---
@@ -215,28 +243,21 @@ public with sharing class InvoiceConsoleController {
                 // --- RATE WATERFALL CALCULATION ---
                 Decimal resourceRate = 0.0;
                 if (te.Project_Resource__r != null && te.Project_Resource__r.Bill_Rate__c != null) {
-                    try {
-                        resourceRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Bill_Rate__c));
-                    } catch(Exception e) { resourceRate = 0.0; }
+                    try { resourceRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Bill_Rate__c)); } catch(Exception e) { resourceRate = 0.0; }
                 }
                 
                 Decimal placementRate = 0.0;
                 if (te.Project_Resource__r != null && te.Project_Resource__r.Placement__r != null && te.Project_Resource__r.Placement__r.Bill_Rate__c != null) {
-                    try {
-                        placementRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Placement__r.Bill_Rate__c));
-                    } catch(Exception e) { placementRate = 0.0; }
+                    try { placementRate = Decimal.valueOf(String.valueOf(te.Project_Resource__r.Placement__r.Bill_Rate__c)); } catch(Exception e) { placementRate = 0.0; }
                 }
                 
                 Decimal baseRate = (resourceRate > 0) ? resourceRate : placementRate;
                 
                 Decimal dailyRate = baseRate;
                 if (te.Task__r != null && te.Task__r.Bill_Rate__c != null) {
-                    try {
-                        dailyRate = Decimal.valueOf(String.valueOf(te.Task__r.Bill_Rate__c));
-                    } catch(Exception e) { dailyRate = baseRate; }
+                    try { dailyRate = Decimal.valueOf(String.valueOf(te.Task__r.Bill_Rate__c)); } catch(Exception e) { dailyRate = baseRate; }
                 }
 
-                // Grouping Key: Project + Resource + Rate 
                 String bucketKey = te.Project__c + '_' + te.Project_Resource__c + '_' + dailyRate;
 
                 if (!lineBuckets.containsKey(bucketKey)) {
@@ -305,7 +326,72 @@ public with sharing class InvoiceConsoleController {
 
         } catch (Exception e) {
             Database.rollback(sp);
-            throw createAuraException('Generation failed: ' + e.getMessage() + ' at line ' + e.getLineNumber());
+            throw handleException('Generation failed', e);
+        }
+    }
+
+    // ==========================================
+    // 3.5 MANAGER REVIEW (Approve / Reject)
+    // ==========================================
+    @AuraEnabled
+    public static String reviewRecords(List<String> compositeKeys, String newStatus, String rejectReason) {
+        if (compositeKeys == null || compositeKeys.isEmpty()) {
+            throw handleException('No records selected for review.', null);
+        }
+
+        Savepoint sp = Database.setSavepoint();
+        try {
+            Set<String> validKeys = new Set<String>(compositeKeys);
+            Set<Id> projectIds = new Set<Id>();
+            
+            // Extract Project IDs to optimize our SOQL query
+            for(String key : validKeys) {
+                projectIds.add((Id)key.split('_')[0]);
+            }
+
+            List<Time_Entry__c> timesToUpdate = new List<Time_Entry__c>();
+            List<Expense__c> expensesToUpdate = new List<Expense__c>();
+
+            // Find all Submitted Time Entries for these projects
+            for (Time_Entry__c te : [
+                SELECT Id, Project__c, Project_Resource__r.Candidate_Employee__c, Time_Status__c 
+                FROM Time_Entry__c 
+                WHERE Project__c IN :projectIds AND Time_Status__c = 'Submitted' 
+                FOR UPDATE
+            ]) {
+                String k = String.valueOf(te.Project__c) + '_' + String.valueOf(te.Project_Resource__r.Candidate_Employee__c);
+                if (validKeys.contains(k)) {
+                    te.Time_Status__c = newStatus; // Flips to 'Approved' or 'Rejected'
+                    // If your org has a Reject Reason field on Time Entry, map it here!
+                    timesToUpdate.add(te);
+                }
+            }
+
+            // Find all Submitted Expenses for these projects
+            for (Expense__c ex : [
+                SELECT Id, Project__c, Contact__c, Status__c 
+                FROM Expense__c 
+                WHERE Project__c IN :projectIds AND Status__c = 'Submitted' 
+                FOR UPDATE
+            ]) {
+                String k = String.valueOf(ex.Project__c) + '_' + String.valueOf(ex.Contact__c);
+                if (validKeys.contains(k)) {
+                    ex.Status__c = newStatus;
+                    if (newStatus == 'Rejected' && String.isNotBlank(rejectReason)) {
+                        ex.Manager_Comments__c = rejectReason;
+                    }
+                    expensesToUpdate.add(ex);
+                }
+            }
+
+            if (!timesToUpdate.isEmpty()) update timesToUpdate;
+            if (!expensesToUpdate.isEmpty()) update expensesToUpdate;
+
+            return 'Successfully marked ' + (timesToUpdate.size() + expensesToUpdate.size()) + ' records as ' + newStatus + '.';
+
+        } catch (Exception e) {
+            Database.rollback(sp);
+            throw handleException('Review Action Failed', e);
         }
     }
 
@@ -324,24 +410,23 @@ public with sharing class InvoiceConsoleController {
                 LIMIT 500
             ];
         } catch (Exception e) {
-            throw createAuraException('Error fetching draft invoices: ' + e.getMessage());
+            throw handleException('Error fetching draft invoices: ' + e.getMessage(), e);
         }
     }
 
     @AuraEnabled
     public static String dispatchInvoices(List<Id> invoiceIds) {
         if (invoiceIds == null || invoiceIds.isEmpty()) {
-            throw createAuraException('No invoices selected.');
+            throw handleException('No invoices selected.', null);
         }
         try {
             System.enqueueJob(new InvoiceDispatchQueueable(invoiceIds));
             return 'Dispatch initiated! ' + invoiceIds.size() + ' invoices are being generated and emailed in the background.';
         } catch (Exception e) {
-            throw createAuraException('Failed to start dispatch: ' + e.getMessage());
+            throw handleException('Failed to start dispatch: ' + e.getMessage(), e);
         }
     }
-
-    // ==========================================
+// ==========================================
     // 6. DIRECTORY TRANSACTIONS (Entity Fetching)
     // ==========================================
     @AuraEnabled(cacheable=true)
@@ -353,23 +438,24 @@ public with sharing class InvoiceConsoleController {
                     results.add(createEntityWrapper(acc.Id, acc.Name, 'Account', 'Active Client'));
                 }
             } else if (entityType == 'Project') {
-                String query = 'SELECT Id, Name FROM Project__c ORDER BY Name LIMIT 100';
-                for (SObject proj : Database.query(query)) {
-                    results.add(createEntityWrapper((Id)proj.get('Id'), (String)proj.get('Name'), 'Project', 'Active Project'));
+                // ✅ FIX: Replaced dynamic Database.query with safe static SOQL
+                for (Project__c proj : [SELECT Id, Name FROM Project__c ORDER BY Name LIMIT 100]) {
+                    results.add(createEntityWrapper(proj.Id, proj.Name, 'Project', 'Active Project'));
                 }
             } else if (entityType == 'Candidate') {
                 for (Contact con : [SELECT Id, Name FROM Contact ORDER BY Name LIMIT 100]) {
                     results.add(createEntityWrapper(con.Id, con.Name, 'Candidate', 'Active Resource'));
                 }
             } else if (entityType == 'Task') {
-                String query = 'SELECT Id, Name FROM Task__c ORDER BY Name LIMIT 100';
-                for (SObject tsk : Database.query(query)) {
-                    results.add(createEntityWrapper((Id)tsk.get('Id'), (String)tsk.get('Name'), 'Task', 'Active Task'));
+                // ✅ FIX: Replaced dynamic Database.query with safe static SOQL
+                for (Task__c tsk : [SELECT Id, Name FROM Task__c ORDER BY Name LIMIT 100]) {
+                    results.add(createEntityWrapper(tsk.Id, tsk.Name, 'Task', 'Active Task'));
                 }
             }
             return results;
         } catch (Exception e) {
-            return results; 
+            // ✅ FIX: Never silently swallow errors. Report them to the LWC.
+            throw handleException('Failed to load active directory for ' + entityType, e);
         }
     }
 
@@ -385,7 +471,7 @@ public with sharing class InvoiceConsoleController {
                 LIMIT 1000
             ];
         } catch (Exception e) {
-            throw createAuraException('Error fetching tracked invoices: ' + e.getMessage());
+            throw handleException('Error fetching tracked invoices: ' + e.getMessage(), e);
         }
     }
 
@@ -403,9 +489,15 @@ public with sharing class InvoiceConsoleController {
     // ==========================================
     public class CustomException extends Exception {}
 
-    private static AuraHandledException createAuraException(String message) {
-        AuraHandledException e = new AuraHandledException(message);
-        e.setMessage(message); 
-        return e;
+    private static AuraHandledException handleException(String customMessage, Exception e) {
+        // Extract the exact Salesforce system error
+        String realError = (e != null) ? e.getMessage() : 'Unknown error';
+        String logMessage = customMessage + ' | ' + realError;
+        System.debug(LoggingLevel.ERROR, logMessage);
+        
+        // Pass the REAL error to the LWC Toast message
+        AuraHandledException auraEx = new AuraHandledException(logMessage);
+        auraEx.setMessage(logMessage); 
+        return auraEx;
     }
 }

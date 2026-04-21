@@ -8,13 +8,19 @@
     --bg-card:               #FFFFFF;
     --brand:                 #0176D3;
     --brand-primary:         #0176D3;
+    --brand-primary-soft:    #E0F2FE;
     --text-p:                #181818;
+    --text-strong:           #111827;
     --text-s:                #444444;
     --text-m:                #706E6B;
+    --text-muted:            #6B7280;
     --border:                #DDDBDA;
     --border-light:          #E5E5E5; 
+    --border-subtle:         #E5E7EB;
+    --border-strong:         #D1D5DB;
     --div:                   #F0F0F0; 
     --divider-light:         #F0F0F0;
+    --surface-hover:         #F9FAFB;
     --sc-bg:                 #D4EDDA;
     --sc-txt:                #2E844A;
     --sp-bg:                 #FEF2D9;
@@ -28,177 +34,440 @@
 }
 
 /* =============================================
-   APP LAYOUT (Sidebar + Calendar)
+   🌐 GLOBAL SAAS HEADER
    ============================================= */
-.calendar-app-layout { display: flex; flex-direction: row; height: calc(100vh - 160px); gap: 8px; }
-.project-sidebar { width: 200px; min-width: 200px; flex-shrink: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); padding: 8px 6px; display: flex; flex-direction: column; gap: 6px; }
-.sidebar-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-m); padding: 4px 6px; border-bottom: 1px solid var(--div); margin-bottom: 2px; }
-.sidebar-project-card { border-radius: 6px; padding: 8px 10px; transition: box-shadow .12s ease; cursor: default; } 
-.sidebar-project-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); } 
-.sidebar-project-name { font-size: 12px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
-.sidebar-week-hrs { display: flex; align-items: center; margin-top: 4px; font-size: 11px; font-weight: 600; }
-.calendar-scroll-wrapper { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); position: relative; isolation: isolate; }
-.pagination-bar { flex-shrink: 0; border-top: 1px solid var(--div); background: #FAFAF9; margin-top: 8px; }
 
-/* =============================================
-   🔥 CALENDAR GRID & COLUMNS
-   ============================================= */
-.calendar-container { display: flex; flex-direction: column; background: var(--bg-page); min-width: max-content; position: relative; padding-bottom: 8px; }
-.calendar-header-row { display: grid; grid-template-columns: var(--time-axis) repeat(7, 1fr); column-gap: 8px; padding-right: 8px; background: #FFF !important; border-bottom: 2px solid var(--border) !important; box-shadow: 0 3px 8px rgba(0,0,0,.09); position: sticky; top: 0; z-index: 20; }
-.time-axis-header { padding: 8px; background: #FFF !important; display: flex; align-items: center; justify-content: center; z-index: 25 !important; position: sticky; left: 0; }
-.header-cell { display: flex; align-items: center; justify-content: center; height: 34px; font-size: 11px; font-weight: 600; color: var(--text-s); background: #FFFFFF; border-radius: 4px; box-sizing: border-box; } 
-.header-cell-today { background: #F0F8FF !important; color: var(--brand) !important; font-weight: 700; }
-.calendar-body { display: grid; grid-template-columns: var(--time-axis) repeat(7, 1fr); column-gap: 8px; padding-right: 8px; position: relative; }
-.sticky-time-axis { position: sticky; left: 0; z-index: 10; background: var(--bg-page); }
-.time-slot-label { height: var(--hour-h); font-size: 10px; color: var(--text-m); padding: 0 6px; transform: translateY(-50%); text-align: right; pointer-events: none; }
-.days-grid { display: contents; }
-.day-column { position: relative; background: var(--bg-column); border-radius: 6px; box-sizing: border-box; overflow: visible; user-select: none; min-height: calc(24 * var(--hour-h)); margin-top: 8px; border-right: 1px solid var(--divider-light); }
-.day-column:hover { background-color: #F9FBFC; }
-.hour-grid-line { position: absolute; left: 0; right: 0; height: 1px; border-bottom: 1px dashed #E2E2E2; pointer-events: none; z-index: 1; }
-.weekend-overlay { position: absolute; inset: 0; border-radius: 6px; background: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(0,0,0,.015) 6px, rgba(0,0,0,.015) 12px); pointer-events: none; z-index: 2; }
-
-/* =============================================
-   DRAWING & PASTING OVERLAYS
-   ============================================= */
-.ghost-shift { position: absolute; z-index: 90; background: rgba(1,118,211,.14); border: 2px dashed var(--brand); border-radius: 4px; pointer-events: none; animation: ghostP 1.5s ease infinite; }
-@keyframes ghostP { 0%, 100% { background: rgba(1,118,211,.10); } 50% { background: rgba(1,118,211,.20); } }
-.paste-overlay { display: none; position: absolute; inset: 0; justify-content: center; align-items: center; background: rgba(1,118,211,.05); border-radius: 6px; border: 1px dashed var(--brand); z-index: 5; cursor: pointer; transition: opacity .1s ease; }
-.day-column:hover .paste-overlay { display: flex; animation: fadeIn .1s ease; } 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* =============================================
-   📅 TIME ENTRY CARDS & PHYSICS
-   ============================================= */
-.shift-box {
-    position: absolute;
-    left: 4px; right: 4px;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 6px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
-    cursor: default;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
-    min-height: 28px;
-    z-index: 3;
-    transition: box-shadow 150ms ease, transform 150ms ease, opacity 200ms ease;
-    backdrop-filter: blur(6px); 
-    -webkit-backdrop-filter: blur(6px);
+.logo-box {
+    background: var(--brand-primary-soft);
+    padding: 8px;
+    border-radius: 8px;
+    --sds-c-icon-color-foreground-default: var(--brand-primary);
 }
 
-/* 🟢 DEFAULT BEHAVIOR (Normal/Long Cards) */
-.shift-box:not(.short-shift) { overflow: hidden; }
+.app-title { font-size: 18px; font-weight: 800; color: var(--text-strong); letter-spacing: -0.02em; }
+.user-name { font-size: 14px; font-weight: 700; color: var(--text-strong); line-height: 1.1; }
+.user-role { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+.avatar-circle { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; }
 
-/* 🔴 OVERRIDE BEHAVIOR (Short Cards) */
+.notification-wrapper { position: relative; cursor: pointer; padding: 8px; border-radius: 50%; transition: background 0.2s; }
+.notification-wrapper:hover { background: var(--surface-hover); }
+.bell-icon { --sds-c-icon-color-foreground-default: var(--text-muted); }
+
+.notification-badge {
+    position: absolute; top: 2px; right: 2px;
+    background: #DC2626; color: #FFFFFF;
+    font-size: 10px; font-weight: 800;
+    height: 16px; min-width: 16px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; border: 2px solid #FFFFFF;
+}
+
+/* =============================================
+   🎛 GLOBAL HEADER TOGGLES & TABS
+   ============================================= */
+.saas-tab-container {
+    display: inline-flex;
+    background-color: #F1F3F4;
+    padding: 4px;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.portal-tab {
+    border: none; background: transparent;
+    padding: 6px 20px; font-size: 13px; font-weight: 700;
+    color: #5F6368; border-radius: 6px; cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center;
+}
+.portal-tab:hover:not(.tab-active) { color: #202124; }
+.portal-tab.tab-active {
+    background: #FFFFFF; color: var(--brand-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1), 0 1px 1px rgba(0,0,0,0.05);
+}
+.portal-tab lightning-icon { --sds-c-icon-color-foreground-default: currentColor; }
+
+/* =============================================
+   🎛 ENTERPRISE TOOLBAR
+   ============================================= */
+.enterprise-toolbar {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 12px; flex-wrap: wrap; background: transparent;
+}
+.toolbar-group { display: flex; align-items: center; gap: 8px; }
+.toolbar-divider { width: 1px; height: 24px; background-color: var(--border-light); margin: 0 2px; }
+.toolbar-date { width: 140px; }
+
+/* =============================================
+   🏗 MAIN LAYOUT
+   ============================================= */
+/* =============================================
+   🏗 MAIN LAYOUT
+   ============================================= */
+.main-app-body {
+    background-color: #F8FAFC;
+    padding: 5px 24px 24px 24px; /* 🌟 CRITICAL FIX: Sliced top padding from 24px to 2px */
+    height: calc(100vh - 64px); /* Assumes your saas-global-header is 64px tall */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.calendar-app-layout {
+    display: flex;
+    gap: 16px; /* 🌟 Reduced from 24px to pull the sections closer */
+    height: 100%;
+}
+.calendar-scroll-wrapper {
+    flex: 1;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px; /* Matches the sidebar */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    overflow: 100%; /* CRITICAL: Keeps the header locked inside the rounded corners */
+}
+/* =============================================
+   🏢 ENTERPRISE PROJECT SIDEBAR
+   ============================================= */
+.project-sidebar {
+    width: 300px; /* Slight width adjustment for balance */
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    padding: 16px; /* 🌟 Reduced from 24px for less wasted inner space */
+    flex-shrink: 0;
+}
+.sidebar-header { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-m); border-bottom: 1px solid var(--div); }
+.sidebar-scroll-area { flex: 1; overflow-y: auto; padding: 12px 8px; }
+
+.sidebar-project-card {
+    background: #FFFFFF; border: 1px solid var(--border-light);
+    border-radius: 6px; padding: 10px; margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all 0.2s ease;
+}
+.sidebar-project-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.sidebar-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.project-code { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #444444; background: #F4F6F9; padding: 2px 6px; border-radius: 4px; }
+.sidebar-week-hrs { display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #444444; }
+
+.sidebar-project-name {
+    font-size: 13px; font-weight: 500; color: #181818;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%; cursor: default;
+}
+/* ==========================================
+   📅 SAAS MINI-CALENDAR (Linear/Stripe Aesthetic)
+   ========================================== */
+
+.mini-calendar-section {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 0 0 24px 0; /* Removing box padding for a flush look */
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 24px;
+}
+
+/* 🌟 Header & Month Title */
+.mini-cal-header {
+    margin-bottom: 20px;
+    padding: 0 4px;
+}
+
+.month-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.02em; /* Tighter, modern SaaS tracking */
+}
+
+/* 🌟 Crisp Navigation Arrows */
+.mini-cal-nav lightning-button-icon {
+    --sds-c-icon-color-foreground-default: #9CA3AF;
+}
+.mini-cal-nav lightning-button-icon:hover {
+    --sds-c-icon-color-foreground-default: #111827;
+    background: #F3F4F6;
+    border-radius: 6px; /* Soft square hover */
+}
+
+/* 🌟 Days Header (M T W T F S S) */
+.mini-cal-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.mini-cal-days-header span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em; /* Wide tracking for contrast */
+}
+
+/* 🌟 The Week Rows */
+.mini-cal-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 2px;
+    border-radius: 8px; /* Encapsulates the whole week */
+    transition: background 0.2s ease;
+}
+
+/* The Continuous Active Week Strip */
+.mini-cal-week.active-week {
+    background: #F8FAFC; /* Ultra-subtle slate blue */
+    box-shadow: inset 0 0 0 1px #F1F5F9;
+}
+
+/* 🌟 Individual Days (Soft Rounded Squares) */
+.mini-cal-day {
+    height: 32px;
+    margin: 2px; /* Creates gaps between the soft squares */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px; /* Modern square curves */
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.day-number {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4B5563;
+    z-index: 2;
+}
+
+/* Hover State */
+.mini-cal-day:hover {
+    background: #E2E8F0; /* Slightly darker than the active week */
+}
+.mini-cal-day:hover .day-number {
+    color: #0F172A;
+    font-weight: 600;
+}
+
+/* Out of Month Days */
+.mini-cal-day.muted .day-number {
+    color: #CBD5E1;
+}
+
+/* 🌟 The "Today" Indicator (The Minimalist Dot) */
+.mini-cal-day.today .day-number {
+    color: #0176D3; /* Salesforce Brand Blue */
+    font-weight: 700;
+    transform: translateY(-2px); /* Nudges the number up slightly to make room for the dot */
+}
+
+/* The physical dot underneath the number */
+.mini-cal-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    background-color: #0176D3;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(1, 118, 211, 0.4);
+}
+/* ==========================================
+   📌 UNIFIED STICKY HEADER (Timesheet Grid)
+   ========================================== */
+.unified-sticky-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    position: relative; /* Changed from sticky to relative since the body now scrolls independently */
+    z-index: 100;
+}
+.timesheet-controls-row { padding: 16px 24px; background: #FFFFFF; border-bottom: 1px solid #F3F4F6; border-radius: 12px 12px 0 0; }
+.week-title-text { font-size: 18px; font-weight: 800; color: var(--text-strong); margin: 0; line-height: 1; }
+.hours-suffix { font-size: 18px; font-weight: 600; color: #9CA3AF; margin-left: 4px; }
+
+/* =============================================
+   🔥 STRICT CALENDAR ALIGNMENT (GRID)
+   ============================================= */
+.calendar-container { 
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; /* 🌟 CRITICAL: Forces container to fill the screen */
+    background: #FFFFFF; 
+    min-width: max-content; 
+    position: relative; 
+    padding-bottom: 8px; 
+    min-height: 0; /* 🌟 CRITICAL: Prevents flexbox blowout */
+}
+
+.calendar-body {
+    display: flex;
+    flex: 1; /* 🌟 CRITICAL: Tells the body to take up the remaining space */
+    overflow-y: auto; 
+    overflow-x: hidden;
+    position: relative;
+    background: #FFFFFF; 
+    min-height: 0; 
+}
+/* 🌟 Updated: Sticky day header with elevated z-index */
+.calendar-header-row { 
+    display: flex; width: 100%; 
+    position: sticky; top: 0; 
+    z-index: 100; /* 🌟 Elevated to 100 to sit above cards */
+    background: #FFFFFF;
+    border-bottom: 1px solid #A0A0A0;
+}
+
+
+/* Time Axis (Strict Math) */
+.time-axis-header, .time-axis {
+    flex: 0 0 60px; width: 60px; min-width: 60px; max-width: 60px;
+    border-right: 1px solid #E5E7EB; background: #FAFAFA; box-sizing: border-box;
+}
+.time-axis-header { 
+    padding: 8px; display: flex; align-items: center; justify-content: center; 
+    position: sticky; left: 0; 
+    z-index: 110 !important; /* 🌟 Elevated to 110 to sit above scrolling days */
+}
+.sticky-time-axis { position: sticky; left: 0; z-index: 10; }
+.time-slot-label {
+    position: absolute;
+    width: 100%;
+    font-size: 11px;
+    font-weight: 500;
+    color: #9CA3AF; 
+    text-align: right;
+    padding-right: 12px; 
+    letter-spacing: 0.02em;
+    transform: translateY(-50%); /* 🌟 Pulls the text up exactly 50% so it sits directly on the line */
+}
+/* Day Grids (Strict Math) */
+.days-header-grid, .days-grid { display: flex; flex: 1; width: calc(100% - 60px); }
+
+.header-cell, .day-column {
+    flex: 1; min-width: 0; border-right: 1px solid #E5E7EB; box-sizing: border-box; position: relative;
+}
+.header-cell:last-child, .day-column:last-child { border-right: none; }
+.header-cell { text-align: center; padding: 10px 0; font-size: 12px; font-weight: 600; color: #514F4D; background: #FFFFFF; } 
+.header-cell-today { color: var(--brand-primary) !important; font-weight: 700; }
+
+.day-column { background: #FFFFFF; overflow: visible; user-select: none; min-height: calc(24 * var(--hour-h)); }
+.day-column:hover { background-color: #F8F9FA; }
+.hour-grid-line { position: absolute; left: 0; right: 0; height: 1px; border-bottom: 1px solid #F3F4F6; pointer-events: none; z-index: 1; }
+.weekend-overlay { display: none; } /* Hidden for clean UI */
+
+/* Paste Mode */
+.days-grid.is-pasting .day-column { cursor: crosshair !important; }
+.days-grid.is-pasting .shift-box { pointer-events: none; opacity: 0.8; }
+.ghost-shift { position: absolute; z-index: 90; background: rgba(1,118,211,.14); border: 2px dashed var(--brand); border-radius: 4px; pointer-events: none; animation: ghostP 1.5s ease infinite; }
+@keyframes ghostP { 0%, 100% { background: rgba(1,118,211,.10); } 50% { background: rgba(1,118,211,.20); } }
+
+/* =============================================
+   📅 TIME ENTRY CARDS
+   ============================================= */
+.shift-box {
+    position: absolute; left: 4px; right: 4px; background: #FFFFFF;
+    border: 1px solid var(--border-light); border-left-width: 4px; border-left-style: solid;
+    border-radius: 6px;  box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+    cursor: default; display: flex; flex-direction: column; user-select: none;
+    min-height: 28px; z-index: 3; transition: box-shadow 150ms ease, transform 150ms ease;
+}
+.shift-box:not(.short-shift) { overflow: hidden; }
 .shift-box.short-shift { overflow: visible !important; }
 
-.shift-box:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.12); transform: translateY(-2px); z-index: 50 !important; }
-.shift-box.is-dragging, .shift-box:active { cursor: grabbing !important; transform: rotate(1.5deg) scale(1.02); box-shadow: 0 8px 22px rgba(1,118,211,0.22); z-index: 99 !important; opacity: 0.95; }
+.shift-box:hover { 
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12); 
+    transform: translateY(-2px); 
+    z-index: 30 !important; /* 🌟 Capped at 30 (was 50) */
+}
 
-.border-confirmed  { border-left: 4px solid var(--sc-txt); } 
-.border-approved   { border-left: 4px solid var(--sc-txt); }
-.border-submitted  { border-left: 4px solid var(--brand); }
-.border-pending    { border-left: 4px solid var(--sp-txt); }
-.border-draft      { border-left: 4px solid #B0ADAB; }
-.border-rejected   { border-left: 4px solid #ea001e; }
+.shift-box.is-dragging, .shift-box:active { 
+    cursor: grabbing !important; 
+    transform: rotate(1.5deg) scale(1.02); 
+    box-shadow: 0 8px 22px rgba(1,118,211,0.22); 
+    z-index: 40 !important; /* 🌟 Capped at 40 (was 99) */
+    opacity: 0.95; 
+}
 
-/* ─── Drag Handle (Only visible on Short Shifts) ─── */
 .drag-handle { display: none; position: absolute; top: 4px; left: 2px; cursor: grab; color: var(--text-m); z-index: 10; padding: 2px; border-radius: 4px; opacity: 0; transition: opacity 0.2s ease, background 0.2s ease; }
 .shift-box.short-shift .drag-handle { display: block; }
 .shift-box.short-shift:hover .drag-handle { opacity: 0.6; }
 .drag-handle:hover { opacity: 1 !important; background: rgba(0,0,0,0.08); }
 .drag-handle:active { cursor: grabbing; }
 
-/* ─── Card Content ─── */
 .card-content { padding: 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; border-radius: 5px; flex: 1; }
 .shift-box.short-shift .card-content { padding-left: 22px; }
-
 .card-top-area { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; min-height: 16px; }
-.shift-desc-compact { font-size: 11.5px; font-weight: 600; color: var(--text-p); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-.shift-desc-compact[data-editable="true"]:hover { text-decoration: underline dashed var(--brand); cursor: text; }
-.shift-time { font-size: 10.5px; color: var(--text-s); display: flex; align-items: center; gap: 4px; line-height: 1; margin-top: 2px; }
+
+.shift-desc-compact { 
+    font-size: 11.5px; font-weight: 500; color: #181818; line-height: 1.3; 
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
+    overflow: hidden; text-overflow: ellipsis; flex: 1; 
+}
+.shift-time { font-size: 10.5px; color: #706E6B; display: flex; align-items: center; gap: 4px; line-height: 1; margin-top: 2px; }
 .entry-type-row { display: flex; align-items: center; gap: 4px; margin-top: 4px; } 
 .entry-type-badge { font-size: 8px; font-weight: 700; text-transform: uppercase; padding: 4px 6px; border-radius: 8px; background: rgba(0,0,0,0.06); color: var(--text-s); white-space: nowrap; letter-spacing: .3px; }
 
+/* Status Pills */
 .status-pill { padding: 2px 6px; border-radius: 8px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; flex-shrink: 0; } 
 .pill-confirmed { background: var(--sc-bg); color: var(--sc-txt); } 
 .pill-pending   { background: var(--sp-bg); color: var(--sp-txt); } 
 .pill-active    { background: var(--sa-bg); color: var(--sa-txt); } 
 .pill-rejected  { background: #FFDEDE; color: #ba0517; }
+.saas-pill { font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+.pill-neutral { background: #F3F4F6; color: #4B5563; }
+.pill-warning { background: #FEF3C7; color: #B45309; }
+.pill-success { background: #D1FAE5; color: #065F46; }
+.pill-danger { background: #FEE2E2; color: #B91C1C; }
 
+/* Card States */
 .selected-shift { box-shadow: 0 0 0 2px var(--brand), 0 2px 6px rgba(0,0,0,.1) !important; background: #F0F8FF !important; }
-.readonly-shift { opacity: .6; cursor: not-allowed !important; } 
+.readonly-shift { opacity: 0.85 !important; background-color: #FAFAFA !important; cursor: default !important; } 
+.readonly-shift:hover { transform: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important; z-index: 3 !important; }
 .cut-pending { opacity: .35 !important; border: 2px dashed var(--text-m) !important; filter: grayscale(70%); cursor: not-allowed !important; } 
 .cut-badge { font-size: 7px; font-weight: 700; color: var(--text-m); text-transform: uppercase; }
+.clashing-shift { border: 1px solid #ea001e !important; box-shadow: 0 2px 8px rgba(234, 0, 30, 0.15) !important; }
+.clash-icon-inline { --sds-c-icon-color-foreground-default: #ea001e; display: flex; align-items: center; }
+.overnight-start { border-bottom: 2px dashed var(--brand-primary); border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: none !important; }
+.overnight-start .shift-action-bar { display: none; }
+.overnight-end { border-top: 2px dashed var(--brand-primary); border-top-left-radius: 0; border-top-right-radius: 0; }
+.color-dot-sm { display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-right: 4px; }
 
-/* =============================================
-   ACTION BAR (Dynamic Position)
-   ============================================= */
-/* 🟢 DEFAULT: Inside at the bottom (For long shifts) */
+/* Shift Action Bar */
 .shift-action-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2px 6px;
-    opacity: 0;
-    transition: opacity 150ms ease, transform 150ms ease;
-    background: rgba(245, 247, 250, 0.95);
-    border-top: 1px solid var(--border-light);
-    position: absolute;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
-    border-radius: 0 0 4px 4px;
-    height: 24px;
-    z-index: 10;
-    pointer-events: none;
+    display: flex; align-items: center; justify-content: space-between; padding: 2px 6px;
+    opacity: 0; transition: opacity 150ms ease, transform 150ms ease;
+    background: rgba(245, 247, 250, 0.95); border-top: 1px solid var(--border-light);
+    position: absolute; bottom: 2px; left: 2px; right: 2px; border-radius: 0 0 4px 4px;
+    height: 24px; z-index: 10; pointer-events: none;
 }
 .shift-box:hover .shift-action-bar { opacity: 1; pointer-events: auto; }
-
-/* 🔴 OVERRIDE: Floating outside top right (For short shifts) */
 .shift-box.short-shift .shift-action-bar {
-    background: #FFFFFF;
-    border: 1px solid var(--border-light);
-    border-radius: 6px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    bottom: auto; left: auto; /* Reset default positions */
-    top: -26px; right: -4px; /* Flushed to eliminate hover gap */
-    height: 28px;
-    z-index: 9999;
+    background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 6px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); bottom: auto; left: auto; 
+    top: -26px; right: -4px; height: 28px; 
+    z-index: 45; /* 🌟 Massively lowered from 9999 to 45 */
     transform: translateY(4px);
 }
 .shift-box.short-shift:hover .shift-action-bar { transform: translateY(0); }
-/* ─── Hide Time & Task on Short Shifts ─── */
-.shift-box.short-shift .shift-time,
-.shift-box.short-shift .entry-type-row {
-    display: none;
-}
+.shift-box.short-shift .shift-time, .shift-box.short-shift .entry-type-row { display: none; }
 
 .shift-checkbox { width: 12px; height: 12px; cursor: pointer; accent-color: var(--brand); flex-shrink: 0; margin: 0; } 
 .action-btn-group { display: flex; align-items: center; gap: 1px; } 
 .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; cursor: pointer; transition: background .1s, transform .08s; flex-shrink: 0; } 
 .action-btn:hover { transform: scale(1.15); } .btn-cut:hover { background: #EBEBEB; } .btn-copy:hover { background: #D8EDFF; } .btn-delete:hover { background: #FFDEDE; } 
-.btn-disabled { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; opacity: .25; cursor: not-allowed; pointer-events: none; }
+.btn-disabled { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; opacity: .25; cursor: not-allowed; pointer-events: none; filter: grayscale(100%);}
 
-.color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.2); } 
-.color-dot-sm { display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.15); margin-right: 4px; }
-.inline-edit-input { width: 100%; font-size: 10px; font-weight: 600; color: var(--text-p); padding: 0 3px; border: 1px solid var(--brand); border-radius: 3px; outline: none; background: #F8FBFF; box-shadow: inset 0 1px 2px rgba(0,0,0,.05); }
-
-/* =============================================
-   RESIZE HANDLES
-   ============================================= */
+/* Resize Handles */
 .resize-handle-top { position: absolute; top: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; background: linear-gradient(to top, transparent, rgba(1,118,211,0.15)); border-bottom: 1px solid rgba(0,0,0,0.05); border-radius: 5px 5px 0 0; z-index: 20; transition: background 0.1s ease; }
 .resize-handle-top:hover { background: rgba(1,118,211,0.25); }
 .resize-handle-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; background: linear-gradient(to bottom, transparent, rgba(1,118,211,0.15)); border-top: 1px solid rgba(0,0,0,0.05); border-radius: 0 0 5px 5px; z-index: 20; transition: background 0.1s ease; }
 .resize-handle-bottom:hover { background: rgba(1,118,211,0.25); }
 .shift-box.is-locked .resize-handle-top, .shift-box.is-locked .resize-handle-bottom { display: none; }
-
-/* =============================================
-   OVERNIGHT SHIFT SPLITTING
-   ============================================= */
-.overnight-start { border-bottom: 2px dashed var(--brand-primary); border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: none !important; }
-.overnight-start .shift-action-bar { display: none; }
-.overnight-end { border-top: 2px dashed var(--brand-primary); border-top-left-radius: 0; border-top-right-radius: 0; }
 
 /* =============================================
    🔍 HOVER & TOOLTIP
@@ -215,141 +484,68 @@
 @keyframes tI { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 /* =============================================
-   CLASHING CARDS (CLEAN OVERLAP WARNING)
+   📊 ENTERPRISE MATRIX LIST VIEW
    ============================================= */
-.clashing-shift { border: 1px solid #ea001e !important; box-shadow: 0 2px 8px rgba(234, 0, 30, 0.15) !important; }
-.clash-icon-inline { --sds-c-icon-color-foreground-default: #ea001e; display: flex; align-items: center; }
-.list-row-clashing { background-color: rgba(234, 0, 30, 0.04) !important; }
-.list-row-clashing td { border-top: 1px solid rgba(234, 0, 30, 0.2) !important; border-bottom: 1px solid rgba(234, 0, 30, 0.2) !important; }
-
-/* =============================================
-   📋 LIST VIEW & EXPENSES UTILS
-   ============================================= */
-.list-container, .expenses-container { padding: 12px; min-height: 400px; } 
-.list-table, .expense-table { width: 100%; } 
-.expense-project-cell { display: flex; align-items: center; gap: 6px; } 
-.expense-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; } 
-.delete-icon-btn { --sds-c-button-icon-color-foreground: #ea001e !important; --sds-c-button-icon-color-foreground-hover: #ba0517 !important; }
-
-/* =============================================
-   🎛 TOOLBAR & UTILS
-   ============================================= */
-.tab-switcher { display: flex; background: #f3f3f3; border-radius: 8px; padding: 3px; gap: 2px; margin-left: 8px; } 
-.portal-tab { display: inline-flex; align-items: center; gap: 4px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-m); transition: all .15s ease; white-space: nowrap; } 
-.portal-tab:hover { background: #e8e8e8; color: var(--text-p); } 
-.tab-active { background: #FFF !important; color: var(--brand) !important; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-.week-summary-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: linear-gradient(135deg,#EAF5FE,#F8FBFF); border: 1px solid #A6D5FF; border-radius: 6px; margin-bottom: 8px; font-size: 12px; } 
-.week-label { display: flex; align-items: center; color: var(--brand); font-weight: 600; } 
-.week-total-chip { display: flex; align-items: center; background: var(--brand); color: #FFF; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-.badge-hours { padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; } 
-.badge-ok { background: var(--sc-bg); color: var(--sc-txt); } 
-.badge-warn { background: #FFDEDE; color: #ba0517; } 
-.badge-draft { background: var(--sp-bg); color: var(--sp-txt); }
-
-/* =============================================
-   🪟 MODAL HEADER & BADGE STYLING (RESTORED)
-   ============================================= */
-.entry-modal-header, .expense-modal-header {
-    background: linear-gradient(135deg, var(--brand) 0%, #005fb2 100%);
-    border-top-left-radius: 6px; border-top-right-radius: 6px;
-}
-.delete-modal-header {
-    background: linear-gradient(135deg, #ea001e 0%, #ba0517 100%);
-    border-top-left-radius: 6px; border-top-right-radius: 6px;
-}
-.modal-date-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--sa-bg); color: var(--sa-txt);
-    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
-    margin-bottom: 8px; width: 100%; box-sizing: border-box;
-}
-
-/* =============================================
-   💼 EXPENSES SLIDING SPLIT VIEW (ANIMATED)
-   ============================================= */
-.split-view-container { 
-    display: flex; 
-    height: 70vh; 
-    min-height: 500px; 
-    border: 1px solid var(--border-light); 
-    border-radius: 8px; 
-    overflow: hidden; 
-    background: #fff; 
-    margin-top: 12px;
-    position: relative; /* Required for absolute positioning of the detail panel */
-}
-
-/* 🟥 Master List (Starts at 100%, smoothly shrinks to 35%) */
-.split-view-master { 
-    width: 100%; 
+.matrix-container {
+    background: #FFFFFF;
     height: 100%;
-    border-right: 1px solid transparent; 
-    background: #f9f9fb; 
-    display: flex; 
-    flex-direction: column; 
-    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), border-color 0.35s ease;
-    z-index: 2;
+    padding: 0;
+    overflow: hidden;
 }
+.matrix-table-wrapper { border: 1px solid #D8DDE6; border-radius: 4px; overflow-x: auto; background-color: #FFFFFF; }
+.matrix-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.matrix-table thead th { background-color: #F4F6F9; color: #514F4D; font-size: 12px; font-weight: 700; text-transform: uppercase; padding: 12px 16px; border-bottom: 2px solid #D8DDE6; border-right: 1px solid #EBEBEB; text-align: right; }
+.matrix-table thead th.matrix-col-project { text-align: left; width: 250px; }
+.matrix-table thead th.matrix-col-total { background-color: #ECEFEA; color: #181818; }
+.matrix-table tbody td { padding: 12px 16px; font-size: 13px; color: #444444; border-bottom: 1px solid #EBEBEB; border-right: 1px solid #EBEBEB; text-align: right; transition: background-color 0.1s ease; }
+.matrix-table tbody tr:hover td { background-color: #FAFAFA; }
+.matrix-table tbody td.matrix-cell-project { text-align: left; font-weight: 600; color: #181818; }
+.matrix-table tbody td.matrix-cell-day { color: #706E6B; }
+.matrix-table tbody td.matrix-cell-total { font-weight: 700; color: #181818; background-color: #F9F9F9; }
+.matrix-table tfoot td { padding: 14px 16px; font-size: 14px; font-weight: 700; color: #181818; background-color: #F4F6F9; border-top: 2px solid #D8DDE6; border-right: 1px solid #EBEBEB; text-align: right; }
+.matrix-table tfoot td.matrix-footer-label { text-align: left; text-transform: uppercase; font-size: 12px; color: #514F4D; }
+.matrix-table tfoot td.matrix-footer-grand { background-color: #E2E2E2; color: #000000; font-size: 15px; }
+.matrix-empty-state { text-align: center !important; padding: 40px !important; color: #A0A0A0 !important; font-style: italic; }
 
-/* When a record is clicked, this class is applied to shrink the master list */
-.split-view-master.split-view-master-active {
-    width: 35%;
-    border-right: 1px solid var(--border-light);
-}
+/* =============================================
+   🏢 LEAN ENTERPRISE MODALS
+   ============================================= */
+.lean-modal-header { background: #FFFFFF !important; border-bottom: 1px solid var(--border-light) !important; padding: 24px 24px 16px 24px !important; border-radius: 8px 8px 0 0 !important; }
+.header-title { font-size: 20px !important; font-weight: 700 !important; color: #181818 !important; }
+.header-subtitle { font-size: 13px; color: #706E6B; margin-top: 4px; }
+.enterprise-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.time-entry-block { background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 8px; padding: 16px 20px 20px 20px; position: relative; }
+.time-block-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--brand-primary); margin-bottom: 12px; letter-spacing: 0.5px; }
+.lean-modal-footer { background: #FAFAFA !important; border-top: 1px solid var(--border-light) !important; padding: 16px 24px !important; border-radius: 0 0 8px 8px !important; }
 
-.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-.master-list-scroll { flex: 1; overflow-y: auto; }
-.master-list-scroll > div:hover { background: #fff; }
-.master-item-selected { background: #fff !important; border-left: 4px solid var(--brand) !important; }
+/* Delete / Warning Modals */
+.delete-modal-header { background: linear-gradient(135deg, #ea001e 0%, #ba0517 100%); border-top-left-radius: 6px; border-top-right-radius: 6px; }
+.warning-header { background: linear-gradient(135deg, #F29A2E 0%, #E96B54 100%) !important; }
+.warning-modal .slds-modal__container { max-width: 500px; }
 
-/* 🟦 Detail Workspace (Slides in from the right) */
-.split-view-detail { 
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 65%; /* Takes up the remaining 65% of the screen */
-    display: flex; 
-    flex-direction: column; 
-    background: #fff; 
-    
-    /* Starts off-screen to the right */
-    transform: translateX(100%); 
-    opacity: 0;
-    visibility: hidden;
-    
-    /* Smooth slide-in animation */
-    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
-    z-index: 1;
-}
+/* =============================================
+   📋 REVIEW & SUBMIT TABLE
+   ============================================= */
+.review-table-container { border: 1px solid var(--border-light); border-radius: 6px; overflow: hidden; background: #FFFFFF; }
+.review-table-header { display: flex; background: #F4F6F9; padding: 10px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #514F4D; border-bottom: 1px solid var(--border-light); }
+.review-table-row { display: flex; padding: 12px 16px; border-bottom: 1px solid #F0F2F4; font-size: 13px; color: #181818; }
+.review-table-row:last-child { border-bottom: none; }
+.review-table-footer { display: flex; align-items: center; background: #FAFAFA; padding: 14px 16px; border-top: 2px solid var(--border-light); }
+.review-col-proj { flex: 2; }
+.review-col-task { flex: 2; }
+.review-col-hrs { flex: 1; text-align: right; }
+.attestation-box { background: #F0F8FF; border-left: 4px solid var(--brand-primary); padding: 12px 16px; border-radius: 4px; }
 
-/* When the master list shrinks, the detail panel slides in */
-.split-view-master.split-view-master-active + .split-view-detail {
-    transform: translateX(0);
-    opacity: 1;
-    visibility: visible;
+/* =============================================
+   ❄️ ENTERPRISE WEEK FREEZE UI
+   ============================================= */
+.locked-week-container .day-column {
+    background-color: #FAFBFC !important;
+    background-image: repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0,0,0,0.018) 10px, rgba(0,0,0,0.018) 20px) !important;
 }
-
-/* Attachment pill styling (used in expense modal & detail) */
-.attachment-pill { 
-    display: flex; 
-    align-items: center; 
-    background-color: #F8FBFF; 
-    border: 1px solid var(--brand); 
-    border-radius: 6px; 
-    padding: 8px 12px; 
-    margin-top: 4px; 
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); 
-}
-.attachment-name { 
-    flex: 1; 
-    font-size: 13px; 
-    font-weight: 600; 
-    color: var(--brand-primary); 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    white-space: nowrap; 
-}
+.locked-week-container .hour-grid-line { border-bottom: 1px solid #F0F2F4 !important; }
+.locked-week-container .days-grid { pointer-events: none; }
+.locked-week-container .shift-box { pointer-events: auto; }
 
 /* =============================================
    🖱 CUSTOM SCROLLBAR
@@ -358,767 +554,2198 @@
 ::-webkit-scrollbar-track { background: transparent; } 
 ::-webkit-scrollbar-thumb { background: #c9c7c5; border-radius: 4px; } 
 ::-webkit-scrollbar-thumb:hover { background: #b0adab; }
-/* =============================================
-   💼 EXPENSES SLIDING SPLIT VIEW (BULLETPROOF)
-   ============================================= */
-.split-view-container { 
-    display: flex; 
-    width: 100% !important; 
-    height: 600px !important; /* Fixed height to prevent collapsing */
-    border: 1px solid var(--border-light); 
-    border-radius: 8px; 
-    overflow: hidden; 
-    background: #fff; 
-    margin-top: 12px;
-    position: relative; 
+
+/* ==========================================
+   ✂️ CANCEL PASTE WARNING PILL ANIMATION
+   ========================================== */
+.cancel-paste-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    cursor: pointer;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
+    animation: warningPulse 2s infinite;
 }
 
-/* 🟥 Master List (Starts at 100%, smoothly shrinks to 35%) */
-.split-view-master { 
-    width: 100%; 
-    height: 100%;
-    flex-shrink: 0; 
-    border-right: 1px solid transparent; 
-    background: #f9f9fb; 
-    display: flex; 
-    flex-direction: column; 
-    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
-    z-index: 2;
+@keyframes warningPulse { 
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 
+    70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); } 
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } 
+}
+/* ==========================================
+   🌟 SAAS TIME ENTRY MODAL (CUSTOM UI)
+   ========================================== */
+
+/* The Glassmorphism Backdrop */
+.saas-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.4); /* Dark slate wash */
+    backdrop-filter: blur(4px); /* Premium blur effect */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
 }
 
-/* When a record is clicked, this class shrinks the master list */
-.split-view-master.split-view-master-active {
-    width: 35% !important;
-    border-right: 1px solid var(--border-light);
+.saas-danger-modal {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-.master-list-scroll { flex: 1; overflow-y: auto; }
-.master-list-scroll > div:hover { background: #fff; }
-.master-item-selected { background: #fff !important; border-left: 4px solid var(--brand) !important; }
-
-/* 🟦 Detail Workspace (Slides in from the right) */
-.split-view-detail { 
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 65% !important; 
-    display: flex; 
-    flex-direction: column; 
-    background: #fff; 
+/* The Curved Modal Card */
+.saas-modal-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    background: #FFFFFF;
+    border-radius: 16px; 
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
     
-    /* Starts off-screen to the right */
-    transform: translateX(100%); 
-    opacity: 0;
-    visibility: hidden;
-    
-    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
-    z-index: 1;
+    /* 🌟 THE FIX: Point to the new centered animation */
+    animation: scaleInCentered 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+}
+/* Keep the old one for the danger modal */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes scaleInCentered { 
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } 
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+}
+/* Header */
+.saas-modal-header {
+    padding: 24px;
+    border-bottom: 1px solid #F3F4F6;
+    background: #FAFAFA;
+    border-radius: 16px 16px 0 0;
+}
+.saas-modal-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.saas-modal-subtitle { font-size: 13px; color: #6B7280; }
+
+.saas-close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    color: #6B7280;
+}
+.saas-close-btn:hover { background: #E5E7EB; color: #111827; }
+
+/* Body & Safe Flexbox Layout */
+.saas-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
 }
 
-/* Slide animation trigger */
-.split-view-master.split-view-master-active ~ .split-view-detail {
-    transform: translateX(0);
-    opacity: 1;
-    visibility: visible;
+.saas-form-grid {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+.saas-form-grid > * {
+    flex: 1; /* Ensures inputs take up equal 50/50 space */
 }
 
-/* Detail Form Scroll Area */
-.detail-body {
+/* Time Block Styling */
+.saas-time-container {
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 16px;
+}
+.saas-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6B7280;
+    margin-bottom: 12px;
+}
+
+/* 🌟 Quick Duration Pills */
+.quick-pill-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed #D1D5DB;
+}
+.quick-pill-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4B5563;
+}
+.saas-duration-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.duration-pill {
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.duration-pill:hover {
+    background: #EFF6FF;
+    border-color: #6366F1;
+    color: #4F46E5;
+    transform: translateY(-1px);
+}
+.duration-pill:active { transform: translateY(0); }
+
+/* Footer */
+.saas-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #F3F4F6;
+    background: #FFFFFF;
+    border-radius: 0 0 16px 16px;
+}
+
+/* SaaS Buttons */
+.saas-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+.saas-btn-ghost {
+    background: transparent;
+    color: #4B5563;
+}
+.saas-btn-ghost:hover { background: #F3F4F6; color: #111827; }
+
+.saas-btn-primary {
+    background: #0176D3;
+    color: #FFFFFF;
+    box-shadow: 0 2px 4px rgba(1, 118, 211, 0.3);
+}
+.saas-btn-primary:hover {
+    background: #014486;
+    box-shadow: 0 4px 8px rgba(1, 118, 211, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ==========================================
+   🏢 SAAS PROJECT ACCORDION (Sidebar)
+   ========================================== */
+
+.sidebar-scroll-area {
     flex: 1;
     overflow-y: auto;
-    padding: 24px;
+    padding-bottom: 24px;
 }
 
-/* =============================================
-   💼 EXPENSES SLIDING SPLIT VIEW (ANIMATED)
-   ============================================= */
-.split-view-container { 
-    display: flex; 
-    width: 100% !important; 
-    height: 70vh;
-    min-height: 600px; 
-    border: 1px solid var(--border-light); 
-    border-radius: 8px; 
+.saas-project-card {
+    background: #FFFFFF;
+    border: 1px solid #F3F4F6;
+    border-left: 4px solid #D1D5DB; /* Overridden dynamically in JS */
+    border-radius: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
     overflow: hidden; 
-    background: #fff; 
-    margin-top: 12px;
-    position: relative; 
+}
+.saas-project-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
 }
 
-/* 🟥 Master List Animation */
-.split-view-master { 
-    width: 100%; 
-    height: 100%;
-    flex-shrink: 0; 
-    border-right: 1px solid transparent; 
-    background: #fff; 
-    display: flex; 
-    flex-direction: column; 
-    transition: width 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), background 0.35s ease;
-    z-index: 2;
+/* Header Area */
+.saas-project-header {
+    padding: 14px 16px;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: background 0.2s ease;
+}
+.saas-project-header:hover {
+    background: #F9FAFB;
 }
 
-/* When active, shrinks to 35% */
-.split-view-master.split-view-master-active {
-    width: 35% !important;
-    border-right: 1px solid var(--border-light);
-    background: #f9f9fb; /* Returns to soft grey when squished */
+.project-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
 }
 
-/* 🎩 MAGIC ENTERPRISE TRICK: Center the list when at 100% width! */
-.split-view-master:not(.split-view-master-active) {
-    background: #f4f6f9; /* Soft grey outside the list container */
-}
-.split-view-master:not(.split-view-master-active) .master-list-scroll {
-    padding: 24px;
-}
-.split-view-master:not(.split-view-master-active) .master-list-container {
-    max-width: 800px; /* Caps the width so it doesn't stretch 1500px wide */
-    margin: 0 auto; /* Centers it horizontally */
-    background: #fff;
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+.saas-project-code {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B7280;
+    letter-spacing: 0.05em;
 }
 
-/* Header & Scrolling */
-.master-header { padding: 16px; border-bottom: 1px solid var(--border-light); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-.master-list-scroll { flex: 1; overflow-y: auto; }
-.master-list-container { display: flex; flex-direction: column; }
+/* The Hours Pill */
+.saas-project-hours {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #374151;
+    background: #F3F4F6;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+.saas-project-hours lightning-icon {
+    --sds-c-icon-color-foreground-default: #6B7280;
+}
 
-/* ✨ Elegant List Item Cards */
-.expense-card-item {
+.saas-project-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+}
+
+/* Animated Chevron */
+.chevron-icon {
+    --sds-c-icon-color-foreground-default: #9CA3AF;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chevron-icon.expanded {
+    transform: rotate(90deg);
+}
+
+/* ==========================================
+   📂 EXPANDABLE TASK LIST
+   ========================================== */
+.project-task-list {
+    display: none;
+    border-top: 1px solid #F3F4F6;
+    background: #FAFAFA;
+}
+.project-task-list.expanded {
+    display: block;
+    animation: slideDownSaaS 0.2s ease-out;
+}
+
+@keyframes slideDownSaaS {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.task-list-inner {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.saas-task-row {
+    align-items: center;
+}
+
+.saas-task-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #4B5563;
+    padding-right: 12px;
+}
+
+.saas-task-hours {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+}
+
+.saas-no-tasks {
+    font-size: 12px;
+    color: #9CA3AF;
+    font-style: italic;
+    text-align: center;
+    padding: 4px 0;
+}
+
+/* ==========================================
+   🌟 SAAS GRID HEADER & CONTROLS
+   ========================================== */
+
+.unified-sticky-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-radius: 12px 12px 0 0;
+}
+
+.timesheet-controls-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-light);
-    border-left: 4px solid transparent;
-    cursor: pointer;
-    transition: background 0.15s ease;
+    padding: 16px 24px;
 }
-.expense-card-item:last-child { border-bottom: none; }
-.expense-card-item:hover { background: #fafafa; }
-.master-item-selected { background: #F0F8FF !important; border-left: 4px solid var(--brand) !important; }
 
-/* Content within the List Item */
-.expense-card-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-.expense-card-title { font-size: 14px; font-weight: 700; color: var(--text-p); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
-.expense-card-date { font-size: 12px; color: var(--text-m); }
+/* --- Left Side: Typography & Badges --- */
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
 
-.expense-card-value { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 90px; }
-.expense-card-amount { font-size: 15px; font-weight: 700; color: var(--brand-primary); }
+.saas-week-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.02em;
+}
+.title-icon {
+    --sds-c-icon-color-foreground-default: #6366F1; /* Premium Indigo Accent */
+}
 
+.saas-hours-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+.hours-number { font-weight: 700; color: #0F172A; }
+.hours-label { color: #64748B; font-weight: 500; }
 
-/* 🟦 Detail Workspace Panel */
-.split-view-detail { 
+/* --- Right Side: Actions & Buttons --- */
+.header-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Standalone Icon Buttons (Undo) */
+.saas-icon-btn {
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.saas-icon-btn:hover:not(:disabled) {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+}
+.saas-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F3F4F6;
+    box-shadow: none;
+}
+.saas-icon-btn lightning-icon { --sds-c-icon-color-foreground-default: #4B5563; }
+
+/* Segmented Navigation (Prev / Today / Next) */
+.saas-nav-group {
+    display: flex;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.saas-nav-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid #E5E7EB;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.saas-nav-btn:last-child { border-right: none; }
+.saas-nav-btn:hover { background: #F3F4F6; }
+.saas-nav-btn lightning-icon { --sds-c-icon-color-foreground-default: #4B5563; }
+.today-btn { padding: 6px 16px; }
+
+/* Visual Divider */
+.saas-action-divider {
+    width: 1px;
+    height: 24px;
+    background: #E5E7EB;
+    margin: 0 4px;
+}
+
+/* Primary Action Buttons */
+.saas-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+.saas-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.saas-btn-secondary {
+    background: #FFFFFF;
+    border-color: #D1D5DB;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.saas-btn-secondary:hover:not(:disabled) {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+}
+.saas-btn-secondary lightning-icon { --sds-c-icon-color-foreground-default: #4B5563; }
+
+.saas-btn-success {
+    background: #10B981; /* Confident SaaS Green */
+    color: #FFFFFF;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+.saas-btn-success:hover:not(:disabled) {
+    background: #059669;
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+.saas-btn-success lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+/* ==========================================
+   📅 SAAS GRID STYLING (Aesthetic Only - No Layout Changes)
+   ========================================== */
+
+/* --- 1. Top Axis: Day Headers --- */
+.calendar-header-row {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB !important; /* Crisp hairline border */
+}
+
+.time-axis-header {
+    background: #FFFFFF !important;
+    border-right: 1px solid #E5E7EB !important;
+}
+
+.time-axis-header span {
+    color: #9CA3AF !important; /* Soft gray */
+    letter-spacing: 0.05em; /* Premium wide tracking */
+}
+
+.header-cell {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4B5563; /* Slate gray for standard days */
+    border-right: 1px solid #E5E7EB;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover effect on headers */
+.header-cell:hover {
+    background: #F9FAFB;
+    color: #111827;
+}
+
+/* The "Today" Column Header */
+.header-cell.header-cell-today {
+    color: #0176D3 !important; /* Salesforce Brand Blue */
+    font-weight: 700;
+    background: #F0F8FC; /* Extremely subtle blue tint */
+    box-shadow: inset 0 -3px 0 #0176D3; /* Sleek bottom border highlight */
+}
+
+/* --- 2. Left Axis: Time Labels --- */
+.time-axis {
+    background: #FFFFFF;
+    border-right: 1px solid #E5E7EB;
+    min-width: 60px;
+    position: relative;
+    margin-top: 16px; /* 🌟 Pushes the 0px line down so 12 AM is fully visible */
+    margin-bottom: 24px; /* Extra breathing room at the bottom of the grid */
+}
+
+.time-slot-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9CA3AF; /* Dimmed to reduce visual noise */
+    text-align: right;
+    padding-right: 12px; /* Pulls text slightly away from the line */
+    letter-spacing: 0.02em;
+}
+
+.days-grid {
+    background: #FFFFFF;
+    display: flex;
+    flex: 1;
+    position: relative;
+    margin-top: 16px; /* 🌟 Must match the time-axis to keep lines perfectly straight */
+    margin-bottom: 24px;
+}
+
+.day-column {
+    border-right: 1px solid #F3F4F6; /* Very light gray to separate days */
+    transition: background-color 0.15s ease; /* Smooth interaction */
+}
+
+.day-column:last-child {
+    border-right: none;
+}
+
+/* Column Hover State (Makes the grid feel interactive) */
+.day-column:hover {
+    background-color: #F8FAFC; /* Subtle slate tint on the whole column */
+}
+
+/* The Horizontal Hour Lines */
+.hour-grid-line {
+    border-top: 1px solid #F3F4F6; /* Ultra-light hairline so cards stand out */
+}
+
+/* --- 4. Contextual Overlays --- */
+.weekend-overlay {
+    background: #F8FAFC; /* Replaces dark gray with a soft, cool SaaS slate */
+    opacity: 0.7;
+    pointer-events: none; /* Ensures it doesn't block clicks */
+}
+
+.ghost-shift {
+    background: rgba(1, 118, 211, 0.08); /* Soft blue for drag-to-create */
+    border: 1px dashed #0176D3;
+    border-radius: 4px;
+    backdrop-filter: blur(2px); /* Modern frosted glass effect */
+}
+
+/* ==========================================
+   🎫 SAAS TIME ENTRY CARDS (Grid Items)
+   ========================================== */
+
+/* 1. The Main Card Container */
+.shift-box {
     position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 65% !important; 
-    display: flex; 
-    flex-direction: column; 
-    background: #fff; 
-    transform: translateX(100%); 
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-left-width: 4px; /* The JS dynamically sets the color of this border */
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hover & Active Micro-Interactions */
+.shift-box:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+    z-index: 40 !important;
+}
+
+.shift-box:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Selected State */
+.shift-box.selected-shift {
+    background: #F0F9FF; /* Very faint blue */
+    border: 1px solid #3B82F6;
+    border-left-width: 4px;
+}
+
+/* 2. Internal Card Padding & Layout */
+.card-content {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 4px;
+}
+
+/* Top Row: Color Dot, Project Name, Status Pill */
+.card-top-area {
+    display: flex;
+    align-items: flex-start; /* Aligns to top in case text wraps */
+    justify-content: space-between;
+    gap: 6px;
+}
+
+/* 3. Typography & Text Styling */
+.shift-desc-compact {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827; /* Dark slate */
+    line-height: 1.2;
+    letter-spacing: -0.01em; /* Tighter SaaS tracking */
+    flex-grow: 1;
+    
+    /* Truncate text cleanly if the card is too narrow */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Time Row (e.g., 09:00 AM - 11:00 AM) */
+.shift-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6B7280; /* Muted gray */
+    letter-spacing: 0.02em;
+}
+
+.shift-time lightning-icon {
+    --sds-c-icon-color-foreground-default: #9CA3AF;
+}
+
+/* Task Type / Entry Row */
+.entry-type-row {
+    margin-top: auto; /* Pushes task name to the bottom of the card */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entry-type-badge {
+    font-size: 10px;
+    font-weight: 500;
+    color: #9CA3AF;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 4. Ultra-Compact Status Pills (Inside the Card) */
+.card-top-area .saas-pill {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0; /* Prevents pill from squishing */
+}
+
+.color-dot-sm {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px; /* Aligns dot with the first line of text */
+}
+
+/* ==========================================
+   🤏 SHORT SHIFT GRACEFUL DEGRADATION
+   ========================================== */
+/* When a user logs a 15m or 30m shift, the card gets very short. 
+   These rules hide non-essential data so the UI remains clean. */
+
+.shift-box.short-shift .card-content {
+    padding: 4px 8px;
+    flex-direction: row; /* Aligns items horizontally */
+    align-items: center;
+}
+
+.shift-box.short-shift .entry-type-row,
+.shift-box.short-shift .shift-time lightning-icon {
+    display: none; /* Hide task name and clock icon to save space */
+}
+
+.shift-box.short-shift .shift-desc-compact {
+    font-size: 11px;
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+}
+
+.shift-box.short-shift .shift-time {
+    font-size: 10px;
+    margin-left: auto; /* Pushes time to the right */
+}
+
+/* ==========================================
+   🛠️ FLOATING ACTION BAR (Hover Tools)
+   ========================================== */
+.shift-action-bar {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 2px 4px;
+    display: flex;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.35s ease, visibility 0.35s;
-    z-index: 1;
+    transition: all 0.2s ease;
+    z-index: 10;
 }
 
-/* Slide animation trigger */
-.split-view-master.split-view-master-active ~ .split-view-detail {
-    transform: translateX(0);
+/* Reveal on hover */
+.shift-box:hover .shift-action-bar {
     opacity: 1;
     visibility: visible;
 }
 
-/* Attachment pill */
-.attachment-pill { display: flex; align-items: center; background-color: #F8FBFF; border: 1px solid var(--brand); border-radius: 6px; padding: 8px 12px; margin-top: 4px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
-.attachment-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--brand-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.attachment-name:hover {
-    text-decoration: underline;
-}
-
-.attachment-name { 
-    flex: 1; 
-    font-size: 13px; 
-    font-weight: 600; 
-    color: var(--brand-primary); 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    white-space: nowrap; 
-    cursor: pointer; /* ✅ Ensures the mouse turns into a pointer finger */
-}
-
-/* Adds a nice underline when they hover to show it's clickable */
-.attachment-name:hover {
-    text-decoration: underline;
-}
-
-/* =============================================
-   📊 ENTERPRISE MATRIX LIST VIEW
-   ============================================= */
-.matrix-container {
-    min-height: 400px;
-    background-color: #FFFFFF;
-}
-
-.matrix-table-wrapper {
-    border: 1px solid #D8DDE6;
+/* Style the action buttons inside the bar */
+.shift-action-bar .action-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 4px;
-    overflow-x: auto;
-    background-color: #FFFFFF;
+    cursor: pointer;
+    transition: background 0.15s ease;
 }
 
+.shift-action-bar .action-btn:hover { background: #F3F4F6; }
+.shift-action-bar .btn-delete:hover { background: #FEE2E2; }
+.shift-action-bar .btn-delete lightning-icon { --sds-c-icon-color-foreground-default: #DC2626; }
+
+/* ==========================================
+   🎛️ SAAS VIEW TOGGLE (Icon Segmented Control)
+   ========================================== */
+
+.filter-preset-group,
+.saas-view-toggle {
+    display: flex;
+    background: #F1F5F9; /* Very soft slate */
+    padding: 4px;
+    border-radius: 8px;
+    gap: 4px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+}
+.preset-btn,
+.saas-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* In case there's an icon and text */
+}
+.saas-toggle-btn lightning-icon {
+    --sds-c-icon-color-foreground-default: #64748B;
+    transition: all 0.2s ease;
+}
+
+
+.saas-toggle-btn.active lightning-icon {
+    --sds-c-icon-color-foreground-default: #0176D3; /* Brand blue accent when active */
+}
+
+.saas-toggle-btn:hover:not(.active) lightning-icon {
+    --sds-c-icon-color-foreground-default: #1E293B;
+}
+/* 🌟 Tweak the dropdown to fit the header perfectly */
+.saas-micro-dropdown {
+    width: 140px;
+    margin-bottom: 0;
+}
+
+/* ==========================================
+   📊 SAAS LIST/MATRIX VIEW (Enterprise Sticky Table)
+   ========================================== */
+.matrix-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: #FFFFFF;
+    padding: 0;
+}
+.matrix-table-wrapper {
+    flex: 1;
+    overflow: auto; /* 🌟 Brings back X and Y scrolling for the table */
+}
 .matrix-table {
     width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 800px;
 }
-
-/* --- Headers --- */
-.matrix-table thead th {
-    background-color: #F4F6F9;
-    color: #514F4D;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
+.matrix-table th, .matrix-table td {
     padding: 12px 16px;
-    border-bottom: 2px solid #D8DDE6;
-    border-right: 1px solid #EBEBEB;
-    text-align: right;
-}
-
-.matrix-table thead th.matrix-col-project {
-    text-align: left;
-    width: 250px;
-}
-
-.matrix-table thead th.matrix-col-total {
-    background-color: #ECEFEA;
-    color: #181818;
-}
-
-/* --- Body Cells --- */
-.matrix-table tbody td {
-    padding: 12px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    border-right: 1px solid #F3F4F6;
+    text-align: center;
     font-size: 13px;
-    color: #444444;
-    border-bottom: 1px solid #EBEBEB;
-    border-right: 1px solid #EBEBEB;
-    text-align: right;
-    transition: background-color 0.1s ease;
+    white-space: nowrap;
 }
-
-.matrix-table tbody tr:hover td {
-    background-color: #FAFAFA;
-}
-
-.matrix-table tbody td.matrix-cell-project {
-    text-align: left;
-    font-weight: 600;
-    color: #181818;
-}
-
-.matrix-table tbody td.matrix-cell-day {
-    color: #706E6B;
-}
-
-/* Emphasize the row total */
-.matrix-table tbody td.matrix-cell-total {
+.matrix-table th {
+    background: #F8FAFC;
+    font-size: 11px;
     font-weight: 700;
-    color: #181818;
-    background-color: #F9F9F9;
-}
-
-/* --- Footer Totals --- */
-.matrix-table tfoot td {
-    padding: 14px 16px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #181818;
-    background-color: #F4F6F9;
-    border-top: 2px solid #D8DDE6;
-    border-right: 1px solid #EBEBEB;
-    text-align: right;
-}
-
-.matrix-table tfoot td.matrix-footer-label {
-    text-align: left;
+    color: #64748B;
     text-transform: uppercase;
-    font-size: 12px;
-    color: #514F4D;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.matrix-table tbody tr { transition: background 0.15s ease; }
+.matrix-table tbody tr:hover { background: #F1F5F9; }
+
+/* 🌟 Sticky First Column (Project Name) */
+.matrix-col-project, .matrix-cell-project {
+    position: sticky;
+    left: 0;
+    background: #FFFFFF;
+    z-index: 2;
+    text-align: left !important;
+    font-weight: 600;
+    color: #111827;
+    min-width: 200px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 1px 0 0 #E5E7EB; /* Overrides border-right for smooth sticky */
+}
+.matrix-table th.matrix-col-project {
+    background: #F8FAFC;
+    z-index: 3; /* Must sit above both headers and standard columns */
+}
+.matrix-table tbody tr:hover .matrix-cell-project { background: #F1F5F9; }
+
+/* 🌟 Sticky Last Column (Total) */
+.matrix-col-total, .matrix-cell-total {
+    position: sticky;
+    right: 0;
+    background: #FAFAFA;
+    z-index: 2;
+    font-weight: 700;
+    color: #0F172A;
+    box-shadow: -1px 0 0 #E5E7EB;
+}
+.matrix-table th.matrix-col-total {
+    background: #E2E8F0;
+    z-index: 3;
 }
 
-/* The Grand Total Box (Bottom Right) */
-.matrix-table tfoot td.matrix-footer-grand {
-    background-color: #E2E2E2; /* Slightly darker grey to signify the ultimate total */
-    color: #000000;
-    font-size: 15px;
+/* Hours Text Formatting */
+.matrix-cell-day.has-hours { color: #0176D3; font-weight: 600; }
+.matrix-cell-day.empty-hours { color: #CBD5E1; }
+
+/* Footer styling */
+.matrix-table tfoot td {
+    background: #F8FAFC;
+    font-weight: 700;
+    color: #111827;
+    border-bottom: none;
+    border-top: 2px solid #E5E7EB;
+}
+.matrix-table tfoot .matrix-footer-label {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 1px 0 0 #E5E7EB;
+}
+.matrix-table tfoot .matrix-footer-grand {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    color: #0176D3;
+    box-shadow: -1px 0 0 #E5E7EB;
 }
 
-.matrix-empty-state {
-    text-align: center !important;
-    padding: 40px !important;
-    color: #A0A0A0 !important;
-    font-style: italic;
+/* ==========================================
+   🎛️ NATIVE SELECT DROPDOWN (Matches SaaS Buttons)
+   ========================================== */
+
+.saas-native-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
 }
 
-/* =============================================
-   🎛 ENTERPRISE TOOLBAR
-   ============================================= */
-.enterprise-toolbar {
+.saas-native-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 32px !important; /* Make room for custom chevron */
+    padding-left: 16px !important;
+    outline: none;
+    margin: 0;
+    height: 36px; /* Explicitly forces matching height to saas-btn */
+    line-height: normal;
+    cursor: pointer;
+}
+
+/* Custom Chevron that hovers over the native select */
+.select-chevron-icon {
+    position: absolute;
+    right: 10px;
+    pointer-events: none; /* Clicks pass straight through to the select element */
+    --sds-c-icon-color-foreground-default: #6B7280;
+}
+
+.saas-native-select-wrapper:hover .saas-native-select {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+}
+
+/* ==========================================
+   📅 COLLAPSIBLE SIDEBAR TOGGLE
+   ========================================== */
+
+.sidebar-section-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    color: #64748B; /* Soft SaaS Gray */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 6px;
+    user-select: none; /* Prevents text highlighting on rapid clicks */
+}
+
+.sidebar-section-toggle:hover {
+    color: #0F172A; /* Darkens on hover */
+    background-color: #F8FAFC;
+}
+
+.sidebar-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Ensure the icons inherit the hover color smoothly */
+.sidebar-section-toggle lightning-icon {
+    --sds-c-icon-color-foreground-default: currentColor;
+}
+
+/* ==========================================
+   🎯 SAAS GLOBAL HEADER
+   ========================================== */
+
+.saas-global-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    padding: 0 24px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); /* Subtle lift */
+    position: relative;
+    z-index: 1000;
+}
+
+/* --- Brand & Logo --- */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 250px; /* Keeps the center nav perfectly centered */
+}
+
+.brand-logo-box {
+    background: linear-gradient(135deg, #0176D3, #014486);
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(1, 118, 211, 0.3);
+}
+
+.brand-logo-box lightning-icon {
+    --sds-c-icon-color-foreground-default: #FFFFFF;
+}
+
+.brand-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.01em;
+}
+
+/* --- Central Navigation --- */
+.header-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.saas-main-tab-group {
+    display: flex;
+    background: #F1F5F9; /* Subtle gray background */
+    padding: 4px;
+    border-radius: 10px;
+    gap: 4px;
+}
+
+.saas-main-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saas-main-tab lightning-icon {
+    --sds-c-icon-color-foreground-default: #64748B;
+    transition: all 0.2s ease;
+}
+
+.saas-main-tab:hover:not(.active) {
+    color: #334155;
+    background: #E2E8F0;
+}
+
+.saas-main-tab.active {
+    background: #FFFFFF;
+    color: #0F172A;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.saas-main-tab.active lightning-icon {
+    --sds-c-icon-color-foreground-default: #0176D3; /* Brand accent on active icon */
+}
+
+/* --- Right Side: Actions & Profile --- */
+.header-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
-    flex-wrap: wrap;
-    background: transparent;
+    gap: 16px;
+    width: 250px;
 }
 
-/* Logical Grouping */
-.toolbar-group {
+.notification-btn {
+    position: relative;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-btn:hover {
+    background: #F1F5F9;
+}
+
+.notification-btn lightning-icon {
+    --sds-c-icon-color-foreground-default: #64748B;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    background: #EF4444; /* Alert Red */
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px solid #FFFFFF; /* Cuts into the bell icon */
+    padding: 0 4px;
+}
+
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background: #E2E8F0;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.2;
+}
+
+.user-role {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748B;
+}
+
+.user-avatar {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* ==========================================
+   📅 SAAS MONTHLY BOARD VIEW (Zero Overflow)
+   ========================================== */
+
+.saas-monthly-board {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Locks to the parent container */
+    background: #FFFFFF;
+    overflow: hidden; /* Prevents whole-page blowout */
+}
+
+/* --- Top Month Summary --- */
+.board-top-summary {
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: flex-end;
+}
+.summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #F0F9FF; /* Soft Blue */
+    border: 1px solid #BAE6FD;
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+.summary-badge lightning-icon { --sds-c-icon-color-foreground-default: #0284C7; }
+.summary-label { font-size: 12px; font-weight: 600; color: #0369A1; }
+.summary-value { font-size: 14px; font-weight: 800; color: #075985; }
+
+/* --- Header Row (8 Columns) --- */
+.board-header-row {
+    display: grid;
+    /* 7 equal day columns, 1 fixed 70px total column */
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 70px; 
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+}
+.board-header-row span {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-right: 1px solid #E2E8F0;
+}
+.board-header-row span:last-child { border-right: none; }
+.board-header-row .col-weekly-summary { background: #F1F5F9; color: #475569; }
+
+/* --- Main Grid Architecture --- */
+.board-grid {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Takes exactly remaining space */
+    min-height: 0; /* CRITICAL: Prevents vertical blowout */
+}
+
+.board-week-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 70px;
+    flex: 1; /* Divides the 5 weeks equally in the available vertical space */
+    min-height: 0; /* CRITICAL: Prevents vertical blowout */
+    border-bottom: 1px solid #E2E8F0;
+}
+.board-week-row:last-child { border-bottom: none; }
+
+/* --- Day Cells --- */
+.board-day-cell {
+    background: #FFFFFF;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-right: 1px solid #E2E8F0;
+    overflow: hidden; /* CRITICAL: Keeps pills inside */
+    transition: background 0.15s ease;
+}
+.board-day-cell:hover { background: #F8FAFC; }
+.board-day-cell.muted-day { background: #FAFAFA; }
+.board-day-cell.muted-day .day-num { color: #CBD5E1; }
+
+.cell-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; /* Prevents header from squishing */
+}
+
+.day-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4B5563;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+.day-num.today-num {
+    background: #0176D3;
+    color: #FFFFFF;
+    box-shadow: 0 2px 4px rgba(1, 118, 211, 0.3);
+}
+.cell-daily-total {
+    font-size: 10px;
+    font-weight: 700;
+    color: #0F172A;
+    background: #F1F5F9;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+/* --- Project Micro-Pills (With Truncation) --- */
+.cell-projects-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1; /* Fills remaining cell space */
+    overflow-y: auto; /* Adds a tiny scrollbar ONLY inside the cell if there are too many projects */
+}
+
+.micro-project-pill {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+.pill-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1; /* Pushes hours to the right */
+    min-width: 0; /* CRITICAL: Allows text-overflow to work in flexbox */
+}
+.micro-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.micro-name {
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* CRITICAL: Truncates long project names */
+}
+.micro-hours {
+    font-weight: 700;
+    color: #0F172A;
+    flex-shrink: 0;
+}
+
+/* --- 8th Column: Weekly Total Cell --- */
+.board-week-total {
+    background: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E2E8F0;
+    color: #9CA3AF;
+}
+.board-week-total.has-hours .wt-value {
+    color: #0176D3; /* Highlights blue if they logged hours */
+    font-weight: 700;
+}
+.wt-value {
+    font-size: 13px;
+    font-weight: 600;
+}
+/* ==========================================
+   💳 EXPENSE TAB (COMPLETE SAAS STYLING)
+   ========================================== */
+
+/* --- 1. Master Layout --- */
+.expense-app-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; 
+    height: 100%;
+    padding-top: 5px; /* 🌟 CRITICAL FIX: Removed the extra 16px padding */
+    min-height: 0;
+}
+.split-view-container {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+/* --- 2. Filter Bar & Controls --- */
+.saas-filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 12px 24px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+}
+
+.filter-preset-group {
+    display: flex;
+    background: #F1F5F9; 
+    padding: 4px;
+    border-radius: 10px;
+    gap: 4px;
+}
+
+.preset-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preset-btn:hover:not(.active) {
+    background: #E2E8F0; 
+    color: #1E293B;
+}
+
+.preset-btn.active {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1) !important;
+    transform: scale(1.02); 
+}
+
+.filter-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* --- 3. Native SaaS Date Range Pill --- */
+.saas-date-range-pill {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 38px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+.saas-date-range-pill:hover { border-color: #9CA3AF; }
+.saas-date-range-pill:focus-within { 
+    border-color: #0176D3; 
+    box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.15); 
+}
+
+.range-arrow { color: #9CA3AF; font-weight: 700; margin: 0 8px; }
+
+.saas-native-date {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0F172A;
+    outline: none;
+    padding: 4px 0;
+    margin: 0;
+    width: 105px; /* Locked width to prevent jumping */
+    cursor: text;
+    text-align: center;
+    letter-spacing: 0.01em;
+}
+
+.saas-native-date::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+.saas-native-date::-webkit-datetime-edit-month-field:hover,
+.saas-native-date::-webkit-datetime-edit-day-field:hover,
+.saas-native-date::-webkit-datetime-edit-year-field:hover {
+    background: #F1F5F9; color: #0176D3; border-radius: 4px; cursor: text;
+}
+.saas-native-date::-webkit-datetime-edit-month-field:focus,
+.saas-native-date::-webkit-datetime-edit-day-field:focus,
+.saas-native-date::-webkit-datetime-edit-year-field:focus {
+    background: #E0F2FE !important; color: #0369A1 !important; border-radius: 4px; outline: none;
+}
+.saas-native-date::-webkit-calendar-picker-indicator {
+    cursor: pointer; opacity: 0.4; transition: all 0.2s; filter: invert(0.4);
+    padding: 4px; margin-left: 4px; border-radius: 4px;
+}
+.saas-native-date::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.8; transform: scale(1.1); background: #E2E8F0;
+}
+
+/* Primary Button */
+.saas-btn-primary {
+    display: flex; align-items: center; gap: 6px;
+    background: #0F172A; color: #FFFFFF; border: none;
+    height: 38px; padding: 0 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+.saas-btn-primary:hover { background: #1E293B; }
+.saas-btn-primary lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+/* --- 4. Micro-Metric KPI Dashboard --- */
+.kpi-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px; 
+}
+
+.kpi-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px; 
+    padding: 14px 16px; 
+    display: flex;
+    align-items: center; 
+    gap: 12px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0;
+    animation: slideUpFade 0.6s forwards;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.06); }
+
+.slide-up-1 { animation-delay: 0.05s; }
+.slide-up-2 { animation-delay: 0.15s; }
+.slide-up-3 { animation-delay: 0.25s; }
+.slide-up-4 { animation-delay: 0.35s; }
+@keyframes slideUpFade { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+.kpi-icon-wrapper {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.kpi-icon-wrapper lightning-icon { transform: scale(0.85); }
+.kpi-data { display: flex; flex-direction: column; justify-content: center; }
+.kpi-label { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.03em; }
+.kpi-value { font-size: 18px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; margin-top: 2px;}
+.kpi-trend { font-size: 10px; font-weight: 600; color: #9CA3AF; margin-top: 1px; }
+
+.brand-bg { background: #F0F9FF; } .brand-bg lightning-icon { --sds-c-icon-color-foreground-default: #0176D3; }
+.warning-bg { background: #FFFBEB; } .warning-bg lightning-icon { --sds-c-icon-color-foreground-default: #D97706; } .warning-text { color: #B45309; }
+.success-bg { background: #ECFDF5; } .success-bg lightning-icon { --sds-c-icon-color-foreground-default: #059669; } .success-text { color: #047857; }
+.info-bg { background: #F0FDF4; } .info-bg lightning-icon { --sds-c-icon-color-foreground-default: #0EA5E9; } .text-info { color: #0284C7; }
+.text-brand { color: #0176D3; } .text-muted { color: #64748B; }
+
+/* --- 5. Left Pane: Inbox Master List --- */
+/* --- 5. Left Pane: Inbox Master List --- */
+.expense-master-pane {
+    flex: 0 0 42%; /* 🌟 Takes up ~45% of the screen but leaves room for the gap */
+    max-width: 600px; /* Safety cap for ultra-wide monitors */
+    background: #F8FAFC; /* 🌟 Changed to soft gray to contrast the white cards */
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+    overflow: hidden; 
+}
+
+.master-header { 
+    padding: 20px 16px 12px 16px; 
+    border-bottom: 1px solid #E2E8F0; 
+    background: #FFFFFF; /* Makes the header stand out from the gray list */
+}
+
+.pane-title { 
+    font-size: 16px; 
+    font-weight: 800; 
+    color: #0F172A; 
+    margin-bottom: 12px; 
+    padding-left: 4px; 
+}
+
+/* 🌟 Sleek, Low-Profile Segmented Control */
+.saas-segmented-control {
+    display: flex; 
+    background: #F1F5F9; 
+    padding: 3px; 
+    border-radius: 8px; 
+    gap: 2px;
+    overflow-x: auto; 
+    scrollbar-width: none;
+}
+.saas-segmented-control::-webkit-scrollbar { display: none; }
+
+.saas-segmented-control button {
+    flex: 1; 
+    min-width: max-content; 
+    border: none; 
+    background: transparent;
+    padding: 4px 10px; 
+    height: 28px; 
+    font-size: 11.5px; 
+    font-weight: 600; 
+    color: #64748B;
+    border-radius: 6px; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    display: flex; 
+    gap: 6px; 
+    align-items: center;
+}
+
+.saas-segmented-control button:hover:not(.active) { background: #E2E8F0; color: #1E293B; }
+.saas-segmented-control button.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+.tab-badge { background: #E2E8F0; color: #475569; padding: 1px 6px; border-radius: 10px; font-size: 10px; }
+.saas-segmented-control button.active .tab-badge { background: #0176D3; color: #FFFFFF; }
+
+/* 🌟 Shaded Scroll Area to separate cards */
+.master-list-scroll { 
+    flex: 1; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    background: #F8FAFC; 
+    padding: 12px; /* 🌟 Creates space around the cards */
+    gap: 8px; /* 🌟 Puts physical space between every record */
+}
+
+/* 🌟 Fully Distinct White Cards */
+.expense-item-card {
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 16px; 
+    background: #FFFFFF; 
+    border: 1px solid #E2E8F0; 
+    border-radius: 10px; /* Modern, slightly rounded corners */
+    cursor: pointer; 
+    position: relative; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03); /* Very subtle resting shadow */
+}
+
+/* Hover State (Lifts the card off the screen) */
+.expense-item-card:hover:not(.active) { 
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 8px -2px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
+    transform: translateY(-1px);
+}
+
+.expense-item-card.active { 
+    background: #F0F9FF; /* Soft brand blue wash */
+    border-color: transparent; /* Hides standard border */
+    /* 🌟 The Inset Shadow Trick: Creates a 4px blue anchor on the left, and a 1px light blue border all around, without making the text jump! */
+    box-shadow: inset 4px 0 0 0 #0176D3, inset 0 0 0 1px #BAE6FD, 0 4px 12px rgba(1, 118, 211, 0.1); 
+}
+/* 🌟 Unmistakable Active State */
+.expense-item-card.active { 
+    background: #F0F9FF; 
+    border-color: #BAE6FD; 
+    box-shadow: 0 2px 6px rgba(1, 118, 211, 0.15); 
+}
+/* Adds a solid blue bar to the left side of the active card */
+.expense-item-card.active::before {
+    content: '';
+    position: absolute;
+    top: -1px; bottom: -1px; left: -1px;
+    width: 4px;
+    background: #0176D3;
+    border-radius: 8px 0 0 8px;
+}
+
+/* --- Layout Distortion Fixes --- */
+.expense-row-top { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    gap: 16px; 
+    width: 100%; /* Ensures flexbox behaves */
+}
+
+.expense-project-name { 
+    font-size: 13px; 
+    font-weight: 700; 
+    color: #0F172A; 
+    letter-spacing: -0.01em; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    flex: 1; 
+    min-width: 0; /* 🌟 CRITICAL FIX: Stops long text from breaking the card */
+}
+
+.expense-amount { 
+    font-size: 15px; 
+    font-weight: 800; 
+    color: #0F172A; 
+    flex-shrink: 0; /* 🌟 CRITICAL FIX: Stops amount from being squished */
+    font-variant-numeric: tabular-nums; 
+}
+
+.expense-row-bottom { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%;
+}
+
+.expense-meta-data { 
+    font-size: 12px; 
+    font-weight: 500; 
+    color: #64748B; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    flex: 1;
+    min-width: 0; /* Prevents long categories from breaking */
+    padding-right: 12px;
+}
+/* Sharp SaaS Badges */
+.saas-pill { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; border: 1px solid transparent;}
+.pill-neutral { background: #F1F5F9; color: #475569; border-color: #E2E8F0; }
+.pill-warning { background: #FFFBEB; color: #B45309; border-color: #FEF3C7; }
+.pill-success { background: #ECFDF5; color: #059669; border-color: #D1FAE5; }
+.pill-active { background: #F0F9FF; color: #0284C7; border-color: #BAE6FD; }
+
+/* --- 6. Right Pane: Detail View --- */
+.expense-detail-pane {
+    flex: 1; /* 🌟 Automatically takes up the remaining 55%+ */
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+    min-width: 0; /* CRITICAL: Prevents inner flex items from blowing out the width */
+}
+.detail-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 16px 24px; /* 🌟 Tightened vertical padding */
+    border-bottom: 1px solid #E2E8F0; 
+    background: #FFFFFF; /* Clean white */
+    border-radius: 12px 12px 0 0; 
+}
+
+.detail-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.detail-id-badge { 
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 10px; 
+    font-weight: 600;
+    color: #64748B; 
+    background: #F1F5F9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #E2E8F0;
+}
+.detail-title-group h2 { 
+    font-size: 18px; /* Slightly smaller, more refined */
+    font-weight: 800; 
+    color: #0F172A; 
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+.detail-title-group p { font-size: 13px; color: #64748B; margin-top: 4px; font-weight: 500; }
+.detail-body { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 24px; /* 🌟 Reduced from 32px for better data density */
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+}
+
+/* ==========================================
+   🚨 SAAS ALERT BANNERS
+   ========================================== */
+
+.saas-alert-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    border-left: 4px solid transparent; /* Anchor for status color */
+}
+.enterprise-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-row { width: 100%; }
+
+.lock-banner { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.lock-banner.submitted { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.lock-banner.submitted lightning-icon { --sds-c-icon-color-foreground-default: #D97706; }
+.lock-banner.approved { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+.lock-banner.approved lightning-icon { --sds-c-icon-color-foreground-default: #059669; }
+
+.attachment-section h3 { font-size: 14px; font-weight: 700; color: #0F172A; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 16px; }
+.file-attachment-card { display: flex; align-items: center; padding: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; transition: all 0.2s; }
+.file-attachment-card:hover { border-color: #CBD5E1; background: #FFFFFF; }
+.file-icon { background: #FFFFFF; padding: 8px; border-radius: 6px; border: 1px solid #E2E8F0; margin-right: 12px; }
+.file-info { flex: 1; overflow: hidden; }
+.file-info a { font-weight: 600; color: #0176D3; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.file-info a:hover { text-decoration: underline; }
+.file-actions { display: flex; gap: 4px; }
+.file-upload-zone { margin-top: 12px; }
+
+.pane-empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+.empty-icon-wrapper { background: #F1F5F9; padding: 24px; border-radius: 50%; margin-bottom: 24px; }
+.pane-empty-state h3 { font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 8px; }
+.pane-empty-state p { font-size: 14px; color: #64748B; max-width: 350px; line-height: 1.5; }
+.empty-state-card { text-align: center; padding: 40px 20px; color: #9CA3AF; font-size: 13px; font-weight: 500; }
+
+/* ==========================================
+   🖋️ ENTERPRISE FORM STYLING (SLDS Overrides)
+   ========================================== */
+
+/* 🌟 Target all inputs inside our detail pane */
+.detail-body lightning-input,
+.detail-body lightning-combobox,
+.detail-body lightning-textarea {
+    
+    /* Input Box Styling */
+    --sds-c-input-color-background: #FFFFFF;
+    --sds-c-input-color-border: #CBD5E1;
+    --sds-c-input-radius-border: 8px; /* Sharp modern curves */
+    --sds-c-input-spacing-vertical: 8px; /* Taller, premium inputs */
+    
+    /* Focus State (Soft Blue Glow) */
+    --sds-c-input-color-border-focus: #0176D3;
+    --sds-c-input-shadow-focus: 0 0 0 3px rgba(1, 118, 211, 0.15);
+    
+    /* Textarea Specifics */
+    --sds-c-textarea-color-border: #CBD5E1;
+    --sds-c-textarea-radius-border: 8px;
+    --sds-c-textarea-color-border-focus: #0176D3;
+    --sds-c-textarea-shadow-focus: 0 0 0 3px rgba(1, 118, 211, 0.15);
+    
+    /* Typography Overrides */
+    --sds-c-input-text-color: #0F172A;
+    font-weight: 500;
+}
+
+/* 🌟 Premium Label Styling */
+.detail-body .slds-form-element__label {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.02em;
+}
+
+/* Fixes the combobox (dropdown) specific variables */
+.detail-body lightning-combobox {
+    --sds-c-button-color-border: #CBD5E1;
+    --sds-c-button-radius-border: 8px;
+    --sds-c-button-color-background: #FFFFFF;
+}
+
+/* ==========================================
+   🔄 INFINITE SCROLL / LOAD MORE UI
+   ========================================== */
+
+.saas-load-more-container {
+    padding: 16px 0 8px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Optional: Fading line behind the button */
+.saas-load-more-container::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #E2E8F0, transparent);
+    z-index: 0;
+}
+
+.saas-load-more-btn {
+    position: relative;
+    z-index: 1;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px; /* Pill shape */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.saas-load-more-btn:hover {
+    color: #0F172A;
+    border-color: #9CA3AF;
+    background: #F8FAFC;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+
+.alert-content strong {
+    font-weight: 700;
+    margin-right: 4px;
+}
+
+/* Status: Rejected / Error */
+.saas-alert-banner.alert-rejected { 
+    background: #FEF2F2; 
+    color: #991B1B; 
+    border-left-color: #EF4444; 
+}
+.saas-alert-banner.alert-rejected lightning-icon { --sds-c-icon-color-foreground-default: #DC2626; }
+
+/* Status: Submitted / Warning */
+.saas-alert-banner.alert-submitted { 
+    background: #FFFBEB; 
+    color: #B45309; 
+    border-left-color: #F59E0B; 
+}
+.saas-alert-banner.alert-submitted lightning-icon { --sds-c-icon-color-foreground-default: #D97706; }
+
+/* Status: Approved / Success */
+.saas-alert-banner.alert-approved { 
+    background: #ECFDF5; 
+    color: #065F46; 
+    border-left-color: #10B981; 
+}
+.saas-alert-banner.alert-approved lightning-icon { --sds-c-icon-color-foreground-default: #059669; }
+
+/* 🌟 Locks the action buttons into a perfect horizontal row */
+/* 🌟 Locks the action buttons into a perfect horizontal row */
+.detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px; 
+    flex-shrink: 0; 
+}
+
+/* ==========================================
+   📑 ENTERPRISE PAGINATION FOOTER
+   ========================================== */
+
+.saas-pagination-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+    border-radius: 0 0 12px 12px;
+    margin-top: auto; /* Pushes footer to the absolute bottom of the container */
+    flex-shrink: 0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.01); /* Very soft shadow projecting up */
+}
+
+/* --- Records Per Page Dropdown --- */
+.page-size-selector {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Subtle vertical line between groups */
-.toolbar-divider {
+.page-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Sleek Native Select */
+.saas-micro-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 4px 24px 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0F172A;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    
+    /* 🌟 THE FIX: Fully URL-Encoded SVG to bypass the LWC compiler bug */
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+}
+
+.saas-micro-select:hover, .saas-micro-select:focus {
+    border-color: #9CA3AF;
+    background: #FFFFFF;
+}
+
+/* --- Next/Prev Navigation --- */
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-indicator {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    min-width: 75px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.saas-icon-btn {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.saas-icon-btn lightning-icon {
+    --sds-c-icon-color-foreground-default: #475569;
+}
+
+.saas-icon-btn:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: #0F172A;
+}
+.saas-icon-btn:hover:not(:disabled) lightning-icon {
+    --sds-c-icon-color-foreground-default: #0F172A;
+}
+
+.saas-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F1F5F9;
+    box-shadow: none;
+}   
+
+/* ==========================================
+   🚨 SAAS DANGER GHOST BUTTON
+   ========================================== */
+.btn-danger-ghost {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.btn-danger-ghost lightning-icon {
+    --sds-c-icon-color-foreground-default: #94A3B8; /* Soft gray resting */
+    transition: all 0.2s ease;
+}
+
+.btn-danger-ghost:hover {
+    background: #FEF2F2 !important; /* Soft red wash */
+    border-color: #FECACA !important;
+}
+
+.btn-danger-ghost:hover lightning-icon {
+    --sds-c-icon-color-foreground-default: #DC2626; /* Bright red on hover */
+}
+
+/* Divider between Delete and Save */
+.saas-action-divider {
     width: 1px;
     height: 24px;
-    background-color: var(--border-light);
-    margin: 0 2px;
+    background: #E2E8F0;
+    margin: 0 4px;
 }
-
-/* Standardized Input Widths */
-.toolbar-search {
-    width: 160px;
-    transition: width 0.2s ease;
-}
-.toolbar-search:focus-within {
-    width: 200px; /* Smoothly expands when typing */
-}
-
-.toolbar-timeframe {
-    width: 130px;
-}
-
-.toolbar-date {
-    width: 140px;
-}
-/* =============================================
-   🏢 ENTERPRISE PROJECT SIDEBAR
-   ============================================= */
-.project-sidebar {
-    width: 220px;
-    min-width: 220px;
-    background: #F9F9FB; /* Soft enterprise grey */
-    border-right: 1px solid var(--border-light);
+.danger-modal-header {
     display: flex;
-    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 16px 24px;
 }
 
-.sidebar-scroll-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 8px;
-}
-
-/* The Card container */
-.sidebar-project-card {
-    background: #FFFFFF;
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-}
-
-.sidebar-project-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    transform: translateY(-1px);
-}
-
-/* Row 1: Code and Hours */
-.sidebar-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-/* The Prominent Project ID */
-.project-code {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--brand-primary);
-    background: #F0F8FF;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-week-hrs {
+.danger-icon-box {
+    background: #FEF2F2; /* Soft red wash */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: #444444;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 4px solid #FEF2F2;
+    box-shadow: inset 0 0 0 1px #FCA5A5; /* Sharp red inner ring */
 }
+.danger-icon-box lightning-icon { --sds-c-icon-color-foreground-default: #DC2626; }
 
-/* Row 2: ✂️ STRICT TRUNCATION MAGIC */
-.sidebar-project-name {
+.danger-title-group h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 4px;
+}
+.danger-title-group p {
     font-size: 13px;
     font-weight: 500;
-    color: #181818;
-    
-    
-    width: 100%;
-    cursor: default; /* Tells the user they can hover */
+    color: #EF4444; /* Subtle red warning text */
 }
 
-/* =============================================
-   🏢 ENTERPRISE PROJECT SIDEBAR (CLEAN SAAS)
-   ============================================= */
-.sidebar-project-card {
-    background: #FFFFFF; /* Pure white background */
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    /* Notice border-left is dynamically set by JS to be 6px wide */
+/* Body Text */
+.danger-modal-body {
+    padding: 0 24px 24px 24px;
+}
+.danger-modal-body p {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
 }
 
-.sidebar-project-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    transform: translateY(-1px);
+/* Footer & Actions */
+.danger-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: #F8FAFC;
+    border-top: 1px solid #E2E8F0;
 }
 
-.sidebar-project-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #181818; /* High contrast black */
-    white-space: nowrap;      
-    overflow: hidden;         
-    text-overflow: ellipsis;  
-    width: 100%;
-    cursor: default;
-}
-
-.project-code {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #444444;
-    background: #F4F6F9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-week-hrs {
+/* The Bold Red Delete Button */
+.saas-btn-danger {
     display: flex;
     align-items: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: #444444;
-}
-
-/* =============================================
-   📅 CALENDAR ENTRY CARDS (CLEAN SAAS)
-   ============================================= */
-.shift-box {
-    position: absolute;
-    left: 4px; right: 4px;
-    background: #FFFFFF; /* Pure white background */
-    border: 1px solid var(--border-light);
-    border-left-width: 4px; /* Forces the thick 4px color bar */
-    border-left-style: solid;
-    border-radius: 6px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
-    cursor: default;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
-    min-height: 28px;
-    z-index: 3;
-    transition: box-shadow 150ms ease, transform 150ms ease;
-}
-
-.shift-desc-compact { 
-    font-size: 11.5px; 
-    font-weight: 700; 
-    color: #181818; /* High contrast black */
-    line-height: 1.3; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    flex: 1; 
-}
-
-.shift-time { 
-    font-size: 10.5px; 
-    color: #706E6B; /* Muted grey for secondary info */
-    display: flex; 
-    align-items: center; 
-    gap: 4px; 
-    line-height: 1; 
-    margin-top: 2px; 
-}
-
-/* In the Sidebar CSS section */
-.sidebar-project-name {
+    justify-content: center;
+    background: #DC2626;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: 13px;
-    font-weight: 500; /* ✅ Reduced from 600 */
-    color: #181818; 
-    white-space: nowrap;      
-    overflow: hidden;         
-    text-overflow: ellipsis;  
-    width: 100%;
-    cursor: default;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
 }
 
-/* In the Calendar Entry Cards section */
-.shift-desc-compact { 
-    font-size: 11.5px; 
-    font-weight: 500; /* ✅ Reduced from 700 */
-    color: #181818; 
-    line-height: 1.3; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    flex: 1; 
+.saas-btn-danger:hover {
+    background: #B91C1C;
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
+}
+.saas-btn-danger lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+
+/* ==========================================
+   🌟 SAAS PULSE ANIMATION (Paste Week)
+   ========================================== */
+.saas-pulse-btn {
+    animation: primaryPulse 2s infinite;
+    background: #0F172A; /* Dark premium contrast */
 }
 
-/* =============================================
-   🔥 ULTRA-CLEAN CALENDAR GRID & COLUMNS
-   ============================================= */
-.calendar-container { 
-    display: flex; 
-    flex-direction: column; 
-    background: #FFFFFF; /* ✅ Pure white base */
-    min-width: max-content; 
-    position: relative; 
-    padding-bottom: 8px; 
-}
-
-.calendar-header-row { 
-    display: grid; 
-    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
-    column-gap: 0; /* ✅ Removed gap for continuous clean lines */
-    background: #FFFFFF !important; 
-    border-bottom: 1px solid #E5E5E5 !important; /* Crisp bottom border */
-    position: sticky; 
-    top: 0; 
-    z-index: 20; 
-}
-
-.time-axis-header { 
-    padding: 8px; 
-    background: #FFFFFF !important; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 25 !important; 
-    position: sticky; 
-    left: 0; 
-    border-right: 1px solid #F0F2F4; 
-}
-
-.header-cell { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    height: 40px; 
-    font-size: 12px; 
-    font-weight: 600; 
-    color: #514F4D; 
-    background: #FFFFFF; 
-    border-right: 1px solid #F0F2F4; /* Soft column dividers */
-} 
-
-/* Subtle highlight for "Today" */
-.header-cell-today { color: var(--brand-primary) !important; font-weight: 700; }
-
-.calendar-body { 
-    display: grid; 
-    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
-    column-gap: 0; /* Matches header */
-    position: relative; 
-}
-
-.sticky-time-axis { 
-    position: sticky; 
-    left: 0; 
-    z-index: 10; 
-    background: #FFFFFF; 
-    border-right: 1px solid #F0F2F4; 
-}
-
-.time-slot-label { 
-    height: var(--hour-h); 
-    font-size: 11px; 
-    font-weight: 500; /* Cleaner font weight */
-    color: #A0A0A0; /* Softer grey */
-    padding-right: 8px; 
-    transform: translateY(-50%); 
-    text-align: right; 
-    pointer-events: none; 
-}
-
-.days-grid { display: contents; }
-
-.day-column { 
-    position: relative; 
-    background: #FFFFFF; 
-    box-sizing: border-box; 
-    overflow: visible; 
-    user-select: none; 
-    min-height: calc(24 * var(--hour-h)); 
-    border-right: 1px solid #F0F2F4; /* Whisper-thin column line */
-}
-
-/* Subtle hover effect */
-.day-column:hover { background-color: #FAFBFC; }
-
-/* ✅ THE BIG FIX: Solid, whisper-light horizontal lines instead of heavy dashes */
-.hour-grid-line { 
-    position: absolute; 
-    left: 0; 
-    right: 0; 
-    height: 1px; 
-    border-bottom: 1px solid #F4F6F9; 
-    pointer-events: none; 
-    z-index: 1; 
-}
-
-/* ✅ THE BIG FIX 2: Flat, calm weekend overlay instead of diagonal zebra stripes */
-.weekend-overlay { 
-    position: absolute; 
-    inset: 0; 
-    background: #FAFBFC; /* Just a very soft grey */
-    pointer-events: none; 
-    z-index: 2; 
-}
-
-/* =============================================
-   🔥 ULTRA-CLEAN CALENDAR GRID & COLUMNS (FIXED)
-   ============================================= */
-.calendar-container { 
-    display: flex; 
-    flex-direction: column; 
-    background: #FFFFFF; 
-    min-width: max-content; 
-    position: relative; 
-    padding-bottom: 8px; 
-}
-
-.calendar-header-row { 
-    display: grid; 
-    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
-    column-gap: 0; 
-    background: #FFFFFF !important; 
-    border-bottom: 1px solid #A0A0A0 !important; /* Darker bottom border */
-    position: sticky; 
-    top: 0; 
-    z-index: 20; 
-}
-
-.time-axis-header { 
-    padding: 8px; 
-    background: #FFFFFF !important; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 25 !important; 
-    position: sticky; 
-    left: 0; 
-    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
-}
-
-.header-cell { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    height: 40px; 
-    font-size: 12px; 
-    font-weight: 600; 
-    color: #514F4D; 
-    background: #FFFFFF; 
-    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
-} 
-
-.header-cell-today { color: var(--brand-primary) !important; font-weight: 700; }
-
-.calendar-body { 
-    display: grid; 
-    grid-template-columns: var(--time-axis) repeat(7, 1fr); 
-    column-gap: 0; 
-    position: relative; 
-}
-
-.sticky-time-axis { 
-    position: sticky; 
-    left: 0; 
-    z-index: 10; 
-    background: #FFFFFF; 
-    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
-}
-
-/* ✅ FIX 1: Added position: absolute so the time perfectly aligns with the line */
-.time-slot-label { 
-    position: absolute; 
-    width: 100%;
-    height: 20px; 
-    font-size: 11px; 
-    font-weight: 500; 
-    color: #706E6B; 
-    padding-right: 8px; 
-    transform: translateY(-50%); /* Centers the text perfectly on the grid line */
-    text-align: right; 
-    pointer-events: none; 
-}
-
-.days-grid { display: contents; }
-
-.day-column { 
-    position: relative; 
-    background: #FFFFFF; /* Ensures 100% white background for all 7 days */
-    box-sizing: border-box; 
-    overflow: visible; 
-    user-select: none; 
-    min-height: calc(24 * var(--hour-h)); 
-    border-right: 1px solid #A0A0A0; /* Darker, crisp vertical line */
-}
-
-/* Subtle hover effect so the user knows which column they are on */
-.day-column:hover { background-color: #F8F9FA; } 
-
-.hour-grid-line { 
-    position: absolute; 
-    left: 0; 
-    right: 0; 
-    height: 1px; 
-    border-bottom: 1px solid #E5E5E5; /* Kept slightly lighter than verticals to prevent a checkerboard look */
-    pointer-events: none; 
-    z-index: 1; 
-}
-
-/* ✅ FIX 2: Completely hide the weekend overlay to ensure 100% background consistency */
-.weekend-overlay { 
-    display: none; 
+@keyframes primaryPulse {
+    0% { box-shadow: 0 0 0 0 rgba(1, 118, 211, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(1, 118, 211, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(1, 118, 211, 0); }
 }

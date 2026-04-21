@@ -32,20 +32,19 @@
                     </div>
 
                     <lightning-datatable
-                        key-field="projectId"
-                        data={drillDownData}
+                        key-field="compositeKey" data={drillDownData}
                         columns={projectColumns}
                         onrowselection={handleRowSelection}>
                     </lightning-datatable>
 
-                    <div class="slds-m-top_medium slds-text-align_right">
-                        <lightning-button 
-                            label="Generate Selected Invoices" 
-                            variant="brand" 
-                            icon-name="utility:money"
-                            onclick={handleGenerate} 
-                            disabled={isGenerateDisabled}>
-                        </lightning-button>
+                    <div class="slds-m-top_medium slds-grid slds-grid_align-spread">
+                        <div>
+                            <lightning-button label="Reject Time" variant="destructive-text" icon-name="utility:close" onclick={openRejectModal} disabled={isGenerateDisabled} class="slds-m-right_small"></lightning-button>
+                            <lightning-button label="Approve Time" variant="success" icon-name="utility:check" onclick={handleApprove} disabled={isGenerateDisabled}></lightning-button>
+                        </div>
+                        <div>
+                            <lightning-button label="Generate Invoices" variant="brand" icon-name="utility:money" onclick={handleGenerate} disabled={isGenerateDisabled}></lightning-button>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -53,15 +52,6 @@
             <template if:false={isDrillDownMode}>
                 <lightning-tabset variant="scoped">
                     
-                    <lightning-tab label="By Client" icon-name="standard:account">
-                        <c-invoice-entity-dashboard 
-                            entity-type="Account" 
-                            pending-data={accountGroups} 
-                            search-term={appliedSearchTerm} 
-                            ondrilldown={handleDrillDown}>
-                        </c-invoice-entity-dashboard>
-                    </lightning-tab>
-
                     <lightning-tab label="By Project" icon-name="standard:service_territory_location">
                         <c-invoice-entity-dashboard 
                             entity-type="Project" 
@@ -88,4 +78,22 @@
             </template>
         </div>
     </lightning-card>
+    <template if:true={isRejectModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header" style="background: #FFEEEE; border-bottom: 2px solid #BA0517;">
+                        <h2 class="slds-text-heading_medium" style="color: #BA0517; font-weight: bold;">Reject Timesheets</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <p class="slds-m-bottom_small">These records will be unlocked and sent back to the employee's Timesheet Portal for correction.</p>
+                        <lightning-textarea label="Reason for Rejection (Required)" value={rejectReason} onchange={handleRejectReasonChange} required placeholder="e.g., Please move 4 hours from Alpha to Beta project..."></lightning-textarea>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={closeRejectModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Confirm Rejection" variant="destructive" onclick={confirmReject}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
 </template>
