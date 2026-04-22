@@ -737,10 +737,19 @@
 }
 .saas-btn-ghost {
     background: transparent;
-    color: #4B5563;
+    color: #64748B; /* Soft slate gray text */
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
-.saas-btn-ghost:hover { background: #F3F4F6; color: #111827; }
-
+.saas-btn-ghost:hover { background: #F3F4F6; color: #111827; }.saas-btn-ghost:hover {
+    background: #F1F5F9; /* Very light gray background on hover */
+    color: #0F172A; /* Darker text on hover for contrast */
+}
 .saas-btn-primary {
     background: #0176D3;
     color: #FFFFFF;
@@ -2188,14 +2197,15 @@
 .saas-segmented-control button.active .tab-badge { background: #0176D3; color: #FFFFFF; }
 
 /* 🌟 Shaded Scroll Area to separate cards */
-.master-list-scroll { 
-    flex: 1; 
-    overflow-y: auto; 
+.master-list-scroll {
+    flex: 1; /* Pushes the footer to the bottom */
+    overflow-y: auto; /* Handles the scrolling */
     display: flex; 
     flex-direction: column; 
     background: #F8FAFC; 
-    padding: 12px; /* 🌟 Creates space around the cards */
-    gap: 8px; /* 🌟 Puts physical space between every record */
+    padding: 12px; 
+    gap: 8px; 
+    min-height: 0; /* Required for the scroll to trigger */
 }
 
 /* 🌟 Fully Distinct White Cards */
@@ -2520,80 +2530,6 @@
     flex-shrink: 0; 
 }
 
-/* ==========================================
-   📑 ENTERPRISE PAGINATION FOOTER
-   ========================================== */
-
-.saas-pagination-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: #FFFFFF;
-    border-top: 1px solid #E2E8F0;
-    border-radius: 0 0 12px 12px;
-    margin-top: auto; /* Pushes footer to the absolute bottom of the container */
-    flex-shrink: 0;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.01); /* Very soft shadow projecting up */
-}
-
-/* --- Records Per Page Dropdown --- */
-.page-size-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.page-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748B;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Sleek Native Select */
-.saas-micro-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 6px;
-    padding: 4px 24px 4px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #0F172A;
-    cursor: pointer;
-    outline: none;
-    transition: all 0.2s ease;
-    
-    /* 🌟 THE FIX: Fully URL-Encoded SVG to bypass the LWC compiler bug */
-    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-}
-
-.saas-micro-select:hover, .saas-micro-select:focus {
-    border-color: #9CA3AF;
-    background: #FFFFFF;
-}
-
-/* --- Next/Prev Navigation --- */
-.page-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.page-indicator {
-    font-size: 12px;
-    font-weight: 600;
-    color: #475569;
-    min-width: 75px;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-}
 
 .saas-icon-btn {
     background: #FFFFFF;
@@ -2749,3 +2685,92 @@
     70% { box-shadow: 0 0 0 8px rgba(1, 118, 211, 0); }
     100% { box-shadow: 0 0 0 0 rgba(1, 118, 211, 0); }
 }
+/* ==========================================
+   📑 BULLETPROOF PAGINATION FOOTER
+   ========================================== */
+
+.saas-pagination-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #FFFFFF; /* Crisp white background */
+    border-top: 1px solid #E2E8F0;
+    
+    /* 🌟 THE STICKY MAGIC */
+    flex-shrink: 0; /* Absolutely forbids the footer from being squished */
+    z-index: 10; /* Keeps it above the scrolling cards */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02); /* Projects a soft shadow upwards! */
+}
+
+/* Records Per Page Dropdown */
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.saas-micro-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 4px 24px 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0F172A;
+    cursor: pointer;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+}
+
+/* Next/Prev Navigation */
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-indicator {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    min-width: 80px;
+    text-align: center;
+}
+
+.saas-icon-btn {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.saas-icon-btn:hover:not(:disabled) {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+}
+
+.saas-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F8FAFC;
+}
+

@@ -99,6 +99,8 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     @track previewDataUrl = '';
     @track previewFileType = '';
     @track previewFileName = '';
+
+    
     
     wiredResult;
     allProjectResources = [];
@@ -185,8 +187,6 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
 
     @track showDeleteModal = false;
 
-    @track currentPage = 1;
-    @track pageSize = 10; // Default to 10 records
     @track isSaving = false; // Prevents double-clicking the save button
 
     // ==========================================
@@ -238,6 +238,53 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     _statusShortMap = { 'Draft': 'D', 'Submitted': 'S', 'Approved': 'A', 'Rejected': 'R' };
 
     @track isMiniCalendarOpen = true;
+
+    // ==========================================
+    // 🧮 BULLETPROOF EXPENSE PAGINATION
+    // ==========================================
+    @track currentExpPage = 1;
+    @track expPageSize = 10;
+
+    // 1. Calculate Total Pages safely
+    get totalExpPages() {
+        const total = this.displayExpenses ? this.displayExpenses.length : 0;
+        return Math.ceil(total / Number(this.expPageSize)) || 1;
+    }
+
+    // 2. Slice the array for the current page
+    get pagedExpenseList() {
+        const list = this.displayExpenses || [];
+        const size = Number(this.expPageSize);
+        const page = Number(this.currentExpPage);
+        const start = (page - 1) * size;
+        return list.slice(start, start + size);
+    }
+
+    // 3. Button Disablement Logic
+    get isFirstExpPage() { 
+        return Number(this.currentExpPage) <= 1; 
+    }
+    get isLastExpPage() { 
+        return Number(this.currentExpPage) >= this.totalExpPages; 
+    }
+
+    // 4. Action Handlers (Strictly using Number() to prevent string math bugs)
+    handleExpPageSizeChange(event) {
+        this.expPageSize = Number(event.target.value);
+        this.currentExpPage = 1; // Always reset to page 1 when changing size
+    }
+
+    handlePrevExpPage() { 
+        if (Number(this.currentExpPage) > 1) {
+            this.currentExpPage = Number(this.currentExpPage) - 1; 
+        }
+    }
+    
+    handleNextExpPage() { 
+        if (Number(this.currentExpPage) < this.totalExpPages) {
+            this.currentExpPage = Number(this.currentExpPage) + 1; 
+        }
+    }
 
     get calendarToggleIcon() {
         return this.isMiniCalendarOpen ? 'utility:chevrondown' : 'utility:chevronright';
@@ -710,7 +757,7 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     get tabSubmittedClass() { return this.activeStatusTab === 'Submitted' ? 'saas-segment active' : 'saas-segment'; }
     get tabApprovedClass() { return this.activeStatusTab === 'Approved' ? 'saas-segment active' : 'saas-segment'; }
     get tabInvoicedClass() { return this.currentTab === 'Invoiced' ? 'saas-tab active' : 'saas-tab'; }
-    get tabRejectedClass() { return this.activeStatusTab === 'Rejected' ? 'saas-segment active' : 'saas-segment'; }
+    get tabRejectedClass()  { return this.activeStatusTab === 'Rejected'  ? 'active' : ''; }
 // Add this to your Tab Class Getters
     get filterTodayVariant() { return this.expenseFilterType === 'today' ? 'brand' : 'neutral'; }
     get filterYesterdayVariant() { return this.expenseFilterType === 'yesterday' ? 'brand' : 'neutral'; }
@@ -765,8 +812,10 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     handleExpStartDateChange(e) { this.expFilterStartDate = e.target.value; this.expenseFilterType = 'custom'; this.processExpenseEngine(); }
     handleExpEndDateChange(e) { this.expFilterEndDate = e.target.value; this.expenseFilterType = 'custom'; this.processExpenseEngine(); }
     handleStatusTabChange(e) { 
-        this.currentPage = 1;
-        this.activeStatusTab = e.currentTarget.dataset.tab; this.processExpenseEngine(); }
+        this.currentExpPage = 1; // 🌟 Reset to page 1
+        this.activeStatusTab = e.currentTarget.dataset.tab; 
+        this.processExpenseEngine(); 
+    }
 
     processExpenseEngine() {
         if (!this.allRawExpenses) return;
@@ -2176,44 +2225,7 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     // ==========================================
     // 🌟 PAGINATION GETTERS & LOGIC
     // ==========================================
-    get totalPages() {
-        const list = this.displayExpenses || [];
-        const size = Number(this.pageSize) || 10; 
-        return Math.ceil(list.length / size) || 1;
-    }
 
-    get paginatedExpenses() {
-        const list = this.displayExpenses || [];
-        const size = Number(this.pageSize) || 10; 
-        const page = Number(this.currentPage) || 1; 
-        
-        const start = (page - 1) * size;
-        return list.slice(start, start + size);
-    }
-
-    get isFirstPage() { 
-        return Number(this.currentPage) <= 1; 
-    }
-    get isLastPage() { 
-        return Number(this.currentPage) >= this.totalPages; 
-    }
-
-    handlePageSizeChange(event) {
-        // 🌟 Ensure the dropdown value is converted to a strict Number immediately
-        this.pageSize = Number(event.target.value) || 10; // Default to 10 if invalid
-        this.currentPage = 1; // Snap back to page 1
-    }
-
-    handlePrevPage() { 
-        if (Number(this.currentPage) > 1) {
-            this.currentPage = Number(this.currentPage) - 1; 
-        }
-    }
-    handleNextPage() { 
-        if (Number(this.currentPage) < this.totalPages) {
-            this.currentPage = Number(this.currentPage) + 1; 
-        }
-    }
 
     closeExpenseModal() { this.isExpenseModalOpen = false; this.removeAttachmentLocalOnly(); }
     handleSaveDraft() { this.executeExpenseSave('Draft'); }
@@ -2282,6 +2294,18 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     handleDeleteDraft() {
         // 🌟 1. NO MORE confirm()! Just open our beautiful custom modal
         this.showDeleteModal = true; 
+    }
+
+    // 🌟 CANCEL FORM HANDLER
+    handleCancelForm() {
+        // 1. Clears all the input fields and sets selectedExpenseId to null
+        this.clearExpenseState(); 
+        
+        // 2. Re-runs the display logic so the blue 'active' highlight 
+        // is removed from the card in the master list
+        if (this.allRawExpenses && this.allRawExpenses.length > 0) {
+            this.processExpenseEngine();
+        }
     }
 
     handleFileChange(event) {

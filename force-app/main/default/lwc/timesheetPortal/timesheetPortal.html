@@ -774,6 +774,7 @@
                 <div class="split-view-container">
                     
                     <div class="expense-master-pane">
+                        
                         <div class="master-header">
                             <h2 class="pane-title">My Expenses</h2>
                             <div class="saas-segmented-control">
@@ -781,6 +782,7 @@
                                 <button type="button" class={tabDraftClass} data-tab="Draft" onclick={handleStatusTabChange}>Draft <span class="tab-badge">{tabCounts.draft}</span></button>
                                 <button type="button" class={tabSubmittedClass} data-tab="Submitted" onclick={handleStatusTabChange}>Submitted <span class="tab-badge">{tabCounts.submitted}</span></button>
                                 <button type="button" class={tabApprovedClass} data-tab="Approved" onclick={handleStatusTabChange}>Approved <span class="tab-badge">{tabCounts.approved}</span></button>
+                                <button type="button" class={tabRejectedClass} data-tab="Rejected" onclick={handleStatusTabChange}>Rejected <span class="tab-badge">{tabCounts.rejected}</span></button>
                                 <button type="button" class={tabInvoicedClass} data-tab="Invoiced" onclick={handleStatusTabChange}>Invoiced <span class="tab-badge">{tabCounts.invoiced}</span></button>
                             </div>
                         </div>
@@ -794,7 +796,7 @@
                                 </div>
                             </template>
                             
-                            <template for:each={paginatedExpenses} for:item="exp">
+                            <template for:each={pagedExpenseList} for:item="exp">
                                 <div key={exp.Id} class={exp.masterItemClass} onclick={handleSelectExpense} data-id={exp.Id}>
                                     
                                     <div class="expense-row-top">
@@ -809,35 +811,34 @@
                                     
                                 </div>
                             </template>
-
-                            <template if:true={displayExpenses.length}>
-                                <div class="saas-pagination-footer">
-                                    
-                                    <div class="page-size-selector">
-                                        <span class="page-text">Show</span>
-                                        <select class="saas-micro-select" value={pageSize} onchange={handlePageSizeChange}>
-                                            <option value="5">5</option>
-                                            <option value="10">10</option>
-                                            <option value="20">20</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="page-controls">
-                                        <button class="saas-icon-btn" disabled={isFirstPage} onclick={handlePrevPage}>
-                                            <lightning-icon icon-name="utility:chevronleft" size="xx-small"></lightning-icon>
-                                        </button>
-                                        
-                                        <span class="page-indicator">Page {currentPage} of {totalPages}</span>
-                                        
-                                        <button class="saas-icon-btn" disabled={isLastPage} onclick={handleNextPage}>
-                                            <lightning-icon icon-name="utility:chevronright" size="xx-small"></lightning-icon>
-                                        </button>
-                                    </div>
-                                    
+                        </div> <template if:true={displayExpenses.length}>
+                            <div class="saas-pagination-footer">
+                                
+                                <div class="page-size-selector">
+                                    <span class="page-text">Show</span>
+                                    <select class="saas-micro-select" value={expPageSize} onchange={handleExpPageSizeChange}>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                    </select>
                                 </div>
-                            </template>
 
-                        </div>
+                                <div class="page-controls">
+                                    <button class="saas-icon-btn" disabled={isFirstExpPage} onclick={handlePrevExpPage}>
+                                        <lightning-icon icon-name="utility:chevronleft" size="xx-small"></lightning-icon>
+                                    </button>
+                                    
+                                    <span class="page-indicator">Page {currentExpPage} of {totalExpPages}</span>
+                                    
+                                    <button class="saas-icon-btn" disabled={isLastExpPage} onclick={handleNextExpPage}>
+                                        <lightning-icon icon-name="utility:chevronright" size="xx-small"></lightning-icon>
+                                    </button>
+                                </div>
+                                
+                            </div>
+                        </template>
+
                     </div>
 
                     <div class="expense-detail-pane">
@@ -850,6 +851,10 @@
                                 </div>
                                 
                                 <div class="detail-actions">
+                                    
+                                    <button type="button" class="saas-btn-ghost slds-m-right_small" onclick={handleCancelForm}>
+                                        Cancel
+                                    </button>
                                     
                                     <template if:true={showDeleteButton}>
                                         <button class="saas-icon-btn btn-danger-ghost" title="Delete Draft" onclick={handleDeleteDraft}>

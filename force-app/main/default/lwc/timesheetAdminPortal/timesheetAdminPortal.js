@@ -175,10 +175,38 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
         });
         return projectClone;
     }
-    get showBulkActionBar() { return this.globalSelectedItems.length > 0; }
-    get selectedLabel() { return this.activeTab === 'timesheet' ? 'Weeks Selected' : 'Expenses Selected'; }
 
-   get previewData() {
+    // 🌟 DYNAMIC TASK OPTIONS GENERATOR
+    get taskOptions() {
+        let options = [{ label: 'All Tasks', value: 'All' }];
+        if (!this.selectedProjectId) return options;
+        
+        let project = this.processedProjects.find(p => p.projectId === this.selectedProjectId);
+        if (project) {
+            let uniqueTasks = new Set();
+            project.matchingResources.forEach(res => {
+                res.displayItems.forEach(item => {
+                    // Assuming your data relationship holds the Task Name
+                    let taskName = item.Task__r?.Name || 'Uncategorized';
+                    uniqueTasks.add(taskName);
+                });
+            });
+            Array.from(uniqueTasks).sort().forEach(t => options.push({ label: t, value: t }));
+        }
+        return options;
+    }
+
+    // 🌟 TASK FILTER HANDLER
+    handleTaskFilterChange(event) {
+        this.projectTaskFilter = event.detail.value;
+        // The activeProjectDetails getter will automatically recalculate because projectTaskFilter is tracked!
+    }
+    get showBulkActionBar() { return this.globalSelectedItems.length > 0; }
+    
+    // Update this line:
+    get selectedLabel() { return this.activeTab === 'timesheet' ? 'Weeks' : 'Expenses'; }
+
+    get previewData() {
         if (!this.globalSelectedItems || this.globalSelectedItems.length === 0) return null;
 
         let pMap = new Map();

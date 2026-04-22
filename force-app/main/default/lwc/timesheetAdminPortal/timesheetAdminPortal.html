@@ -103,10 +103,9 @@
                 </div>
             </div>
 
-            <div class="detail-pane">
+            <div class="saas-detail-pane">
                 
                 <div class="saas-kpi-container slds-m-bottom_x-large">
-                    
                     <div class="saas-kpi-card">
                         <div class="saas-kpi-icon-box">
                             <lightning-icon icon-name="utility:layers" size="small"></lightning-icon>
@@ -126,266 +125,281 @@
                             <p class="saas-kpi-value">{globalMetrics.secondaryValue}</p>
                         </div>
                     </div>
-
                 </div>
 
                 <template if:false={activeProjectDetails}>
-                    <div class="slds-text-align_center slds-p-around_xx-large slds-text-color_weak" style="margin-top: 5vh;">
-                        <lightning-icon icon-name="utility:touch_action" size="large"></lightning-icon>
-                        <h2 class="slds-text-heading_medium slds-m-top_medium">Select a Project</h2>
-                        <p>Select a project from the directory to review submissions.</p>
+                    <div class="saas-empty-workspace">
+                        <div class="saas-empty-content">
+                            <div class="saas-empty-icon-ring">
+                                <lightning-icon icon-name="utility:search" size="large"></lightning-icon>
+                            </div>
+                            <h2 class="saas-empty-title">Select a Project to Begin</h2>
+                            <p class="saas-empty-subtitle">Choose a project from the directory on the left to review pending timesheets, process expenses, and manage approvals.</p>
+                        </div>
                     </div>
                 </template>
 
                 <template if:true={activeProjectDetails}>
                     
-                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_large slds-border_bottom slds-p-bottom_medium">
-                        <div>
-                            <h2 class="project-title-text">{activeProjectDetails.projectName}</h2>
+                    <div class="saas-detail-header">
+                        <div class="saas-detail-title-group">
+                            <div class="saas-project-icon-large">
+                                <lightning-icon icon-name="standard:service_contract" size="medium"></lightning-icon>
+                            </div>
+                            <div class="saas-detail-title-text">
+                                <h2 class="saas-active-project-name">{activeProjectDetails.projectName}</h2>
+                                <p class="saas-active-project-meta">Approval Dashboard &bull; {activeProjectDetails.matchingResources.length} Candidates</p>
+                            </div>
                         </div>
-                        
-                        <div class="slds-grid slds-grid_vertical-align-center">
-                            <template if:true={isTimesheetTab}>
-                                <lightning-combobox variant="label-hidden" placeholder="Filter Tasks..." value={projectTaskFilter} options={activeProjectDetails.taskOptions} onchange={handleProjectTaskFilter} class="slds-m-right_small" style="width: 220px;"></lightning-combobox>
-                            </template>
+
+                        <div class="saas-detail-controls">
+                            <span class="saas-filter-label">Filter by Task</span>
+                            <div class="saas-premium-dropdown">
+                                <lightning-combobox 
+                                    name="taskFilter" 
+                                    variant="label-hidden" 
+                                    value={projectTaskFilter} 
+                                    options={taskOptions} 
+                                    onchange={handleTaskFilterChange} 
+                                    placeholder="All Tasks...">
+                                </lightning-combobox>
+                            </div>
                         </div>
                     </div>
 
-                    <template for:each={activeProjectDetails.matchingResources} for:item="res">
-                        <div key={res.resourceId} class="saas-candidate-card">
-                            
-                            <div class="saas-candidate-header" data-id={res.resourceId} onclick={handleCandidateToggle}>
-                                <div class="slds-grid slds-grid_vertical-align-center">
-                                    <lightning-icon icon-name={res.iconName} size="x-small" class="saas-chevron-muted slds-m-right_medium"></lightning-icon>
-                                    
-                                    <div class="saas-avatar-circle slds-m-right_small">
-                                        {res.initials}
+                    <div class="saas-detail-body">
+                        <template for:each={activeProjectDetails.matchingResources} for:item="res">
+                            <div key={res.resourceId} class="saas-candidate-card">
+                                
+                                <div class="saas-candidate-header" data-id={res.resourceId} onclick={handleCandidateToggle}>
+                                    <div class="saas-candidate-header-left">
+                                        <lightning-icon icon-name={res.iconName} size="x-small" class="saas-chevron-muted"></lightning-icon>
+                                        
+                                        <div class="saas-avatar-circle">
+                                            {res.initials}
+                                        </div>
+                                        
+                                        <div class="saas-candidate-info">
+                                            <span class="saas-candidate-name">{res.candidateName}</span>
+                                            <span class="saas-candidate-role">Project Resource</span>
+                                        </div>
                                     </div>
                                     
-                                    <div class="saas-candidate-info">
-                                        <span class="saas-candidate-name">{res.candidateName}</span>
-                                        <span class="saas-candidate-role">Project Resource</span>
+                                    <div class="saas-header-metrics">
+                                        <span class="saas-pill saas-pill-neutral slds-m-right_x-small">{res.displayItems.length} Records</span>
+                                        <span class="saas-pill saas-pill-metric">{res.totalValueDisplay}</span>
                                     </div>
                                 </div>
-                                <div class="saas-header-metrics">
-                                    <span class="saas-pill saas-pill-neutral">{res.displayItems.length} Records</span>
-                                    <span class="saas-pill saas-pill-metric">{res.totalValueDisplay}</span>
-                                </div>
-                            </div>
 
-                            <template if:true={res.isExpanded}>
-                                <div class="saas-candidate-body">
-                                    
-                                    <template if:true={isTimesheetTab}>
-                                        <div class="saas-timesheet-view">
-                                            <template for:each={res.weeklyData} for:item="week">
-                                                <div key={week.weekId} class="saas-week-card">
-                                                    
-                                                    <div class="saas-week-header" data-id={week.weekId} onclick={handleWeekToggle}>
-    
-                                                        <div class="saas-week-header-left">
-                                                            <template if:true={week.isPending}>
-                                                                <lightning-input 
-                                                                    type="checkbox" 
-                                                                    checked={week.isChecked}
-                                                                    data-uid={week.uid}
-                                                                    data-ids={week.allEntryIds}
-                                                                    data-project={week.projectName}
-                                                                    data-candidate={week.candidateName}
-                                                                    data-itemname={week.itemLabel}
-                                                                    onchange={handleCheckboxChange} 
-                                                                    class="saas-checkbox">
-                                                                </lightning-input>
-                                                            </template>
-                                                            <lightning-icon icon-name={week.iconName} size="x-small" class="saas-chevron-muted slds-m-horizontal_small"></lightning-icon>
-                                                            <span class="saas-week-title">Week of {week.weekLabel}</span>
-                                                        </div>
+                                <template if:true={res.isExpanded}>
+                                    <div class="saas-candidate-body">
+                                        
+                                        <template if:true={isTimesheetTab}>
+                                            <div class="saas-timesheet-view">
+                                                <template for:each={res.weeklyData} for:item="week">
+                                                    <div key={week.weekId} class="saas-week-card">
                                                         
-                                                        <div class="saas-week-actions-group">
-                                                            <span class={week.statusCSS}>{week.weekStatus}</span>
-                                                            <span class="saas-pill saas-pill-metric">{week.weekTotalHours} hrs</span>
-                                                            
-                                                            <template if:true={week.isPending}>
-                                                                <div class="saas-hover-actions" onclick={stopProp}>
-                                                                    <button class="saas-icon-btn approve" data-type="timesheet" data-ids={week.allEntryIds} onclick={handleApprove} title="Approve">
-                                                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
-                                                                    </button>
-                                                                    <button class="saas-icon-btn reject" data-type="timesheet" data-ids={week.allEntryIds} onclick={handleReject} title="Reject">
-                                                                        <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
-                                                                    </button>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-                                                    </div>
-
-                                                    <template if:true={week.isExpanded}>
-                                                        <div class="saas-week-body">
-                                                            <template for:each={week.days} for:item="day">
-                                                                
-                                                                <div key={day.dateId} class={day.rowClass}>
-                                                                    
-                                                                    <div class="saas-day-sidebar">
-                                                                        <span class="saas-day-name">{day.dayLabel}</span>
+                                                        <div class="saas-week-header" data-id={week.weekId} onclick={handleWeekToggle}>
+                                                            <div class="saas-week-header-left">
+                                                                <template if:true={week.isPending}>
+                                                                    <div class="saas-checkbox-wrapper" onclick={stopProp}>
+                                                                        <lightning-input 
+                                                                            type="checkbox" 
+                                                                            checked={week.isChecked}
+                                                                            data-uid={week.uid}
+                                                                            data-ids={week.allEntryIds}
+                                                                            data-project={week.projectName}
+                                                                            data-candidate={week.candidateName}
+                                                                            data-itemname={week.itemLabel}
+                                                                            onchange={handleCheckboxChange} 
+                                                                            class="saas-checkbox">
+                                                                        </lightning-input>
                                                                     </div>
-                                                                    
-                                                                    <div class="saas-day-content">
-                                                                        <template if:false={day.hasEntries}>
-                                                                            <div class="saas-empty-state">No time recorded</div>
-                                                                        </template>
-                                                                        
-                                                                        <template if:true={day.hasEntries}>
-                                                                            <div class="saas-task-list">
-                                                                                <template for:each={day.tasks} for:item="task">
-                                                                                    
-                                                                                    <div key={task.taskName} class="saas-task-card">
-                                                                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                                                                            
-                                                                                            <span class="saas-task-name">{task.taskName}</span>
-                                                                                            
-                                                                                            <div class="slds-grid slds-grid_vertical-align-center">
-                                                                                                <span class="saas-task-hours slds-m-right_small">{task.hours} <small>hrs</small></span>
-                                                                                                
-                                                                                                <template if:true={task.hasComments}>
-                                                                                                    <div class="saas-note-trigger">
-                                                                                                        <lightning-icon icon-name="utility:note" size="xx-small" class="saas-icon-indigo"></lightning-icon>
-                                                                                                        <div class="saas-tooltip">{task.combinedComments}</div>
-                                                                                                    </div>
-                                                                                                </template>
-                                                                                                <template if:false={task.hasComments}>
-                                                                                                    <span class="saas-no-note" style="width: 28px; text-align: center;">-</span>
-                                                                                                </template>
-                                                                                            </div>
-                                                                                            
-                                                                                        </div>
-                                                                                    </div>
+                                                                </template>
+                                                                <lightning-icon icon-name={week.iconName} size="x-small" class="saas-chevron-muted"></lightning-icon>
+                                                                <span class="saas-week-title">Week of {week.weekLabel}</span>
+                                                            </div>
+                                                            
+                                                            <div class="saas-week-actions-group">
+                                                                <span class={week.statusCSS}>{week.weekStatus}</span>
+                                                                <span class="saas-pill saas-pill-metric">{week.weekTotalHours} hrs</span>
+                                                                
+                                                                <template if:true={week.isPending}>
+                                                                    <div class="saas-hover-actions" onclick={stopProp}>
+                                                                        <button class="saas-icon-btn approve" data-type="timesheet" data-ids={week.allEntryIds} onclick={handleApprove} title="Approve">
+                                                                            <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                                                        </button>
+                                                                        <button class="saas-icon-btn reject" data-type="timesheet" data-ids={week.allEntryIds} onclick={handleReject} title="Reject">
+                                                                            <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                                                        </button>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
 
-                                                                                </template>
-                                                                            </div>
+                                                        <template if:true={week.isExpanded}>
+                                                            <div class="saas-week-body">
+                                                                <template for:each={week.days} for:item="day">
+                                                                    <div key={day.dateId} class={day.rowClass}>
+                                                                        
+                                                                        <div class="saas-day-sidebar">
+                                                                            <span class="saas-day-name">{day.dayLabel}</span>
+                                                                        </div>
+                                                                        
+                                                                        <div class="saas-day-content">
+                                                                            <template if:false={day.hasEntries}>
+                                                                                <div class="saas-empty-state">No time recorded</div>
+                                                                            </template>
                                                                             
-                                                                            <div class="saas-day-footer">
-                                                                                <span class="saas-day-total-label">Daily Total</span>
-                                                                                <span class="saas-day-total-value">{day.dayTotalHours} <small>hrs</small></span>
-                                                                            </div>
-                                                                        </template>
+                                                                            <template if:true={day.hasEntries}>
+                                                                                <div class="saas-task-list">
+                                                                                    <template for:each={day.tasks} for:item="task">
+                                                                                        <div key={task.taskName} class="saas-task-card">
+                                                                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                                                                <span class="saas-task-name">{task.taskName}</span>
+                                                                                                
+                                                                                                <div class="slds-grid slds-grid_vertical-align-center">
+                                                                                                    <span class="saas-task-hours slds-m-right_small">{task.hours} <small>hrs</small></span>
+                                                                                                    <template if:true={task.hasComments}>
+                                                                                                        <div class="saas-note-trigger">
+                                                                                                            <lightning-icon icon-name="utility:note" size="xx-small" class="saas-icon-indigo"></lightning-icon>
+                                                                                                            <div class="saas-tooltip">{task.combinedComments}</div>
+                                                                                                        </div>
+                                                                                                    </template>
+                                                                                                    <template if:false={task.hasComments}>
+                                                                                                        <span class="saas-no-note" style="width: 28px; text-align: center;">-</span>
+                                                                                                    </template>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                </div>
+                                                                                
+                                                                                <div class="saas-day-footer">
+                                                                                    <span class="saas-day-total-label">Daily Total</span>
+                                                                                    <span class="saas-day-total-value">{day.dayTotalHours} <small>hrs</small></span>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </template>
-
-                                    <template if:true={isExpenseTab}>
-                                        <div class="saas-expense-view">
-                                            <template for:each={res.weeklyData} for:item="week">
-                                                
-                                                <div key={week.weekId} class="saas-week-card">
-                                                    
-                                                    <div class="saas-week-header" data-id={week.weekId} onclick={handleWeekToggle}>
-                                                        <div class="saas-week-header-left">
-                                                            <template if:true={week.isPending}>
-                                                                <lightning-input 
-                                                                    type="checkbox" 
-                                                                    checked={week.isChecked}
-                                                                    data-uid={week.uid}
-                                                                    data-ids={week.allEntryIds}
-                                                                    data-project={activeProjectDetails.projectName}
-                                                                    data-candidate={res.candidateName}
-                                                                    data-itemname={week.weekLabel}
-                                                                    onchange={handleCheckboxChange} 
-                                                                    class="saas-checkbox">
-                                                                </lightning-input>
-                                                            </template>
-                                                            <lightning-icon icon-name={week.iconName} size="x-small" class="saas-chevron-muted slds-m-horizontal_small"></lightning-icon>
-                                                            <span class="saas-week-title">Week of {week.weekLabel}</span>
-                                                        </div>
-                                                        
-                                                        <div class="saas-week-actions-group">
-                                                            <span class={week.statusCSS}>{week.weekStatus}</span>
-                                                            <span class="saas-pill saas-pill-metric">
-                                                                <lightning-formatted-number value={week.weekTotalAmount} format-style="currency" currency-code="USD"></lightning-formatted-number>
-                                                            </span>
-                                                            
-                                                            <template if:true={week.isPending}>
-                                                                <div class="saas-hover-actions" onclick={stopProp}>
-                                                                    <button class="saas-icon-btn approve" data-type="expense" data-ids={week.allEntryIds} onclick={handleApprove} title="Approve">
-                                                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
-                                                                    </button>
-                                                                    <button class="saas-icon-btn reject" data-type="expense" data-ids={week.allEntryIds} onclick={handleReject} title="Reject">
-                                                                        <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
-                                                                    </button>
-                                                                </div>
-                                                            </template>
-                                                        </div>
+                                                                </template>
+                                                            </div>
+                                                        </template>
                                                     </div>
-
-                                                    <template if:true={week.isExpanded}>
-                                                        <div class="saas-week-body">
-                                                            <template for:each={week.expenseList} for:item="exp">
-                                                                <div key={exp.Id} class="saas-expense-row">
-                                                                    
-                                                                    <div class="saas-expense-left">
-                                                                        <template if:true={exp.isPending}>
-                                                                            <lightning-input 
-                                                                                type="checkbox" 
-                                                                                checked={exp.isChecked}
-                                                                                data-uid={exp.uid}
-                                                                                data-ids={exp.Id}
-                                                                                data-project={exp.projectName}
-                                                                                data-candidate={exp.candidateName}
-                                                                                data-itemname={exp.itemLabel}
-                                                                                onchange={handleCheckboxChange} 
-                                                                                class="saas-checkbox slds-m-right_medium">
-                                                                            </lightning-input>
-                                                                        </template>
-                                                                        <div class="saas-expense-date">{exp.Expense_Date__c}</div>
-                                                                        <span class="saas-pill saas-pill-neutral slds-m-horizontal_medium">{exp.Category__c}</span>
-                                                                        
-                                                                        <template if:true={exp.hasReceipt}>
-                                                                            <button class="saas-receipt-btn" data-docids={exp.receiptIds} onclick={handlePreviewReceipt}>
-                                                                                <lightning-icon icon-name="utility:image" size="xx-small"></lightning-icon> View Receipt
-                                                                            </button>
-                                                                        </template>
-                                                                    </div>
-
-                                                                    <div class="saas-expense-right">
-                                                                        <span class="saas-expense-amount">
-                                                                            <lightning-formatted-number value={exp.Amount__c} format-style="currency" currency-code="USD"></lightning-formatted-number>
-                                                                        </span>
-                                                                        <template if:true={exp.isPending}>
-                                                                            <div class="saas-hover-actions-inline" onclick={stopProp}>
-                                                                                <button class="saas-icon-btn approve" data-type="expense" data-ids={exp.Id} onclick={handleApprove} title="Approve">
-                                                                                    <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
-                                                                                </button>
-                                                                                <button class="saas-icon-btn reject" data-type="expense" data-ids={exp.Id} onclick={handleReject} title="Reject">
-                                                                                    <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
-                                                                                </button>
-                                                                            </div>
-                                                                        </template>
-                                                                    </div>
-                                                                    
-                                                                </div>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-
-                                                </div> 
                                                 </template>
-                                        </div>
-                                    </template>
+                                            </div>
+                                        </template>
 
-                                </div>
-                            </template>
-                        </div>
-                    </template>
+                                        <template if:true={isExpenseTab}>
+                                            <div class="saas-expense-view">
+                                                <template for:each={res.weeklyData} for:item="week">
+                                                    <div key={week.weekId} class="saas-week-card">
+                                                        
+                                                        <div class="saas-week-header" data-id={week.weekId} onclick={handleWeekToggle}>
+                                                            <div class="saas-week-header-left">
+                                                                <template if:true={week.isPending}>
+                                                                    <div class="saas-checkbox-wrapper" onclick={stopProp}>
+                                                                        <lightning-input 
+                                                                            type="checkbox" 
+                                                                            checked={week.isChecked}
+                                                                            data-uid={week.uid}
+                                                                            data-ids={week.allEntryIds}
+                                                                            data-project={week.projectName}
+                                                                            data-candidate={week.candidateName}
+                                                                            data-itemname={week.itemLabel}
+                                                                            onchange={handleCheckboxChange} 
+                                                                            class="saas-checkbox">
+                                                                        </lightning-input>
+                                                                    </div>
+                                                                </template>
+                                                                <lightning-icon icon-name={week.iconName} size="x-small" class="saas-chevron-muted"></lightning-icon>
+                                                                <span class="saas-week-title">Week of {week.weekLabel}</span>
+                                                            </div>
+                                                            
+                                                            <div class="saas-week-actions-group">
+                                                                <span class={week.statusCSS}>{week.weekStatus}</span>
+                                                                <span class="saas-pill saas-pill-metric">
+                                                                    <lightning-formatted-number value={week.weekTotalAmount} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                                                </span>
+                                                                
+                                                                <template if:true={week.isPending}>
+                                                                    <div class="saas-hover-actions" onclick={stopProp}>
+                                                                        <button class="saas-icon-btn approve" data-type="expense" data-ids={week.allEntryIds} onclick={handleApprove} title="Approve">
+                                                                            <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                                                        </button>
+                                                                        <button class="saas-icon-btn reject" data-type="expense" data-ids={week.allEntryIds} onclick={handleReject} title="Reject">
+                                                                            <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                                                        </button>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
 
+                                                        <template if:true={week.isExpanded}>
+                                                            <div class="saas-week-body">
+                                                                <template for:each={week.expenseList} for:item="exp">
+                                                                    <div class="saas-expense-row" key={exp.Id}>
+                                                                        
+                                                                        <div class="saas-expense-left">
+                                                                            <template if:true={exp.isPending}>
+                                                                                <div class="saas-checkbox-wrapper" onclick={stopProp}>
+                                                                                    <lightning-input 
+                                                                                        type="checkbox" 
+                                                                                        checked={exp.isChecked}
+                                                                                        data-uid={exp.uid}
+                                                                                        data-ids={exp.Id}
+                                                                                        data-project={exp.projectName}
+                                                                                        data-candidate={exp.candidateName}
+                                                                                        data-itemname={exp.itemLabel}
+                                                                                        onchange={handleCheckboxChange} 
+                                                                                        class="saas-checkbox">
+                                                                                    </lightning-input>
+                                                                                </div>
+                                                                            </template>
+                                                                            <div class="saas-expense-date">{exp.Expense_Date__c}</div>
+                                                                            <span class="saas-pill saas-pill-neutral">{exp.Category__c}</span>
+                                                                            
+                                                                            <template if:true={exp.hasReceipt}>
+                                                                                <button class="saas-receipt-btn" data-docids={exp.receiptIds} onclick={handlePreviewReceipt}>
+                                                                                    <lightning-icon icon-name="utility:image" size="xx-small"></lightning-icon> View Receipt
+                                                                                </button>
+                                                                            </template>
+                                                                        </div>
+
+                                                                        <div class="saas-expense-right">
+                                                                            <span class="saas-expense-amount">
+                                                                                <lightning-formatted-number value={exp.Amount__c} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                                                            </span>
+                                                                            <template if:true={exp.isPending}>
+                                                                                <div class="saas-hover-actions-inline" onclick={stopProp}>
+                                                                                    <button class="saas-icon-btn approve" data-type="expense" data-ids={exp.Id} onclick={handleApprove} title="Approve">
+                                                                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                                                                    </button>
+                                                                                    <button class="saas-icon-btn reject" data-type="expense" data-ids={exp.Id} onclick={handleReject} title="Reject">
+                                                                                        <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                        
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
                 </template>
             </div>
-        </div>
-    </div>
+        </div> 
+    </div>    
     
     <template if:true={isNotesModalOpen}>
         <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
@@ -462,14 +476,27 @@
     <template if:true={isPreviewModalOpen}>
         <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
             <div class="slds-modal__container">
-                <header class="slds-modal__header saas-modal-header">
-                    <button class="slds-button slds-button_icon slds-modal__close" onclick={closePreviewModal}>
-                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                <header class="saas-modal-header">
+                    
+                    <div class="saas-modal-title-group">
+                        <h2 class="saas-modal-title">Review Bulk Approval</h2>
+                        
+                        <div class="saas-modal-divider"></div>
+                        
+                        <div class="saas-modal-meta">
+                            <span class="saas-pill saas-pill-neutral">
+                                {globalSelectedItems.length} {selectedLabel} Selected
+                            </span>
+                            <span class="saas-modal-total">
+                                Total: <strong>{previewData.grandTotalDisplay}</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button class="saas-modal-close-btn" onclick={closePreviewModal} title="Close Preview">
+                        <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
                     </button>
-                    <h2 class="slds-text-heading_medium" style="font-weight: 800;">Review Bulk Approval</h2>
-                    <p class="saas-modal-subtitle">
-                        {globalSelectedItems.length} {selectedLabel} Selected &bull; <strong>Total: {previewData.grandTotalDisplay}</strong>
-                    </p>
+                    
                 </header>
                 
                 <div class="slds-modal__content slds-p-around_medium saas-modal-body">
