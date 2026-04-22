@@ -1,0 +1,1582 @@
+/* ==========================================
+   🌟 GLOBAL SAAS VARIABLES
+   ========================================== */
+:host {
+    --saas-primary: #4F46E5; 
+    --saas-primary-hover: #4338CA;
+    --saas-surface: #FFFFFF;
+    --saas-bg-shade: #F8FAFC; 
+    --saas-border: #E2E8F0;
+    --saas-border-tint: #E0E7FF; /* 🌟 NEW: Soft Indigo Tint for colored lines */
+    --saas-text-main: #0F172A;
+    --saas-text-muted: #64748B;
+    --saas-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --saas-shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #F8FAFC;
+    overflow: hidden;
+}
+
+.split-workspace {
+    display: flex;
+    height: calc(100vh - 72px);
+    background: var(--saas-bg-shade);
+}
+
+/* --- 35% LEFT SIDEBAR --- */
+.sidebar {
+    flex: 0 0 35%;
+    max-width: 450px;
+    background: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.sidebar-filters {
+    padding: 16px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    flex-shrink: 0;
+}
+
+.project-list {
+    flex: 1;
+    overflow-y: auto !important; 
+    padding: 12px;
+    height: 100%;
+}
+
+.proj-card {
+    padding: 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #FFFFFF;
+}
+
+.proj-card:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.proj-card.active {
+    border-color: #0176D3;
+    background: #F0F8FC;
+    box-shadow: 0 0 0 1px #0176D3;
+}
+
+/* --- 65% RIGHT DETAIL PANE --- */
+.detail-pane {
+    flex: 1;
+    display: block; 
+    background: #F8FAFC;
+    overflow-y: auto !important; 
+    padding: 24px;
+    height: 100%;
+}
+/* ==========================================
+   DETAIL PANE: ACCORDION & CARDS
+   ========================================== */
+
+/* Candidate Accordion Block */
+.candidate-block {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.candidate-header {
+    background: #F8FAFC;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s;
+}
+
+.candidate-header:hover {
+    background: #F1F5F9;
+}
+
+.candidate-body {
+    background: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+}
+
+/* Daily Cards */
+.daily-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensures cards stretch to equal height in row */
+}
+
+.daily-card-header {
+    background: #F8FAFC;
+    padding: 8px 12px;
+    border-bottom: 1px solid #E2E8F0;
+    font-size: 13px;
+    border-radius: 6px 6px 0 0;
+}
+
+.daily-card-body {
+    padding: 12px;
+    flex: 1; /* Pushes footer down if we add one */
+}
+
+.task-row {
+    padding: 8px 12px; /* Slightly increased padding for breathing room */
+    background: #F8FAFC;
+    border: 1px dashed #CBD5E1;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    flex-direction: column; /* Allows the comment to stack beautifully under the task */
+}
+.task-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* ==========================================
+   TIMESHEET ROWS (Week -> Day -> Task)
+   ========================================== */
+
+/* Week Accordion */
+.week-accordion {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    background: #FFFFFF;
+    overflow: hidden;
+}
+
+.week-header {
+    background: #F1F5F9;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s;
+}
+
+.week-header:hover {
+    background: #E2E8F0;
+}
+
+.week-body {
+    border-top: 1px solid #E2E8F0;
+}
+/* Day Rows */
+.day-row {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    align-items: flex-start;
+}
+.day-row:last-child {
+    border-bottom: none;
+}
+.weekend-row {
+    background-color: #F8FAFC; 
+}
+
+/* Columns inside the Row */
+.day-left {
+    flex: 0 0 150px; /* Fixed width for dates to keep tasks aligned */
+    font-weight: 600;
+    color: #475569;
+    padding-top: 2px;
+}
+
+.day-right {
+    flex: 1;
+}
+
+/* Task Formatting */
+.day-left {
+    flex: 0 0 150px; 
+    font-weight: 600;
+    color: #475569;
+    padding-top: 2px;
+}
+
+.day-right {
+    flex: 1;
+}
+
+.no-entry-text {
+    color: #94A3B8;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.task-list {
+    margin-bottom: 8px;
+}
+
+.task-row {
+    padding: 6px 12px;
+    background: #F8FAFC;
+    border: 1px dashed #CBD5E1;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.task-name {
+    color: #0F172A;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.task-hours {
+    color: #0176D3;
+    font-weight: 700;
+}
+
+.day-total {
+    font-size: 13px;
+    color: #1E293B;
+    border-top: 1px solid #E2E8F0;
+    padding-top: 6px;
+}
+
+.kpi-card-global {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-top: 4px solid #4F46E5;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.kpi-label { font-size: 11px; font-weight: 700; color: #64748B; letter-spacing: 0.05em; }
+.kpi-value { font-size: 26px; font-weight: 800; color: #1E293B; }
+
+.comment-block {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.no-comment { color: #94A3B8; font-style: italic; }
+
+.project-title { font-size: 24px; font-weight: 800; color: #0F172A; }
+
+.kpi-card-global {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-top: 4px solid #4F46E5;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.kpi-label { font-size: 11px; font-weight: 700; color: #64748B; letter-spacing: 0.05em; }
+.kpi-value { font-size: 26px; font-weight: 800; color: #1E293B; }
+
+.comment-block {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.no-comment { color: #94A3B8; font-style: italic; }
+
+.project-title { font-size: 24px; font-weight: 800; color: #0F172A; }
+
+/* 🌟 HOVER EFFECT FOR ACTIONS */
+.week-actions { 
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+}
+
+.week-header:hover .week-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==========================================
+   🌟 GLOBAL SAAS VARIABLES
+   ========================================== */
+:host {
+    --saas-primary: #4F46E5; /* Deep Indigo */
+    --saas-primary-hover: #4338CA;
+    --saas-surface: #FFFFFF;
+    --saas-bg-shade: #F8FAFC; /* Soft Slate background */
+    --saas-border: #E2E8F0;
+    --saas-text-main: #0F172A;
+    --saas-text-muted: #64748B;
+    --saas-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --saas-shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* ==========================================
+   🌟 HEADER LAYOUT
+   ========================================== */
+.saas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 72px;
+    padding: 0 32px;
+    background: var(--saas-surface);
+    border-bottom: 1px solid var(--saas-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* LEFT: Brand */
+.saas-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 300px; /* Fixed width balances the center flex */
+}
+
+.saas-logo-icon {
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+
+.saas-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--saas-text-main);
+    letter-spacing: -0.02em;
+}
+
+/* CENTER: Segmented Toggle */
+.saas-toggle-container {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+}
+
+.saas-segmented-control {
+    display: flex;
+    background: var(--saas-bg-shade);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--saas-border);
+    gap: 4px;
+}
+
+.saas-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 28px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--saas-text-muted);
+    cursor: pointer;
+    transition: var(--saas-transition);
+}
+
+.saas-tab:hover:not(.active) {
+    color: var(--saas-text-main);
+    background: #F1F5F9;
+}
+
+.saas-tab.active {
+    background: var(--saas-surface);
+    color: var(--saas-primary);
+    box-shadow: var(--saas-shadow-sm);
+}
+
+/* RIGHT: Profile Area */
+.saas-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 300px; /* Matches the left brand width perfectly */
+    justify-content: flex-end;
+}
+
+.saas-profile-text {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.saas-profile-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--saas-text-main);
+    line-height: 1.2;
+}
+
+.saas-profile-role {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--saas-text-muted);
+}
+
+.saas-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F1F5F9, #E2E8F0);
+    border: 1px solid #CBD5E1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--saas-primary);
+    font-size: 14px;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);
+}
+
+/* ==========================================
+   🌟 SIDEBAR LAYOUT
+   ========================================== */
+.saas-sidebar {
+    width: 360px;
+    background: var(--saas-surface);
+    /* 🌟 Tinted separation line between left and right panes */
+    border-right: 1px solid var(--saas-border-tint); 
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* 🌟 Inner glow on the sidebar */
+    box-shadow: inset -2px 0 10px rgba(79, 70, 229, 0.02);
+}
+/* ==========================================
+   🌟 FILTER PANEL (Premium Inputs)
+   ========================================== */
+.saas-filter-panel {
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+    position: relative;
+}
+.saas-filter-panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--saas-primary), transparent);
+    opacity: 0.3;
+}   
+.saas-filter-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.saas-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--saas-primary); /* Pop of color in the header */
+}
+
+/* Overriding SLDS Inputs for a premium feel */
+.saas-input-group {
+    margin-bottom: 16px;
+    --slds-c-input-color-border: #CBD5E1;
+    --slds-c-input-radius-border: 8px;
+    --slds-c-input-color-background: #FFFFFF;
+    --slds-c-input-shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    --slds-c-combobox-input-color-border: #CBD5E1;
+    --slds-c-combobox-input-radius-border: 8px;
+}
+
+.saas-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+/* ==========================================
+   🌟 PROJECT DIRECTORY LIST
+   ========================================== */
+.saas-project-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    background: #F8FAFC; 
+}
+
+.saas-list-header {
+    padding: 16px 24px 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saas-badge-count {
+    background: var(--saas-border-tint);
+    color: var(--saas-primary);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+/* ==========================================
+   🌟 SAAS PROJECT CARDS (With Inside Separation)
+   ========================================== */
+.saas-project-card {
+    background: var(--saas-surface);
+    /* 🌟 A soft, appealing tinted border */
+    border: 1px solid var(--saas-border-tint);
+    border-radius: 10px;
+    padding: 14px 16px; 
+    margin-bottom: 8px; 
+    cursor: pointer;
+    transition: var(--saas-transition);
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.saas-project-card:hover:not(.active) {
+    border-color: #A5B4FC; /* Brighter indigo on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
+}
+
+.saas-project-card.active {
+    background: #FFFFFF;
+    border-color: var(--saas-primary);
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.12);
+}
+
+/* 🌟 Colored Left Accent Bar */
+.saas-project-card.active::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    bottom: -1px;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--saas-primary), #818CF8);
+    border-radius: 4px 0 0 4px;
+}
+
+.saas-project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* 🌟 Pushes the metrics down slightly */
+    margin-bottom: 10px; 
+}
+
+.saas-project-name {
+    font-size: 14px; 
+    font-weight: 700;
+    color: var(--saas-text-main);
+}
+
+.saas-chevron {
+    transition: transform 0.2s ease;
+    opacity: 0.3;
+}
+.saas-project-card.active .saas-chevron { opacity: 1; color: var(--saas-primary); }
+
+/* ==========================================
+   🌟 METRIC PILLS (With Inner Card Separation)
+   ========================================== */
+.saas-project-metrics {
+    display: flex;
+    gap: 8px;
+    /* 🌟 Inside Card Separation: A dashed tinted line separating the title from the numbers */
+    padding-top: 10px;
+    border-top: 1px dashed var(--saas-border-tint);
+}
+
+.saas-metric-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px; 
+    border-radius: 4px; 
+}
+
+/* Crisp, professional colors for the pills */
+.saas-metric-pill.warning {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FEE2E2;
+}
+
+.saas-metric-pill.info {
+    background: #F0FDF4;
+    color: #15803D;
+    border: 1px solid #DCFCE7;
+}
+
+/* 🌟 Status Dot updated to match the crisp pill colors */
+.saas-dot {
+    width: 6px;
+    height: 6px;
+    background: #EF4444; 
+    border-radius: 50%;
+}
+
+/* ==========================================
+   🌟 PREMIUM KPI CARDS (Stats Section)
+   ========================================== */
+.saas-kpi-container {
+    display: flex;
+    gap: 24px; /* Perfectly spaces the cards */
+}
+
+.saas-kpi-card {
+    flex: 1; /* Makes both cards equally wide */
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--saas-surface); /* Pure white */
+    border: 1px solid var(--saas-border-tint); /* Soft tinted boundary */
+    border-radius: 12px; /* Smooth rounded corners */
+    
+    /* 🌟 The Premium Float Effect */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.saas-kpi-card:hover {
+    transform: translateY(-2px); /* Gentle lift on hover */
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.06); /* Indigo-tinted shadow */
+}
+
+/* 🌟 The "Soft Enclosure" Icon Box */
+.saas-kpi-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #EEF2FF; /* Very faint indigo background */
+    border-radius: 10px; /* Squircle shape */
+    
+    /* Forces the standard Salesforce icon to adopt our primary color */
+    --sds-c-icon-color-foreground-default: var(--saas-primary);
+}
+
+.saas-kpi-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.saas-kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em; /* Widened tracking for high-end feel */
+    color: var(--saas-text-muted);
+    margin-bottom: 4px;
+}
+
+.saas-kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--saas-text-main);
+    line-height: 1;
+    letter-spacing: -0.02em; /* Tighter tracking for large numbers */
+}
+
+/* Styles the "Hrs" or "$" text slightly smaller than the main number */
+.saas-kpi-value small {
+    font-size: 16px;
+    font-weight: 600;
+    color: #94A3B8;
+    margin-left: 4px;
+}
+
+/* ==========================================
+   🌟 REFINED: ENTERPRISE PILL SYSTEM
+   ========================================== */
+.saas-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px; /* Slightly wider for breathing room */
+    border-radius: 999px; /* Perfect pill */
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    white-space: nowrap; /* 🌟 ENTERPRISE FIX: Prevents text crushing */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02); /* Tiny elevation */
+}
+
+.saas-pill-warning { background: #FFFBEB; color: #D97706; border: 1px solid #FEF3C7; }
+.saas-pill-success { background: #ECFDF5; color: #059669; border: 1px solid #D1FAE5; }
+.saas-pill-error   { background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; }
+.saas-pill-mixed   { background: #F8FAFC; color: #475569; border: 1px dashed #CBD5E1; }
+.saas-pill-neutral { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+
+.saas-pill-metric { 
+    background: #EFF6FF; 
+    color: var(--saas-primary); 
+    border: 1px solid #DBEAFE; 
+    font-size: 12px; 
+    letter-spacing: normal; 
+    text-transform: none;
+}
+
+/* ==========================================
+   🌟 ALIGNMENT FIX: THE ACTIONS GROUP
+   ========================================== */
+.saas-week-actions-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    flex-shrink: 0; 
+}
+/* ==========================================
+   🌟 LEVEL 1: CANDIDATE CARD (Premium Container)
+   ========================================== */
+.saas-candidate-card {
+    background: var(--saas-surface);
+    border: 1px solid var(--saas-border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    /* Soft, wide shadow creates a floating paper effect */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+}
+
+.saas-candidate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--saas-border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.saas-candidate-header:hover { background: #F8FAFC; }
+
+.saas-candidate-name { 
+    font-size: 16px; 
+    font-weight: 700; 
+    color: #0F172A; 
+    letter-spacing: -0.01em; /* Tighter tracking for premium feel */
+}
+
+.saas-candidate-body { 
+    padding: 24px; 
+    background: #F8FAFC; /* Slightly distinct from pure white header */
+}
+
+/* ==========================================
+   🌟 WEEK CARD (Mid Level)
+   ========================================== */
+.saas-week-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.saas-week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    gap: 20px; /* 🌟 Strict gap ensures left/right never touch */
+}
+
+.saas-week-header-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0; 
+}
+
+.saas-week-header:hover { background: #F1F5F9; }
+
+.saas-week-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E293B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==========================================
+   🌟 PREMIUM SAAS HOVER BUTTONS
+   ========================================== */
+.saas-hover-actions-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden; /* Prevents ghost clicks when invisible */
+    transform: scale(0.95); /* Starts slightly smaller */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saas-hover-actions, .saas-hover-actions-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saas-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px; /* Elegant squircle shape */
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
+}
+
+/* 🌟 APPROVE BUTTON: Mint green to Solid Emerald */
+.saas-icon-btn.approve {
+    background: #ECFDF5;
+    border-color: #D1FAE5;
+    --sds-c-icon-color-foreground-default: #059669; /* Forces SLDS icon to be green */
+}
+
+.saas-icon-btn.approve:hover {
+    background: #10B981;
+    border-color: #10B981;
+    transform: translateY(-2px); /* Lifts up off the page */
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    --sds-c-icon-color-foreground-default: #FFFFFF; /* Icon turns pure white */
+}
+.saas-icon-btn.reject {
+    background: #FEF2F2;
+    border-color: #FEE2E2;
+    --sds-c-icon-color-foreground-default: #DC2626;
+}
+
+.saas-icon-btn.reject:hover {
+    background: #EF4444;
+    border-color: #EF4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    --sds-c-icon-color-foreground-default: #FFFFFF;
+}
+
+.saas-icon-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+.saas-week-header:hover .saas-hover-actions,
+.saas-expense-row:hover .saas-hover-actions-inline {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+
+/* Approve Button (Soft Green to Solid Green) */
+.saas-action-btn.approve {
+    --sds-c-button-brand-color-background: #ECFDF5;
+    --sds-c-button-brand-color-border: #D1FAE5;
+    --sds-c-icon-color-foreground: #059669; 
+    --sds-c-button-text-color: #059669;
+}
+
+.saas-action-btn.approve:hover {
+    --sds-c-button-brand-color-background: #10B981;
+    --sds-c-button-brand-color-border: #10B981;
+    --sds-c-icon-color-foreground: #FFFFFF;
+    --sds-c-button-text-color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Reject Button (Soft Red to Solid Red) */
+.saas-action-btn.reject {
+    --sds-c-button-destructive-color-background: #FEF2F2;
+    --sds-c-button-destructive-color-border: #FEE2E2;
+    --sds-c-icon-color-foreground: #DC2626;
+    --sds-c-button-text-color: #DC2626;
+}
+
+.saas-action-btn.reject:hover {
+    --sds-c-button-destructive-color-background: #EF4444;
+    --sds-c-button-destructive-color-border: #EF4444;
+    --sds-c-icon-color-foreground: #FFFFFF;
+    --sds-c-button-text-color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+/* 🌟 ENTERPRISE ACCESSIBILITY (Focus States) */
+.saas-action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* ==========================================
+   🌟 TIMESHEET SPECIFIC STYLING
+   ========================================== */
+.saas-week-body {
+    border-top: 1px solid #E2E8F0;
+    background: #FFFFFF;
+}
+
+.saas-day-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    border-bottom: 1px dashed #E2E8F0;
+}
+
+.saas-day-label-container { width: 120px; flex-shrink: 0; }
+.saas-day-label { font-size: 13px; font-weight: 600; color: #475569; }
+
+.saas-timesheet-task-row {
+    background: #FFFFFF;
+    border: 1px solid var(--saas-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+}
+
+.saas-task-name { font-size: 14px; font-weight: 600; color: var(--saas-text-main); }
+.saas-task-hours { font-size: 14px; font-weight: 700; color: var(--saas-primary); }
+
+.saas-comment-block {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--saas-border);
+    font-size: 12px;
+    color: #64748B;
+    display: flex;
+    align-items: flex-start;
+}
+
+.saas-day-total {
+    text-align: right;
+    font-size: 13px;
+    color: #64748B;
+    margin-top: 8px;
+    padding-right: 14px;
+}
+.saas-day-total span { font-weight: 800; color: var(--saas-text-main); }
+.saas-day-row:last-child { border-bottom: none; }
+
+/* Subtle style for weekends */
+.saas-weekend-row { background: #FAFAFA; }
+
+/* Left Column: Fixed Width */
+.saas-day-sidebar {
+    width: 140px; 
+    flex-shrink: 0;
+    padding-top: 12px; /* Aligns visually with right side cards */
+}
+
+.saas-day-name {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748B;
+}
+
+/* Right Column: Flexible */
+.saas-day-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.saas-empty-state {
+    padding: 10px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: #94A3B8;
+}
+
+/* ==========================================
+   🌟 EXPENSE SPECIFIC STYLING
+   ========================================== */
+.saas-expense-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--saas-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    transition: var(--saas-transition);
+}
+
+.saas-expense-row:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.saas-expense-left { display: flex; align-items: center; flex: 1; }
+.saas-expense-date { font-weight: 700; color: var(--saas-text-main); width: 100px; }
+
+.saas-expense-right { display: flex; align-items: center; gap: 16px; }
+.saas-expense-amount { font-size: 16px; font-weight: 800; color: var(--saas-primary); }
+
+.saas-expense-desc {
+    flex-basis: 100%;
+    margin-top: 8px;
+    margin-left: 42px; /* Aligns under date */
+    font-size: 12px;
+    color: #475569;
+    background: #F8FAFC;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border-left: 2px solid #CBD5E1;
+}
+
+/* Custom minimal receipt button */
+.saas-receipt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.saas-receipt-btn:hover { background: #F1F5F9; color: var(--saas-primary); border-color: var(--saas-primary); }
+
+/* ==========================================
+   🌟 LEVEL 4: TASK CARDS & COMMENTS
+   ========================================== */
+.saas-task-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.saas-task-card:hover { border-color: #CBD5E1; }
+
+.saas-task-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Pill styling for the task hours */
+.saas-task-hours {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--saas-primary);
+    background: #EEF2FF;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+.saas-task-hours small { font-size: 11px; font-weight: 600; color: #818CF8; margin-left: 2px;}
+
+.saas-task-notes {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #F1F5F9;
+    font-size: 13px;
+    color: #64748B;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* ==========================================
+   🌟 LEVEL 5: DAILY TOTAL ALIGNMENT
+   ========================================== */
+.saas-day-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-right: 8px;
+}
+
+.saas-day-total-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+}
+
+.saas-day-total-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F172A;
+}
+.saas-day-total-value small { font-size: 12px; font-weight: 600; color: #64748B;}
+
+/* ==========================================
+   🌟 PREMIUM CANDIDATE STYLING (Avatars & Typography)
+   ========================================== */
+.saas-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    /* A beautiful, high-end gradient */
+    background: linear-gradient(135deg, var(--saas-primary), #818CF8);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    border: 2px solid #FFFFFF; /* Sharp cutout effect */
+}
+
+.saas-candidate-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.saas-candidate-name {
+    font-size: 16px;
+    font-weight: 800; /* Extra bold for prominent hierarchy */
+    color: #0F172A;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.saas-candidate-role {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Ensure the Checkbox spacing looks clean whether it's there (Pending) or not (Read-Only) */
+.saas-checkbox {
+    margin-right: 8px;
+    --slds-c-checkbox-color-border: #CBD5E1;
+    --slds-c-checkbox-color-background-checked: var(--saas-primary);
+}
+
+/* ==========================================
+   🌟 RESTORED: DAILY LAYOUT (Strict Flex Alignment)
+   ========================================== */
+.saas-week-body {
+    border-top: 1px solid var(--saas-border-tint);
+    background: #FFFFFF;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.saas-day-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    border-bottom: 1px dashed #E2E8F0;
+    transition: background 0.2s ease;
+}
+.saas-day-row:hover { background: #F8FAFC; }
+.saas-day-row:last-child { border-bottom: none; }
+.saas-weekend-row { background: #FAFAFA; }
+
+/* Left Column: Fixed Width */
+.saas-day-sidebar {
+    width: 140px; 
+    flex-shrink: 0;
+    padding-top: 12px; 
+}
+
+.saas-day-name {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748B;
+}
+
+/* Right Column: Flexible Content */
+.saas-day-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.saas-empty-state {
+    padding: 10px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: #94A3B8;
+}
+
+/* ==========================================
+   🌟 RESTORED: SINGLE-LINE TASK CARDS
+   ========================================== */
+.saas-task-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+    transition: border-color 0.2s ease;
+}
+
+.saas-task-card:hover { border-color: #CBD5E1; }
+
+.saas-task-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.saas-task-hours {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--saas-primary);
+    background: #EEF2FF;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+.saas-task-hours small { font-size: 11px; font-weight: 600; color: #818CF8; margin-left: 2px;}
+.saas-no-note { color: #CBD5E1; font-weight: 600; }
+
+/* ==========================================
+   🌟 DAILY TOTAL ALIGNMENT
+   ========================================== */
+.saas-day-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-right: 8px;
+}
+
+.saas-day-total-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+}
+
+.saas-day-total-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F172A;
+}
+.saas-day-total-value small { font-size: 12px; font-weight: 600; color: #64748B;}
+
+/* ==========================================
+   🌟 PREMIUM HOVER TOOLTIPS FOR NOTES
+   ========================================== */
+.saas-note-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #EEF2FF;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.saas-note-trigger:hover { background: var(--saas-primary); }
+.saas-note-trigger:hover .saas-icon-indigo { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+/* The Tooltip Body */
+.saas-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 120%; /* Renders above the icon */
+    right: 0;
+    background: #0F172A; /* Dark mode slate */
+    color: #F8FAFC;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Preserves line breaks */
+    width: max-content;
+    max-width: 250px;
+    text-align: left;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(5px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+}
+
+.saas-note-trigger:hover .saas-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================
+   🌟 FLOATING BULK ACTION BAR
+   ========================================== */
+.saas-floating-bar-container {
+    position: fixed;
+    bottom: 32px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.saas-floating-bar {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(15, 23, 42, 0.95); /* Deep slate */
+    backdrop-filter: blur(12px);
+    padding: 10px 12px 10px 10px;
+    border-radius: 999px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.saas-clear-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.saas-clear-btn:hover { background: rgba(239, 68, 68, 0.8); } /* Turns red on hover to indicate cancel */
+
+.saas-floating-left { display: flex; align-items: center; gap: 10px; border-right: 1px solid rgba(255,255,255,0.15); padding-right: 20px; }
+
+.saas-selected-count {
+    background: var(--saas-primary);
+    color: white;
+    font-weight: 800;
+    font-size: 13px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.saas-selected-text { color: #E2E8F0; font-size: 14px; font-weight: 600; }
+.saas-floating-right { display: flex; gap: 8px; border-left: 1px solid rgba(255,255,255,0.15); padding-left: 20px; }
+/* The Review Button */
+.saas-preview-trigger {
+    background: transparent;
+    color: #94A3B8;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.saas-preview-trigger:hover { color: #FFFFFF; }
+.saas-preview-trigger lightning-icon { --sds-c-icon-color-foreground-default: #94A3B8; }
+
+/* Premium Bulk Buttons */
+.saas-bulk-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.saas-bulk-btn.approve { background: #10B981; color: white; }
+.saas-bulk-btn.approve:hover { background: #059669; transform: scale(1.05); }
+
+.saas-bulk-btn.reject { background: transparent; color: #FCA5A5; border: 1px solid #EF4444; }
+.saas-bulk-btn.reject:hover { background: rgba(239, 68, 68, 0.1); color: #FECACA; }
+/* ==========================================
+   🌟 PREVIEW MODAL STYLING
+   ========================================== */
+.saas-modal-header { background: #F8FAFC; border-bottom: 1px solid var(--saas-border-tint); }
+.saas-modal-body { background: #FAFAFA; max-height: 65vh; overflow-y: auto; }
+.saas-modal-footer { display: flex; justify-content: flex-end; gap: 12px; background: #FFFFFF; }
+
+.saas-modal-subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #475569;
+}
+.saas-modal-subtitle strong { color: var(--saas-primary); font-size: 15px; }
+
+.saas-preview-project {
+    background: #FFFFFF;
+    border: 1px solid var(--saas-border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.saas-preview-proj-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.saas-preview-proj-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+}
+
+.saas-preview-candidate {
+    margin-bottom: 20px;
+    padding-left: 12px;
+    border-left: 2px solid var(--saas-border-tint);
+}
+.saas-preview-candidate:last-child { margin-bottom: 0; }
+
+.saas-preview-cand-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.saas-preview-cand-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.saas-preview-cand-total {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748B;
+}
+
+/* 🌟 Detailed Week Cards inside the Modal */
+.saas-preview-item-card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+.saas-preview-item-card:last-child { margin-bottom: 0; }
+
+.saas-preview-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saas-preview-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.saas-preview-item-total {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--saas-primary);
+}
+
+/* 🌟 Task Pills List (Single Row) */
+.saas-preview-task-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #CBD5E1;
+}
+
+.saas-pill-task {
+    background: #FFFFFF;
+    color: #475569;
+    border: 1px solid #CBD5E1;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+    padding: 3px 8px;
+}

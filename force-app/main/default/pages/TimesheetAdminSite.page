@@ -1,0 +1,38 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false">
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Timesheet Admin Portal</title>
+        
+        <apex:includeLightning />
+        
+        <style>
+            /* Reset body margins for a clean fullscreen app */
+            body { margin: 0; padding: 0; background-color: #F3F4F6; }
+        </style>
+    </head>
+    
+    <body class="slds-scope">
+        
+        <div id="lwc-container"></div>
+        
+        <script>
+            // Tell Salesforce to use your Aura Bridge App
+            $Lightning.use("c:TimesheetAdminApp", function() {
+                
+                // Inject your LWC into the div above
+                $Lightning.createComponent(
+                    "c:timesheetAdminPortal", // The name of your LWC
+                    {},                       // Any attributes you want to pass in
+                    "lwc-container",          // The ID of the div container
+                    function(cmp) {
+                        console.log('✅ Timesheet Admin Portal initialized successfully.');
+                    }
+                );
+            });
+        </script>
+        
+    </body>
+    </html>
+</apex:page>
