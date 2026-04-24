@@ -36,6 +36,8 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
     @track isReceiptModalOpen = false;
     @track receiptUrl = '';
 
+    @track previewActiveTab = 'timesheet';
+
 
     statusOptions = [
         { label: 'Pending Approval', value: 'Submitted' },
@@ -50,6 +52,24 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
         if (result.data) this.dashboardData = result.data;
         this.isLoading = false;
     }
+
+    // 🌟 KPI TOGGLE STATE
+    @track isKpiExpanded = true;
+
+    get kpiToggleIcon() { return this.isKpiExpanded ? 'utility:chevronup' : 'utility:chevrondown'; }
+    get kpiToggleText() { return this.isKpiExpanded ? 'Hide Metrics' : 'Show Metrics'; }
+
+    toggleKpis() { 
+        this.isKpiExpanded = !this.isKpiExpanded; 
+    }
+
+    get isPreviewTimesheetTab() { return this.previewActiveTab === 'timesheet'; }
+    get isPreviewExpenseTab() { return this.previewActiveTab === 'expense'; }
+    get previewTabTimesheetClass() { return this.previewActiveTab === 'timesheet' ? 'saas-modal-tab active' : 'saas-modal-tab'; }
+    get previewTabExpenseClass() { return this.previewActiveTab === 'expense' ? 'saas-modal-tab active' : 'saas-modal-tab'; }
+
+    setPreviewTabTimesheet() { this.previewActiveTab = 'timesheet'; }
+    setPreviewTabExpense() { this.previewActiveTab = 'expense'; }
 
     // ==========================================
     // DYNAMIC METRICS & LISTS
@@ -156,6 +176,14 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
             } else {
                 res.weeklyData = this.groupExpensesByWeek(res.displayItems);
                 res.weeklyData = res.weeklyData.map(w => {
+                    
+                    // 🌟 THE FIX: Inject missing variables to the Expense Week!
+                    w.uid = `EXP_WEEK_${res.resourceId}_${w.weekId}`;
+                    w.isChecked = this.globalSelectedItems.some(item => item.uid === w.uid);
+                    w.projectName = projectClone.projectName;
+                    w.candidateName = res.candidateName;
+                    w.itemLabel = `Week of ${w.weekLabel}`;
+
                     w.expenseList = w.expenseList.map(exp => {
                         exp.uid = `EXP_${exp.Id}`;
                         exp.isChecked = this.globalSelectedItems.some(item => item.uid === exp.uid);
@@ -206,47 +234,62 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
     // Update this line:
     get selectedLabel() { return this.activeTab === 'timesheet' ? 'Weeks' : 'Expenses'; }
 
+    // 🌟 TWO-PART PREVIEW ENGINE
     get previewData() {
         if (!this.globalSelectedItems || this.globalSelectedItems.length === 0) return null;
 
-        let pMap = new Map();
-        let grandTotal = 0;
-        const isTime = this.activeTab === 'timesheet';
-        const formatTotal = (val) => isTime ? `${val.toFixed(1)} Hrs` : `$${val.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        let tsItems = this.globalSelectedItems.filter(i => i.type === 'timesheet');
+        let expItems = this.globalSelectedItems.filter(i => i.type === 'expense');
 
-        this.globalSelectedItems.forEach(item => {
-            grandTotal += item.totalValue;
+        const buildTree = (items, isTime) => {
+            if(!items.length) return null;
+            let pMap = new Map();
+            let gTotal = 0;
+            const formatVal = (val) => isTime ? `${val.toFixed(1)} Hrs` : `$${val.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
 
-            // Group by Project
-            if (!pMap.has(item.project)) pMap.set(item.project, { projectName: item.project, projectTotal: 0, candidates: new Map() });
-            let pData = pMap.get(item.project);
-            pData.projectTotal += item.totalValue;
+            items.forEach(item => {
+                gTotal += item.totalValue;
+                if (!pMap.has(item.project)) pMap.set(item.project, { projectName: item.project, projectTotal: 0, candidates: new Map() });
+                let pData = pMap.get(item.project);
+                pData.projectTotal += item.totalValue;
 
-            // Group by Candidate
-            let cMap = pData.candidates;
-            if (!cMap.has(item.candidate)) cMap.set(item.candidate, { candidateName: item.candidate, candidateTotal: 0, items: [] });
-            let cData = cMap.get(item.candidate);
-            cData.candidateTotal += item.totalValue;
+                if (!pData.candidates.has(item.candidate)) pData.candidates.set(item.candidate, { candidateName: item.candidate, candidateTotal: 0, items: [] });
+                let cData = pData.candidates.get(item.candidate);
+                cData.candidateTotal += item.totalValue;
 
-            cData.items.push(item);
-        });
+                cData.items.push({
+                    ...item,
+                    itemTotalDisplay: formatVal(item.totalValue),
+                    hasTasks: item.taskBreakdown && item.taskBreakdown.length > 0
+                });
+            });
 
-        return {
-            grandTotalDisplay: formatTotal(grandTotal),
-            projects: Array.from(pMap.values()).map(p => ({
-                projectName: p.projectName,
-                projectTotalDisplay: formatTotal(p.projectTotal),
-                candidates: Array.from(p.candidates.values()).map(c => ({
-                    candidateName: c.candidateName,
-                    candidateTotalDisplay: formatTotal(c.candidateTotal),
-                    items: c.items.map(item => ({
-                        ...item,
-                        itemTotalDisplay: formatTotal(item.totalValue),
-                        hasTasks: item.taskBreakdown && item.taskBreakdown.length > 0
+            return {
+                grandTotalDisplay: formatVal(gTotal),
+                projects: Array.from(pMap.values()).map(p => ({
+                    ...p, projectTotalDisplay: formatVal(p.projectTotal),
+                    candidates: Array.from(p.candidates.values()).map(c => ({
+                        ...c, candidateTotalDisplay: formatVal(c.candidateTotal)
                     }))
                 }))
-            }))
+            };
         };
+
+        return {
+            timesheets: buildTree(tsItems, true),
+            expenses: buildTree(expItems, false)
+        };
+    }
+
+    // 🌟 DESELECTION FROM MODAL
+    handleRemoveFromPreview(e) {
+        const uidToRemove = e.currentTarget.dataset.uid;
+        this.globalSelectedItems = this.globalSelectedItems.filter(item => item.uid !== uidToRemove);
+        
+        // Auto-close modal if everything is removed
+        if(this.globalSelectedItems.length === 0) {
+            this.closePreviewModal();
+        }
     }
 
     handleCheckboxChange(e) {
@@ -278,12 +321,28 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
                                 }));
                                 break;
                             }
-                        } else {
+                        } else{
+                            // 🌟 THE FIX: Support for both Week and Individual Expense checkboxes
                             for(let w of res.weeklyData) {
+                                
+                                // Scenario A: Did they select the whole Week?
+                                if (w.uid === ds.uid) {
+                                    totalValue = w.weekTotalAmount;
+                                    taskBreakdown = w.expenseList.map(e => ({
+                                        label: e.Id,
+                                        displayStr: `${e.Category__c}: $${(parseFloat(e.Amount__c)||0).toFixed(2)}`
+                                    }));
+                                    break;
+                                }
+                                
+                                // Scenario B: Did they select a single Expense?
                                 let exp = w.expenseList.find(x => x.uid === ds.uid);
                                 if (exp) {
                                     totalValue = parseFloat(exp.Amount__c) || 0;
-                                    taskBreakdown = [{ label: exp.Category__c, displayStr: exp.Category__c }];
+                                    taskBreakdown = [{ 
+                                        label: exp.Id, 
+                                        displayStr: `${exp.Category__c}: $${totalValue.toFixed(2)}` 
+                                    }];
                                     break;
                                 }
                             }
@@ -298,7 +357,8 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
                     candidate: ds.candidate,
                     itemName: ds.itemname,
                     totalValue: totalValue,
-                    taskBreakdown: taskBreakdown
+                    taskBreakdown: taskBreakdown,
+                    type: this.activeTab
                 });
             }
         } else {
@@ -307,12 +367,31 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
         
         this.globalSelectedItems = newSelection;
     }
+    
+    // 🌟 DUAL-BATCH PROCESSING ENGINE
     processBulkAction(actionType) {
-        let allIds = [];
-        this.globalSelectedItems.forEach(item => allIds = allIds.concat(item.ids));
-        this.executeAction(allIds.join(','), actionType, this.activeTab);
-        this.clearSelection(); 
-        this.closePreviewModal();
+        this.isLoading = true;
+        let tsIds = [], expIds = [];
+        
+        // Segregate IDs by type
+        this.globalSelectedItems.forEach(item => {
+            if(item.type === 'timesheet') tsIds = tsIds.concat(item.ids);
+            if(item.type === 'expense') expIds = expIds.concat(item.ids);
+        });
+
+        let promises = [];
+        if(tsIds.length > 0) promises.push(processTimesheetAction({ entryIds: tsIds, action: actionType }));
+        if(expIds.length > 0) promises.push(processExpenseAction({ expenseIds: expIds, action: actionType }));
+
+        Promise.all(promises)
+            .then(() => {
+                this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: `Successfully processed ${this.globalSelectedItems.length} items.`, variant: 'success' }));
+                this.clearSelection(); 
+                this.closePreviewModal();
+                return refreshApex(this.wiredResult);
+            })
+            .catch(err => this.dispatchEvent(new ShowToastEvent({ title: 'Error', message: 'Bulk processing failed.', variant: 'error' })))
+            .finally(() => this.isLoading = false);
     }
 
     // 🌟 BULK ACTIONS
@@ -475,22 +554,30 @@ export default class TimesheetAdminPortal extends NavigationMixin(LightningEleme
             checkboxes.forEach(cb => { cb.checked = false; });
         }
     }
-    openPreviewModal() { this.isPreviewModalOpen = true; }
+    openPreviewModal() { 
+        this.previewActiveTab = this.activeTab; // 🌟 Defaults modal to your current screen
+        this.isPreviewModalOpen = true; 
+    }
+    
     closePreviewModal() { this.isPreviewModalOpen = false; }
 
-    setTabTimesheet() { this.activeTab = 'timesheet'; this.clearSelection(); this.resetState(); }
-    setTabExpense() { this.activeTab = 'expense'; this.clearSelection(); this.resetState(); }
-    
+    setTabTimesheet() { this.activeTab = 'timesheet'; this.resetState(); } // 🌟 FIX: Removed clearSelection()
+    setTabExpense() { this.activeTab = 'expense'; this.resetState(); }     // 🌟 FIX: Removed clearSelection()
+
     get isTimesheetTab() { return this.activeTab === 'timesheet'; }
     get isExpenseTab() { return this.activeTab === 'expense'; }
-    // --- SaaS Navigation Handlers ---
-    get tabTimesheetClass() { 
-        return this.activeTab === 'timesheet' ? 'saas-tab active' : 'saas-tab'; 
+    get tabTimesheetClass() { return this.activeTab === 'timesheet' ? 'saas-tab active' : 'saas-tab'; }
+    get tabExpenseClass() { return this.activeTab === 'expense' ? 'saas-tab active' : 'saas-tab'; }
+
+    get selectionSummary() { 
+        let t = 0, e = 0;
+        this.globalSelectedItems.forEach(item => item.type === 'timesheet' ? t++ : e++);
+        let parts = [];
+        if(t > 0) parts.push(`${t} Weeks`);
+        if(e > 0) parts.push(`${e} Expenses`);
+        return parts.join(' • ');
     }
-    
-    get tabExpenseClass() { 
-        return this.activeTab === 'expense' ? 'saas-tab active' : 'saas-tab'; 
-    }
+
     resetState() {
         this.projectTaskFilter = 'All';
         this.expandedCandidateId = null; 

@@ -395,24 +395,34 @@
                     <div class="sidebar-header slds-p-around_medium" style="font-weight:700;">My Projects</div>
                     <div class="sidebar-scroll-area slds-p-horizontal_small">
                         <template for:each={sidebarProjects} for:item="proj">
-                            <div key={proj.id} class="saas-project-card" style={proj.cardStyle}>
+                            
+                            <div key={proj.id} class={proj.cardCssClass} style={proj.cardStyle}>
                                 
-                                <div class="saas-project-header" data-id={proj.id} onclick={toggleProjectExpand}>
-                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small">
-                                        <div class="slds-grid slds-grid_vertical-align-center">
-                                            <span class="project-color-dot" style={proj.dotStyle}></span>
-                                            <span class="saas-project-code">{proj.projectCode}</span>
-                                        </div>
-                                        <div class="saas-project-hours">
-                                            <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
-                                            <span>{proj.weekHours}h</span>
-                                        </div>
-                                    </div>
+                                <div class="saas-project-header">
                                     
-                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                        <div class="saas-project-name" title={proj.projectName}>{proj.projectName}</div>
+                                    <div class="saas-project-context-zone" data-id={proj.id} onclick={handleProjectSelect} title="Click to set as default project">
+                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small">
+                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                <span class="project-color-dot" style={proj.dotStyle}></span>
+                                                <span class="saas-project-code">{proj.projectCode}</span>
+                                                
+                                                <template if:true={proj.isActiveContext}>
+                                                    <span class="saas-pill pill-active slds-m-left_x-small" style="font-size: 9px; padding: 1px 6px;">Default</span>
+                                                </template>
+                                            </div>
+                                            <div class="saas-project-hours">
+                                                <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                                                <span>{proj.weekHours}h</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="saas-project-name slds-truncate" title={proj.projectName}>{proj.projectName}</div>
+                                    </div>
+
+                                    <div class="saas-project-expand-zone" data-id={proj.id} onclick={handleProjectExpand} title="View Tasks">
                                         <lightning-icon icon-name="utility:chevronright" size="xx-small" class={proj.chevronClass}></lightning-icon>
                                     </div>
+                                    
                                 </div>
 
                                 <div class={proj.contentClass}>
@@ -459,15 +469,26 @@
                                 </div>
 
                                 <template if:true={isClipboardActive}>
-                                    <div class="cancel-paste-pill" onclick={clearClipboard} title="Click or Press ESC to cancel">
-                                        <lightning-icon icon-name="utility:close" size="xx-small" class="slds-m-right_xx-small" style="--sds-c-icon-color-foreground-default: #B45309;"></lightning-icon>
-                                        Cancel Paste (ESC)
-                                    </div>
+                                    <button class="saas-icon-btn cancel-paste-icon slds-m-left_small" onclick={clearClipboard} title="Cancel Paste (ESC)">
+                                        <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                                    </button>
                                 </template>
                             </div>
                             
                             <div class="header-actions-group">
                                 
+                                <template if:true={isWeeklyView}>
+                                    <div class="history-controls">
+                                        <button class="saas-icon-btn" onclick={handleUndo} title="Undo Last Move">
+                                            <lightning-icon icon-name="utility:undo" size="x-small"></lightning-icon>
+                                        </button>
+                                        <button class="saas-icon-btn" onclick={handleRedo} title="Redo Last Move">
+                                            <lightning-icon icon-name="utility:redo" size="x-small"></lightning-icon>
+                                        </button>
+                                    </div>
+                                    <div class="saas-action-divider"></div>
+                                </template>
+
                                 <div class="saas-view-toggle">
                                     <button class={viewGridClass} onclick={switchToWeekly} title="Grid View">
                                         <lightning-icon icon-name="utility:apps" size="x-small"></lightning-icon>
@@ -477,46 +498,40 @@
                                     </button>
                                 </div>
 
+                                <template if:true={isListView}>
+                                    <div class="saas-action-divider"></div>
+                                    <div class="saas-segmented-control list-timeframe-toggle">
+                                        <button class={listViewWeeklyClass} onclick={setListViewWeekly}>Weekly</button>
+                                        <button class={listViewMonthlyClass} onclick={setListViewMonthly}>Monthly</button>
+                                    </div>
+                                </template>
+
                                 <div class="saas-action-divider"></div>
 
-                                <button class="saas-icon-btn" disabled={isUndoDisabled} onclick={handleUndo} title="Undo Last Move">
-                                    <lightning-icon icon-name="utility:undo" size="x-small"></lightning-icon>
-                                </button>
-
                                 <div class="saas-nav-group">
-                                    <button class="saas-nav-btn" onclick={handlePrevious} title="Previous"><lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon></button>
-                                    <button class="saas-nav-btn today-btn" onclick={handleToday}>Today</button>
-                                    <button class="saas-nav-btn" onclick={handleNext} title="Next"><lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon></button>
+                                    <button class="saas-nav-btn" onclick={handlePrevPeriod} title="Previous"><lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon></button>
+                                    <button class="saas-nav-btn today-btn" onclick={handleCurrentPeriod}>{currentPeriodLabel}</button>
+                                    <button class="saas-nav-btn" onclick={handleNextPeriod} title="Next"><lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon></button>
                                 </div>
 
                                 <div class="saas-action-divider"></div>
                                 
                                 <template if:true={isWeeklyView}>
                                     <template if:false={isWeekCopied}>
-                                        <button class="saas-btn saas-btn-secondary" onclick={handleCopyWeek} disabled={copyWeekDisabled} title="Copy all entries from this week">
+                                        <button class="saas-action-btn copy-btn" onclick={handleCopyWeek} disabled={copyWeekDisabled} title="Copy all entries from this week">
                                             <lightning-icon icon-name="utility:copy" size="x-small" class="slds-m-right_xx-small"></lightning-icon> Copy Week
                                         </button>
                                     </template>
-                                    
                                     <template if:true={isWeekCopied}>
-                                        <button class="saas-btn saas-btn-primary saas-pulse-btn" onclick={handlePasteWeek} disabled={isWeekLocked}>
+                                        <button class="saas-action-btn paste-btn" onclick={handlePasteWeek} disabled={isWeekLocked}>
                                             <lightning-icon icon-name="utility:paste" size="x-small" class="slds-m-right_xx-small"></lightning-icon> Paste Week
                                         </button>
                                     </template>
+                                    <div class="saas-action-divider"></div>
                                 </template>
                                 
-                                <template if:true={isListView}>
-                                    <div class="saas-native-select-wrapper">
-                                        <select class="saas-btn saas-btn-secondary saas-native-select" onchange={handleTimeframeChange}>
-                                            <option value="Weekly" selected={isListWeekly}>This Week</option>
-                                            <option value="Monthly" selected={isListMonthly}>This Month</option>
-                                        </select>
-                                        <lightning-icon icon-name="utility:down" size="xx-small" class="select-chevron-icon"></lightning-icon>
-                                    </div>
-                                </template>
-                                
-                                <button class="saas-btn saas-btn-success" onclick={openSubmitReview} disabled={disableSubmitWeekBtn}>
-                                    <lightning-icon icon-name="utility:upload" size="x-small"></lightning-icon> Submit Week
+                                <button class="saas-action-btn submit-btn" onclick={openSubmitReview} disabled={disableSubmitWeekBtn}>
+                                    <lightning-icon icon-name="utility:upload" size="x-small" class="slds-m-right_xx-small"></lightning-icon> Submit
                                 </button>
                             </div>
                         </div>

@@ -12,21 +12,30 @@
     --saas-text-muted: #64748B;
     --saas-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --saas-shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .admin-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1; /* Automatically takes all available height */
+    min-height: 0; /* Prevents overflow */
     background-color: #F8FAFC;
     overflow: hidden;
 }
-
 .split-workspace {
     display: flex;
-    height: calc(100vh - 72px);
-    background: #FFFFFF; /* 🌟 Unify the background so there's no gap */
-    border-top: 1px solid var(--saas-border-tint); /* Crisp line separating nav from workspace */
+    flex: 1; 
+    min-height: 0; /* 🌟 CRITICAL: Domino effect starts here */
+    background: #FFFFFF; 
+    border-top: 1px solid var(--saas-border-tint); 
 }
 /* --- 35% LEFT SIDEBAR --- */
 .sidebar {
@@ -463,13 +472,11 @@
 .saas-sidebar {
     width: 360px;
     background: var(--saas-surface);
-    /* 🌟 Tinted separation line between left and right panes */
     border-right: 1px solid var(--saas-border-tint); 
     display: flex;
     flex-direction: column;
-    height: 100%;
-    /* 🌟 Inner glow on the sidebar */
-    box-shadow: inset -2px 0 10px rgba(79, 70, 229, 0.02);
+    height: 100%; /* Stretches 100% down */
+    min-height: 0; 
 }
 /* ==========================================
    🌟 FILTER PANEL (Premium Inputs)
@@ -533,8 +540,16 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow: hidden;
+    min-height: 0; /* 🌟 Passes the limit down */
     background: #F8FAFC; 
+}
+
+.saas-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
 }
 
 .saas-list-header {
@@ -660,10 +675,10 @@
    ========================================== */
 .saas-kpi-container {
     display: flex;
-    gap: 12px; /* Perfectly spaces the cards */
-    margin:10px 10px 0px 10px
+    gap: 16px; 
+    margin: 24px 32px 20px 32px; 
+    flex-shrink: 0; /* Keeps KPIs permanently at the top */
 }
-
 .saas-kpi-card {
     flex: 1; /* Makes both cards equally wide */
     display: flex;
@@ -736,15 +751,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 12px; /* Slightly wider for breathing room */
-    border-radius: 999px; /* Perfect pill */
+    padding: 2px 8px;
+    border-radius: 10px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.02em;
     line-height: 1.2;
-    white-space: nowrap; /* 🌟 ENTERPRISE FIX: Prevents text crushing */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02); /* Tiny elevation */
+    white-space: nowrap;
+   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .saas-pill-warning { background: #FFFBEB; color: #D97706; border: 1px solid #FEF3C7; }
@@ -778,12 +793,12 @@
 .saas-candidate-card {
     background: var(--saas-surface);
     border: 1px solid var(--saas-border);
-    border-radius: 12px;
-    margin-bottom: 24px;
-    /* Soft, wide shadow creates a floating paper effect */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    /*Soft,wideshadowcreatesafloatingpapereffect*/box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     overflow: hidden;
     position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02); 
     z-index: 1;
     flex-shrink: 0;
 }
@@ -792,7 +807,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 10px 16px;
     background: #FFFFFF;
     border-bottom: 1px solid var(--saas-border);
     cursor: pointer;
@@ -808,38 +823,38 @@
     letter-spacing: -0.01em; /* Tighter tracking for premium feel */
 }
 
-.saas-candidate-body { 
-    padding: 24px; 
-    background: #F8FAFC; /* Slightly distinct from pure white header */
+.saas-candidate-body {
+    padding: 12px 16px; /* 🌟 SHRUNK: Less indenting on the sides */
+    background: #F8FAFC;
+    border-top: 1px solid var(--saas-border-tint);
 }
 
 /* ==========================================
    🌟 WEEK CARD (Mid Level)
    ========================================== */
 .saas-week-card {
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    margin-bottom: 16px;
     background: #FFFFFF;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    margin-bottom: 6px; /* 🌟 SHRUNK: Packs weeks tightly together */
+    overflow: hidden;
 }
-
 .saas-week-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 20px;
+    padding: 8px 14px;
     cursor: pointer;
     border-radius: 8px;
     transition: background 0.2s ease;
-    gap: 20px; /* 🌟 Strict gap ensures left/right never touch */
+    gap: 10px; /* 🌟 Strict gap ensures left/right never touch */
 }
 
 /* The new flex container for perfect Candidate alignment */
 .saas-candidate-header-left {
     display: flex;
     align-items: center;
-    gap: 16px; /* Perfect spacing between chevron, avatar, and text */
+    gap: 12px; /* Perfect spacing between chevron, avatar, and text */
 }
 
 /* Updated Week Header to use strict gaps */
@@ -854,9 +869,9 @@
 .saas-week-header:hover { background: #F1F5F9; }
 
 .saas-week-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: #1E293B;
+    color:#334155;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -889,13 +904,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px; /* Elegant squircle shape */
-    border: 1px solid transparent;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    /*Elegantsquircleshape*/border: 1px solid transparent;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     background: transparent;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
 }
 
 /* 🌟 APPROVE BUTTON: Mint green to Solid Emerald */
@@ -981,10 +1000,10 @@
    🌟 TIMESHEET SPECIFIC STYLING
    ========================================== */
 .saas-week-body {
-    border-top: 1px solid #E2E8F0;
-    background: #FFFFFF;
+    background: #FAFAFA;
+    border-top: 1px dashed #E2E8F0;
+    padding: 8px 12px; /* 🌟 SHRUNK: Pulls the days closer to the edges */
 }
-
 .saas-day-row {
     display: flex;
     align-items: flex-start;
@@ -1130,28 +1149,25 @@
 .saas-task-card {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    transition: border-color 0.2s ease;
+    border-radius: 6px;
+    padding: 6px 12px; /* 🌟 ULTRA-COMPACT: Maximizes horizontal space */
+    margin-bottom: 4px; /* Tiny gap between tasks */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.01);
 }
 
 .saas-task-card:hover { border-color: #CBD5E1; }
 
 .saas-task-name {
-    font-size: 14px;
+    font-size: 12px; /* 🌟 SHRUNK: Deepest nested data gets the smallest font */
     font-weight: 600;
-    color: #334155;
+    color: #0F172A;
 }
 
 /* Pill styling for the task hours */
 .saas-task-hours {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--saas-primary);
-    background: #EEF2FF;
-    padding: 2px 8px;
-    border-radius: 6px;
 }
 .saas-task-hours small { font-size: 11px; font-weight: 600; color: #818CF8; margin-left: 2px;}
 
@@ -1196,8 +1212,8 @@
    🌟 PREMIUM CANDIDATE STYLING (Avatars & Typography)
    ========================================== */
 .saas-avatar-circle {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     /* A beautiful, high-end gradient */
     background: linear-gradient(135deg, var(--saas-primary), #818CF8);
@@ -1205,11 +1221,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-    border: 2px solid #FFFFFF; /* Sharp cutout effect */
+    border: 1px solid #E0E7FF;
 }
 
 .saas-candidate-info {
@@ -1219,8 +1235,8 @@
 }
 
 .saas-candidate-name {
-    font-size: 16px;
-    font-weight: 800; /* Extra bold for prominent hierarchy */
+    font-size: 12px;
+    font-weight: 600; /* Extra bold for prominent hierarchy */
     color: #0F172A;
     letter-spacing: -0.01em;
     line-height: 1.2;
@@ -1239,7 +1255,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    transform: scale(0.9); /* 🌟 SHRINKS the physical checkbox slightly */
 }
 
 .saas-checkbox {
@@ -1641,10 +1657,68 @@
 }
 .saas-preview-item-card:last-child { margin-bottom: 0; }
 
+/* ==========================================
+   🌟 MODAL SECTION BANNERS & DESELECTION
+   ========================================== */
+.saas-modal-section-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 24px 0 16px 0;
+}
+.saas-modal-section-banner:first-child { margin-top: 0; }
+
+.saas-modal-section-banner h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+/* Color Coding */
+.timesheet-theme { background: #EEF2FF; color: var(--saas-primary); border: 1px solid #E0E7FF; }
+.timesheet-theme lightning-icon { --sds-c-icon-color-foreground-default: var(--saas-primary); }
+
+.expense-theme { background: #ECFDF5; color: #059669; border: 1px solid #D1FAE5; }
+.expense-theme lightning-icon { --sds-c-icon-color-foreground-default: #059669; }
+
+/* The Item Header needs Flex to hold the remove button */
 .saas-preview-item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.saas-preview-item-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Premium Deselect Button */
+.saas-remove-item-btn {
+    background: transparent;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.3; /* Subtle until hovered */
+    --sds-c-icon-color-foreground-default: #94A3B8;
+}
+
+/* Icon appears when hovering the row, turns red when hovering the button itself */
+.saas-preview-item-card:hover .saas-remove-item-btn { opacity: 1; }
+
+.saas-remove-item-btn:hover {
+    background: #FEF2F2;
+    --sds-c-icon-color-foreground-default: #EF4444;
 }
 
 .saas-preview-item-title {
@@ -1687,33 +1761,89 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #F8FAFC; /* Beautiful soft slate background */
-    height: 100%;
-    overflow-y: auto;
-    position: relative;
+    background: #F8FAFC; 
+    height: 100%; /* Stretches 100% down */
+    min-height: 0; 
+    overflow: hidden; 
 }
-
 .saas-detail-body {
-    padding: 10px 20px;
     flex: 1;
-    /* 🌟 Adds extra padding at the bottom so the last item isn't flush with the screen edge */
+    overflow-y: auto; 
+    padding: 32px;
     padding-bottom: 80px; 
+    background: #FAFAFA; 
 }
 /* ==========================================
-   🌟 PREMIUM CONTROL BAR
+   🌟 THE UNIFIED WORKSPACE CARD
    ========================================== */
+.saas-project-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Automatically stretches down to the bottom of the screen! */
+    background: #FFFFFF;
+    border: 1px solid var(--saas-border-tint);
+    border-radius: 12px;
+    
+    /* 🌟 THE MARGIN FIX: Reduced the bottom margin from 32px to 12px so it doesn't look cut off! */
+    margin: 0 32px 12px 32px; 
+    
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    overflow: hidden; 
+    min-height: 0; 
+}
+
+.saas-kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.saas-kpi-header:hover {
+    background: #E2E8F0; /* Subtle hover effect */
+}
+
+.saas-kpi-title-group {
+    display: flex;
+    align-items: center;
+}
+
+.saas-kpi-toggle {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--saas-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.saas-kpi-container {
+    display: flex;
+    gap: 16px; 
+    margin-top: 12px; /* Space between the toggle text and the cards */
+}
+
+.saas-kpi-section {
+    display: flex;
+    flex-direction: column;
+    margin: 16px 32px 12px 32px; /* Controls spacing from the top and sides */
+    flex-shrink: 0;
+}
+
+/* Header is now locked INSIDE the top of the workspace card */
 .saas-detail-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 32px; /* 🌟 Synced with left panel */
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    /* 🌟 The magic line: this continuous bottom border ties the whole screen together */
+    padding: 12px 20px; /* 🌟 SHRUNK: Was 20px 24px */
+    background: #FFFFFF;
     border-bottom: 1px solid var(--saas-border-tint); 
-    position: sticky;
-    top: 0;
-    z-index: 40;
+    flex-shrink: 0; 
 }
 
 /* Project Branding */
@@ -1736,19 +1866,30 @@
     --sds-c-icon-color-foreground-default: var(--saas-primary);
 }
 
+.saas-project-icon-compact {
+    width: 36px; 
+    height: 36px;
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    border-radius: 8px; /* Slightly sharper corner for a smaller box */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #C7D2FE;
+    --sds-c-icon-color-foreground-default: var(--saas-primary);
+}
+
 .saas-active-project-name {
-    font-size: 22px;
+    font-size: 16px; /* Was 22px */
     font-weight: 800;
     color: #0F172A;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .saas-active-project-meta {
-    font-size: 13px;
+    font-size: 12px; /* Was 13px */
     font-weight: 600;
     color: #64748B;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 /* ==========================================
@@ -1768,7 +1909,7 @@
     color: #94A3B8;
 }
 .saas-premium-dropdown {
-    width: 240px; 
+    width: 200px; 
     position: relative;
     z-index: 50; /* Extra safety layer specifically for the combobox */
     
@@ -1839,4 +1980,112 @@
     font-size: 14px;
     color: #64748B;
     line-height: 1.6;
+}
+
+/* Webkit specific scrollbar styling for the workspace */
+.saas-detail-body::-webkit-scrollbar {
+    width: 6px;
+}
+.saas-detail-body::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 8px 0;
+}
+.saas-detail-body::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+.saas-detail-body::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8; 
+}
+
+/* ==========================================
+   🌟 CUSTOM SCROLLBARS FOR BOTH PANES
+   ========================================== */
+.saas-scroll-area::-webkit-scrollbar,
+.saas-detail-body::-webkit-scrollbar {
+    width: 6px;
+}
+.saas-scroll-area::-webkit-scrollbar-track,
+.saas-detail-body::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 8px 0;
+}
+.saas-scroll-area::-webkit-scrollbar-thumb,
+.saas-detail-body::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+.saas-scroll-area::-webkit-scrollbar-thumb:hover,
+.saas-detail-body::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8; 
+}
+
+/* ==========================================
+   🌟 MODAL TOGGLE & ALIGNMENT
+   ========================================== */
+
+.saas-modal-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #FFFFFF; 
+    border-bottom: 1px solid var(--saas-border-tint); 
+    padding: 16px 24px;
+    border-radius: 8px 8px 0 0;
+    position: relative; /* 🌟 Critical: Allows the toggle to be absolutely centered */
+}
+
+/* Forces the toggle to sit dead-center in the header */
+.saas-modal-toggle {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+}
+
+.saas-modal-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--saas-text-muted);
+    cursor: pointer;
+    transition: var(--saas-transition);
+}
+
+.saas-modal-tab:hover:not(.active) {
+    color: var(--saas-text-main);
+    background: #F1F5F9;
+}
+
+.saas-modal-tab.active {
+    background: var(--saas-surface);
+    color: var(--saas-primary);
+    box-shadow: var(--saas-shadow-sm);
+}
+
+/* ==========================================
+   🌟 IN-MODAL EMPTY STATE
+   ========================================== */
+.saas-modal-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: #64748B;
+}
+
+.saas-modal-empty-state p {
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 500;
 }

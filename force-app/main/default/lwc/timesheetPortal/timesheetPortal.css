@@ -286,7 +286,14 @@
     position: relative; /* Changed from sticky to relative since the body now scrolls independently */
     z-index: 100;
 }
-.timesheet-controls-row { padding: 16px 24px; background: #FFFFFF; border-bottom: 1px solid #F3F4F6; border-radius: 12px 12px 0 0; }
+.timesheet-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--saas-border);
+}
 .week-title-text { font-size: 18px; font-weight: 800; color: var(--text-strong); margin: 0; line-height: 1; }
 .hours-suffix { font-size: 18px; font-weight: 600; color: #9CA3AF; margin-left: 4px; }
 
@@ -788,11 +795,12 @@
 
 /* Header Area */
 .saas-project-header {
-    padding: 14px 16px;
-    cursor: pointer;
-    background: #FFFFFF;
-    transition: background 0.2s ease;
+    display: flex;
+    align-items: stretch; 
+    padding: 0 !important; 
+    background: transparent;
 }
+
 .saas-project-header:hover {
     background: #F9FAFB;
 }
@@ -962,56 +970,72 @@
 /* Standalone Icon Buttons (Undo) */
 .saas-icon-btn {
     background: #FFFFFF;
-    border: 1px solid #D1D5DB;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
+    border: 1px solid var(--saas-border);
+    border-radius: 6px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    color: #64748B;
 }
 .saas-icon-btn:hover:not(:disabled) {
-    background: #F9FAFB;
-    border-color: #9CA3AF;
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: var(--saas-primary);
 }
+
 .saas-icon-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background: #F3F4F6;
-    box-shadow: none;
+    background: #F1F5F9;
 }
+
 .saas-icon-btn lightning-icon { --sds-c-icon-color-foreground-default: #4B5563; }
+
+.list-timeframe-toggle {
+    margin: 0 !important; /* Forces it to perfectly align in the flex row */
+    height: 34px;
+}
 
 /* Segmented Navigation (Prev / Today / Next) */
 .saas-nav-group {
     display: flex;
+    align-items: center;
     background: #FFFFFF;
-    border: 1px solid #D1D5DB;
+    border: 1px solid var(--saas-border);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    height: 34px;
 }
+
 .saas-nav-btn {
     background: transparent;
     border: none;
-    border-right: 1px solid #E5E7EB;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
+    color: #64748B;
     cursor: pointer;
-    transition: background 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 10px;
+    height: 100%;
+    transition: background 0.2s;
 }
+
+
 .saas-nav-btn:last-child { border-right: none; }
-.saas-nav-btn:hover { background: #F3F4F6; }
+.saas-nav-btn:hover { background: #F1F5F9; color: #0F172A; }
 .saas-nav-btn lightning-icon { --sds-c-icon-color-foreground-default: #4B5563; }
-.today-btn { padding: 6px 16px; }
+.today-btn {
+    border-left: 1px solid var(--saas-border);
+    border-right: 1px solid var(--saas-border);
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
 
 /* Visual Divider */
 .saas-action-divider {
@@ -1041,6 +1065,67 @@
     transform: none !important;
     box-shadow: none !important;
 }
+
+.paste-btn {
+    background: #E0F2FE; /* Brand soft */
+    color: #0176D3;
+    border: 1px solid #BAE6FD;
+    animation: pulseGlow 2s infinite; 
+}
+.paste-btn lightning-icon { --sds-c-icon-color-foreground-default: #0176D3; }
+.paste-btn:hover { background: #DBEAFE; border-color: #7DD3FC; }
+
+.submit-btn {
+    background: #059669; /* Success Green */
+    color: #FFFFFF;
+    border: none;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+.submit-btn lightning-icon {
+    --sds-c-icon-color-foreground-default: #FFFFFF; /* 🌟 CRITICAL: Forces icon to white! */
+}
+.submit-btn:hover:not(:disabled) {
+    background: #047857;
+    box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3);
+    transform: translateY(-1px);
+}
+.submit-btn:disabled {
+    background: #A7F3D0;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.submit-btn:disabled lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+/* ==========================================
+   🌟 THE SLIM CANCEL PASTE ICON
+   ========================================== */
+.cancel-paste-icon {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    --sds-c-icon-color-foreground-default: #EF4444; /* Bright Red */
+}
+.cancel-paste-icon:hover {
+    background: #FEE2E2;
+    border-color: #F87171;
+    --sds-c-icon-color-foreground-default: #DC2626;
+}
+
+.copy-btn {
+    background: #FFFFFF;
+    color: #334155;
+    border: 1px solid #E2E8F0; /* Fixed missing variable */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.copy-btn:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: #0F172A;
+}
+.copy-btn:hover:not(:disabled) lightning-icon { --sds-c-icon-color-foreground-default: #0F172A; }
+.copy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.copy-btn lightning-icon { --sds-c-icon-color-foreground-default: #64748B; }
+
 
 .saas-btn-secondary {
     background: #FFFFFF;
@@ -1370,12 +1455,35 @@
 .filter-preset-group,
 .saas-view-toggle {
     display: flex;
-    background: #F1F5F9; /* Very soft slate */
-    padding: 4px;
+    background: #F1F5F9;
     border-radius: 8px;
-    gap: 4px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+    padding: 4px;
+    border: 1px solid var(--saas-border);
 }
+
+.saas-view-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.saas-view-btn.active {
+    background: #FFFFFF;
+    color: var(--saas-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.saas-view-btn:hover:not(.active) {
+    color: #0F172A;
+}
+
 .preset-btn,
 .saas-toggle-btn {
     border: none;
@@ -2774,3 +2882,280 @@
     background: #F8FAFC;
 }
 
+/* ==========================================
+   🌟 HEADER ACTIONS & TOGGLES
+   ========================================== */
+.header-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Tightens the gap between the groups slightly */
+}
+
+/* 1. History Controls (Undo/Redo) */
+.history-controls {
+    display: flex;
+    gap: 6px;
+}
+
+/* 2. SaaS View Toggle (Grid/List) */
+.saas-view-toggle {
+    display: flex;
+    background: #F1F5F9;
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--saas-border);
+}
+
+.saas-view-toggle button {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.saas-view-toggle button.active {
+    background: #FFFFFF;
+    color: var(--saas-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.saas-view-toggle button:hover:not(.active) {
+    color: #334155;
+    background: #E2E8F0;
+}
+
+/* Action Divider (Vertical Line) */
+.saas-action-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--saas-border);
+    margin: 0 12px;
+}
+
+/* 3. Navigation Group */
+.saas-nav-group {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0; /* Fixed missing variable */
+    border-radius: 8px;
+    overflow: hidden;
+    height: 34px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.saas-nav-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 100%;
+    transition: all 0.2s ease;
+}
+
+
+.saas-nav-btn lightning-icon { 
+    --sds-c-icon-color-foreground-default: #64748B; 
+    transition: all 0.2s; 
+}
+
+.saas-nav-btn:hover { background: #F1F5F9; color: #0F172A; }
+.saas-nav-btn:hover lightning-icon { --sds-c-icon-color-foreground-default: #0F172A; }
+
+.today-btn {
+    border-left: 1px solid #E2E8F0;
+    border-right: 1px solid #E2E8F0;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Apply the fixed border color to the other header items */
+.saas-view-toggle { border: 1px solid #E2E8F0; }
+.saas-icon-btn { border: 1px solid #E2E8F0; }
+.saas-action-divider { background-color: #E2E8F0; }
+.saas-nav-btn.today-btn {
+    border-left: 1px solid var(--saas-border);
+    border-right: 1px solid var(--saas-border);
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    padding: 0 16px;
+}
+
+/* ==========================================
+   🌟 SAAS ACTION BUTTONS (Copy, Paste, Submit)
+   ========================================== */
+
+/* The base class ensuring text never distorts */
+.saas-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap; 
+    gap: 6px;
+}
+
+/* 🌟 COPY BUTTON (Clean White) */
+.copy-btn {
+    background: #FFFFFF;
+    color: #334155;
+    border: 1px solid #CBD5E1; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.copy-btn lightning-icon { --sds-c-icon-color-foreground-default: #64748B; }
+.copy-btn:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #9CA3AF;
+    color: #0F172A;
+}
+.copy-btn:hover:not(:disabled) lightning-icon { --sds-c-icon-color-foreground-default: #0F172A; }
+.copy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 🌟 PASTE BUTTON (Premium Black) */
+.paste-btn {
+    background: #0F172A; /* Solid Dark Slate / Black */
+    color: #FFFFFF;
+    border: 1px solid #0F172A;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.2);
+}
+.paste-btn lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+.paste-btn:hover:not(:disabled) { 
+    background: #1E293B; 
+    border-color: #1E293B;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.3);
+    transform: translateY(-1px);
+}
+.paste-btn:disabled { 
+    background: #94A3B8; 
+    border-color: #94A3B8; 
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* 🌟 SUBMIT BUTTON (Premium Success Green) */
+.submit-btn {
+    background: #10B981; 
+    color: #FFFFFF;
+    border: none;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+.submit-btn lightning-icon {
+    --sds-c-icon-color-foreground-default: #FFFFFF; 
+}
+.submit-btn:hover:not(:disabled) {
+    background: #059669;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+.submit-btn:disabled {
+    background: #A7F3D0;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.submit-btn:disabled lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+/* ==========================================
+   🌟 SAAS ACTIVE CONTEXT STATE (SIDEBAR)
+   ========================================== */
+
+/* The base class ensuring smooth transitions */
+.saas-project-card {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The Active State (Overrides the standard border with a brand anchor) */
+.saas-project-card.active-context {
+    background: #F0F9FF; /* Soft brand blue wash */
+    border-color: #BAE6FD !important; /* Light blue border */
+    
+    /* 🌟 The Inset Shadow Trick: Creates a thick 4px blue anchor on the left 
+       without changing box dimensions or making the text jump! */
+    box-shadow: inset 4px 0 0 0 #0176D3, 0 4px 12px rgba(1, 118, 211, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Ensure the header becomes transparent so the blue wash shows through */
+.saas-project-card.active-context .saas-project-header {
+    background: transparent;
+}
+
+/* Ensure the task dropdown inherits the wash but stays distinct */
+.saas-project-card.active-context .project-task-list {
+    background: #E0F2FE;
+    border-top: 1px dashed #BAE6FD;
+}
+
+/* ==========================================
+   🌟 SPLIT-ZONE PROJECT CARDS
+   ========================================== */
+
+/* Remove padding from parent, make it a stretch flex container */
+.saas-project-header {
+    display: flex;
+    align-items: stretch; 
+    padding: 0 !important; 
+    background: transparent;
+}
+
+/* 🌟 ZONE A: The Main Body */
+.saas-project-context-zone {
+    flex: 1; /* Pushes the chevron to the right edge */
+    padding: 10px 12px 10px 16px;
+    cursor: pointer;
+    min-width: 0; /* Required to prevent text truncation bugs */
+    transition: background 0.2s ease;
+}
+
+.saas-project-context-zone:hover {
+    background: #F8FAFC; 
+}
+
+/* 🌟 ZONE B: The Chevron Button */
+.saas-project-expand-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    cursor: pointer;
+    border-left: 1px solid transparent; /* Invisible border until hovered/active */
+    transition: all 0.2s ease;
+}
+
+.saas-project-expand-zone:hover {
+    background: #F1F5F9; /* Independent grey hover circle effect */
+}
+
+/* ==========================================
+   🌟 ACTIVE "DEFAULT" CARD HOVERS
+   ========================================== */
+/* Adjust hovers so they match the blue wash when selected */
+.saas-project-card.active-context .saas-project-context-zone:hover {
+    background: rgba(255, 255, 255, 0.4); 
+}
+
+.saas-project-card.active-context .saas-project-expand-zone {
+    border-left: 1px solid #BAE6FD; /* Adds a line separating the chevron from the body */
+}
+
+.saas-project-card.active-context .saas-project-expand-zone:hover {
+    background: #E0F2FE; /* Brand blue hover */
+}

@@ -187,6 +187,8 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
 
     @track showDeleteModal = false;
 
+    @track activeSidebarProjectId = null;
+
     @track isSaving = false; // Prevents double-clicking the save button
 
     // ==========================================
@@ -198,6 +200,10 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     @track expFilterStartDate = '';
     @track expFilterEndDate = '';
     @track activeStatusTab = 'All';
+
+    // 🌟 3. UNDO & REDO STATE MANAGEMENT
+    @track historyStack = [];
+    @track redoStack = [];
     
     @track tabCounts = { all: 0, draft: 0, submitted: 0, approved: 0, rejected: 0, invoiced: 0 };
     @track kpiTotalApplied = '$0.00';
@@ -243,7 +249,7 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     // 🧮 BULLETPROOF EXPENSE PAGINATION
     // ==========================================
     @track currentExpPage = 1;
-    @track expPageSize = 10;
+    @track expPageSize = 5;
 
     // 1. Calculate Total Pages safely
     get totalExpPages() {
@@ -316,8 +322,17 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
         return !this.allTimeEntries.some(e => e.Date__c >= startStr && e.Date__c <= endStr);
     }
 
+    get isUndoDisabled() { return this.historyStack.length === 0; }
+    get isRedoDisabled() { return this.redoStack.length === 0; }    
+
     toggleMiniCalendar() {
         this.isMiniCalendarOpen = !this.isMiniCalendarOpen;
+    }
+
+    saveStateToHistory() {
+        this.historyStack.push(JSON.stringify(this.timesheetData));
+        if (this.historyStack.length > 20) this.historyStack.shift(); 
+        this.redoStack = []; // Any new action wipes the redo stack
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -512,6 +527,56 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
         }
     }
 
+    // 🌟 REPLACED: Handles both Selection and Expansion
+    // handleProjectCardClick(event) {
+    //     const projectId = event.currentTarget.dataset.id;
+        
+    //     // 1. Toggle Active Context (Select / Deselect)
+    //     if (this.activeSidebarProjectId === projectId) {
+    //         this.activeSidebarProjectId = null; // Deselect if already active
+    //     } else {
+    //         this.activeSidebarProjectId = projectId; // Set as new active project
+    //     }
+        
+    //     // 2. Handle Expansion (Keeps the accordion functionality working)
+    //     if (this.expandedProjectIds.includes(projectId)) {
+    //         this.expandedProjectIds = this.expandedProjectIds.filter(id => id !== projectId);
+    //     } else {
+    //         this.expandedProjectIds = [...this.expandedProjectIds, projectId];
+    //     }
+    // }
+
+
+    // ==========================================
+    // 🌟 ZONE A: The Context Selector (Sets Default Project)
+    // ==========================================
+    handleProjectSelect(event) {
+        const projectId = event.currentTarget.dataset.id;
+        
+        // Toggle selection logic
+        if (this.activeSidebarProjectId === projectId) {
+            this.activeSidebarProjectId = null; // Deselect if already active
+        } else {
+            this.activeSidebarProjectId = projectId; // Set as new default
+        }
+    }
+
+    // ==========================================
+    // 🌟 ZONE B: The Exploration Chevron (Expands Tasks)
+    // ==========================================
+    handleProjectExpand(event) {
+        // 🛑 CRITICAL: Stops the click from accidentally triggering the selection zone!
+        event.stopPropagation(); 
+        
+        const projectId = event.currentTarget.dataset.id;
+        
+        if (this.expandedProjectIds.includes(projectId)) {
+            this.expandedProjectIds = this.expandedProjectIds.filter(id => id !== projectId);
+        } else {
+            this.expandedProjectIds = [...this.expandedProjectIds, projectId];
+        }
+    }
+
     // 🌟 UPGRADED SAAS SIDEBAR GETTER (Calculates Tasks & Hours)
     get sidebarProjects() {
         const up = DataUtils.uniqueBy(this.allProjectResources, r => r.Project__c);
@@ -552,6 +617,7 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
 
             const fallbackCode = r.Project__c ? 'PRJ-' + r.Project__c.substring(11, 15).toUpperCase() : 'PRJ-001';
             const isExpanded = this.expandedProjectIds.includes(r.Project__c);
+            const isActiveContext = this.activeSidebarProjectId === r.Project__c;
 
             return {
                 id: r.Project__c,
@@ -564,7 +630,10 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
                 hasTasks: tasks.length > 0,
                 isExpanded: isExpanded,
                 chevronClass: isExpanded ? 'chevron-icon expanded' : 'chevron-icon',
-                contentClass: isExpanded ? 'project-task-list expanded' : 'project-task-list'
+                contentClass: isExpanded ? 'project-task-list expanded' : 'project-task-list',
+                isActiveContext: isActiveContext,
+                cardCssClass: isActiveContext ? 'saas-project-card active-context' : 'saas-project-card',
+                cardStyle: isActiveContext ? '' : `border-left-color: ${c.border};`
             };
         });
     }
@@ -771,11 +840,61 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     get presetYesterdayClass() { return this.activeDatePreset === 'Yesterday' ? 'preset-btn active' : 'preset-btn'; }
     get presetMonthClass() { return this.activeDatePreset === 'Month' ? 'preset-btn active' : 'preset-btn'; }
 
-    // 🌟 VIEW TOGGLES (Timesheet Tab)
-    get viewGridClass() { return this.activeView === 'grid' ? 'saas-toggle-btn active' : 'saas-toggle-btn'; }
-    get viewListClass() { return this.activeView === 'list' ? 'saas-toggle-btn active' : 'saas-toggle-btn'; }
+    get currentPeriodLabel() {
+        if (this.isWeeklyView) return 'This Week';
+        return this.isListWeekly ? 'This Week' : 'This Month';
+    }
+
+    get viewGridClass() { 
+        return this.isWeeklyView ? 'saas-view-btn active' : 'saas-view-btn'; 
+    }
+    get viewListClass() { 
+        return this.isListView ? 'saas-view-btn active' : 'saas-view-btn'; 
+    }
     
+    get listViewWeeklyClass() { return this.isListWeekly ? 'saas-tab active' : 'saas-tab'; }
+    get listViewMonthlyClass() { return this.isListMonthly ? 'saas-tab active' : 'saas-tab'; }
+
     getLocalDateString(dateObj) { return new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
+
+
+    handlePrevPeriod() { 
+        if (this.isListView && this.isListMonthly) {
+            // 🌟 Navigates back by 1 Full Month
+            const d = new Date(this.currentDate);
+            d.setMonth(d.getMonth() - 1);
+            this.currentDate = d;
+            this.refreshAllViews();
+        } else {
+            // Navigates back by 1 Week
+            this.handlePrevious(); 
+        }
+    }
+
+    handleNextPeriod() { 
+        if (this.isListView && this.isListMonthly) {
+            // 🌟 Navigates forward by 1 Full Month
+            const d = new Date(this.currentDate);
+            d.setMonth(d.getMonth() + 1);
+            this.currentDate = d;
+            this.refreshAllViews();
+        } else {
+            // Navigates forward by 1 Week
+            this.handleNext(); 
+        }
+    }
+    handleCurrentPeriod() { this.isWeeklyView ? this.handleToday() : this.handleToday(); }
+
+
+    setListViewWeekly() { 
+        this.listTimeframe = 'Weekly'; 
+        this.refreshAllViews();
+    }
+    
+    setListViewMonthly() { 
+        this.listTimeframe = 'Monthly'; 
+        this.refreshAllViews();
+    }
 
     setExpFilterToday() {
         this.activeDatePreset = 'Today';
@@ -1515,6 +1634,7 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
         this.entryDate = date;
         this.entryProjectId = pid || '';
         this.entryTaskId = '';
+        this.entryProjectId = pid || this.activeSidebarProjectId || '';
         if (!this.entryStartTime) this.entryStartTime = '09:00';
         if (!this.entryEndTime) this.entryEndTime = '17:00';
         this.entryBreakTime = 0;
@@ -1643,6 +1763,20 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
         const sH = Math.floor(dm / 60); 
         const sM = dm % 60;
 
+        // 🌟 SAVE TO UNDO HISTORY (Inserted right here!)
+        this.actionHistory.push({
+            type: 'MOVE',
+            original: { ...orig }, // Saves original date & time before moving
+            updated: {
+                entryId: orig.Id,
+                projectId: orig.Project__c,
+                date: td,
+                startHour: sH,
+                startMinute: sM
+            }
+        });
+        this.redoHistory = []; // Clear Redo whenever a new action occurs
+
         moveTimeEntry({
             entryId: eid, 
             newProjectResourceId: pr.Id, 
@@ -1650,13 +1784,14 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
             newDate: td, 
             startHour: sH, 
             startMinute: sM
-        }).then(() => refreshApex(this.wiredResult)).catch(err => {
+        }).then(() => {
+            return refreshApex(this.wiredResult);
+        }).catch(err => {
             this.showToast('Error', err.body?.message || 'Move failed.', 'error');
-            this.actionHistory.pop();
+            this.actionHistory.pop(); // Revert history if the server fails
             this.isUndoDisabled = this.actionHistory.length === 0;
             return refreshApex(this.wiredResult);
         });
-
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -1993,6 +2128,8 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
     get calendarContainerClass() { return this.isWeekLocked ? 'calendar-container locked-week-container' : 'calendar-container'; }
     get disableSubmitWeekBtn() { return this.isWeekLocked || this.weeklyTotalHours === '0.0'; }
 
+
+    
     openSubmitReview() {
         const startStr = this.dateHeaders[0].dateValue;
         const endStr = this.dateHeaders[this.dateHeaders.length - 1].dateValue;
@@ -2078,23 +2215,54 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
         this.isUndoDisabled = false; 
     } 
     
+    // handleUndo() {
+    //     if (this.actionHistory.length === 0) return;
+        
+    //     const lastAction = this.actionHistory.pop();
+    //     this.isUndoDisabled = this.actionHistory.length === 0;
+
+    //     if (lastAction.type === 'MOVE') {
+    //         const orig = lastAction.record;
+    //         const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
+            
+    //         if (!pr) return;
+
+    //         const sMins = TimeUtils.toMinutes(orig.Start_Time__c);
+    //         const sH = Math.floor(sMins / 60);
+    //         const sM = sMins % 60;
+
+    //         // Silently move it back to its original day and time
+    //         moveTimeEntry({
+    //             entryId: orig.Id,
+    //             newProjectResourceId: pr.Id,
+    //             newProjectId: orig.Project__c,
+    //             newDate: orig.Date__c,
+    //             startHour: sH,
+    //             startMinute: sM
+    //         }).then(() => {
+    //             this.showToast('Undo Successful', 'Time entry restored to its previous position.', 'success');
+    //             return refreshApex(this.wiredResult);
+    //         }).catch(err => {
+    //             this.showToast('Undo Failed', err.body?.message || 'Could not revert entry.', 'error');
+    //         });
+    //     }
+    // }
+
     handleUndo() {
         if (this.actionHistory.length === 0) return;
         
         const lastAction = this.actionHistory.pop();
-        this.isUndoDisabled = this.actionHistory.length === 0;
+        this.redoHistory.push(lastAction);
 
         if (lastAction.type === 'MOVE') {
-            const orig = lastAction.record;
+            const orig = lastAction.original;
             const pr = this.allProjectResources.find(r => r.Project__c === orig.Project__c);
-            
             if (!pr) return;
 
             const sMins = TimeUtils.toMinutes(orig.Start_Time__c);
             const sH = Math.floor(sMins / 60);
             const sM = sMins % 60;
 
-            // Silently move it back to its original day and time
             moveTimeEntry({
                 entryId: orig.Id,
                 newProjectResourceId: pr.Id,
@@ -2103,10 +2271,33 @@ export default class TimesheetPortal extends NavigationMixin(LightningElement) {
                 startHour: sH,
                 startMinute: sM
             }).then(() => {
-                this.showToast('Undo Successful', 'Time entry restored to its previous position.', 'success');
+                this.showToast('Undo', 'Action reverted.', 'success');
                 return refreshApex(this.wiredResult);
-            }).catch(err => {
-                this.showToast('Undo Failed', err.body?.message || 'Could not revert entry.', 'error');
+            });
+        }
+    }
+
+    handleRedo() {
+        if (this.redoHistory.length === 0) return;
+        
+        const nextAction = this.redoHistory.pop();
+        this.actionHistory.push(nextAction);
+
+        if (nextAction.type === 'MOVE') {
+            const updated = nextAction.updated;
+            const pr = this.allProjectResources.find(r => r.Project__c === updated.projectId);
+            if (!pr) return;
+
+            moveTimeEntry({
+                entryId: updated.entryId,
+                newProjectResourceId: pr.Id,
+                newProjectId: updated.projectId,
+                newDate: updated.date,
+                startHour: updated.startHour,
+                startMinute: updated.startMinute
+            }).then(() => {
+                this.showToast('Redo', 'Action reapplied.', 'success');
+                return refreshApex(this.wiredResult);
             });
         }
     }
