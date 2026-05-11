@@ -1,22 +1,22 @@
 import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import getConsolidatedBilling from '@salesforce/apex/InvoiceConsoleController.getConsolidatedBilling';
-import executeMasterBillingRun from '@salesforce/apex/InvoiceConsoleController.executeMasterBillingRun';
+import getConsolidatedPayroll from '@salesforce/apex/PayrollConsoleController.getConsolidatedPayroll';
+import executeMasterPayrollRun from '@salesforce/apex/PayrollConsoleController.executeMasterPayrollRun';
 
-export default class InvoiceManagerHub extends NavigationMixin(LightningElement) {
+export default class PayrollManagerHub extends NavigationMixin(LightningElement) {
     @track isLoading = false;
-    @track hasSearched = false; // 🌟 NEW: Tracks if a search was performed
-    @track billingStartDate = '';
-    @track billingEndDate = '';
-    @track consolidatedClients = [];
+    @track hasSearched = false; // 🌟 NEW
+    @track payrollStartDate = '';
+    @track payrollEndDate = '';
+    @track consolidatedCandidates = [];
     @track currentPage = 1;
     @track pageSize = 10;
 
-    // 🌟 NEW: Dual State Getters
-    get hasBillingData() { return this.consolidatedClients.length > 0; }
-    get showInitialState() { return !this.hasSearched && !this.hasBillingData; }
-    get showNoResultsState() { return this.hasSearched && !this.hasBillingData; }
+    // 🌟 Dual States
+    get hasPayrollData() { return this.consolidatedCandidates.length > 0; }
+    get showInitialState() { return !this.hasSearched && !this.hasPayrollData; }
+    get showNoResultsState() { return this.hasSearched && !this.hasPayrollData; }
 
     get totalPages() { return Math.max(1, Math.ceil((this.consolidatedClients?.length || 0) / this.pageSize)); }
     get isFirstPage() { return this.currentPage === 1; }
@@ -47,15 +47,14 @@ export default class InvoiceManagerHub extends NavigationMixin(LightningElement)
         this.currentPage = 1;
     }
 
-    get selectedCount() { return this.consolidatedClients.filter(c => c.selected).length; }
-    get hasSelectedClients() { return this.selectedCount > 0; }
-    get isAllSelected() { return this.hasBillingData && this.consolidatedClients.every(c => c.selected); }
+    get selectedCount() { return this.consolidatedCandidates.filter(c => c.selected).length; }
+    get hasSelectedCandidates() { return this.selectedCount > 0; }
+    get isAllSelected() { return this.hasPayrollData && this.consolidatedCandidates.every(c => c.selected); }
 
-    // Reset search state if dates change so the UI goes back to "Ready"
-    handleStartChange(e) { this.billingStartDate = e.target.value; this.hasSearched = false; this.consolidatedClients = []; }
-    handleEndChange(e) { this.billingEndDate = e.target.value; this.hasSearched = false; this.consolidatedClients = []; }
+    handleStartChange(e) { this.payrollStartDate = e.target.value; this.hasSearched = false; this.consolidatedCandidates = []; }
+    handleEndChange(e) { this.payrollEndDate = e.target.value; this.hasSearched = false; this.consolidatedCandidates = []; }
 
-    // --- SMART DATE QUICK SELECTORS ---
+    // --- SMART DATE QUICK SELECTORS (PAYROLL) ---
     handleQuickDate(event) {
         const range = event.currentTarget.dataset.range;
         const today = new Date();
@@ -83,26 +82,25 @@ export default class InvoiceManagerHub extends NavigationMixin(LightningElement)
             return `${yr}-${mo}-${day}`;
         };
 
-        // Note: Use this.payrollStartDate and this.payrollEndDate if you are in the Payroll Hub!
-        this.billingStartDate = formatLocal(start);
-        this.billingEndDate = formatLocal(end);
+        // 🌟 CRITICAL FIX: Update the Payroll variables, not the Billing variables!
+        this.payrollStartDate = formatLocal(start);
+        this.payrollEndDate = formatLocal(end);
 
+        // 🌟 CRITICAL FIX: Reset the Candidate array, not the Client array!
         this.hasSearched = false;
-        
-        // Note: Use this.consolidatedCandidates if you are in the Payroll Hub!
-        this.consolidatedClients = []; 
+        this.consolidatedCandidates = [];
     }
     runConsolidation() {
-        if (!this.billingStartDate || !this.billingEndDate) {
+        if (!this.payrollStartDate || !this.payrollEndDate) {
             this.showToast('Missing Parameters', 'Please select both a Start Date and an End Date.', 'warning');
             return;
         }
 
         this.isLoading = true;
-        getConsolidatedBilling({ startDate: this.billingStartDate, endDate: this.billingEndDate })
+        getConsolidatedPayroll({ startDate: this.payrollStartDate, endDate: this.payrollEndDate })
         .then(result => {
-            this.consolidatedClients = result.map(c => ({ ...c, selected: false, rowClass: 'saas-grid-row' }));
-            this.hasSearched = true; // 🌟 Triggers the "No Results" state if empty
+            this.consolidatedCandidates = result.map(c => ({ ...c, selected: false, rowClass: 'saas-grid-row' }));
+            this.hasSearched = true;
             this.currentPage = 1;
         })
         .catch(error => this.showToast('Error', this.extractErrorMessage(error), 'error'))
@@ -111,32 +109,32 @@ export default class InvoiceManagerHub extends NavigationMixin(LightningElement)
 
     handleSelectAll(e) {
         const isChecked = e.target.checked;
-        this.consolidatedClients = this.consolidatedClients.map(c => ({ ...c, selected: isChecked, rowClass: isChecked ? 'saas-grid-row selected' : 'saas-grid-row' }));
+        this.consolidatedCandidates = this.consolidatedCandidates.map(c => ({ ...c, selected: isChecked, rowClass: isChecked ? 'saas-grid-row selected' : 'saas-grid-row' }));
     }
 
-    handleSelectClient(e) {
-        const accId = e.target.dataset.id;
+    handleSelectCandidate(e) {
+        const candId = e.target.dataset.id;
         const isChecked = e.target.checked;
-        this.consolidatedClients = this.consolidatedClients.map(c => {
-            if (c.accountId === accId) return { ...c, selected: isChecked, rowClass: isChecked ? 'saas-grid-row selected' : 'saas-grid-row' };
+        this.consolidatedCandidates = this.consolidatedCandidates.map(c => {
+            if (c.candidateId === candId) return { ...c, selected: isChecked, rowClass: isChecked ? 'saas-grid-row selected' : 'saas-grid-row' };
             return c;
         });
     }
 
     previewPDF(e) {
-        const accId = e.currentTarget.dataset.id;
-        const url = `/apex/PxmInvoicePDF?accId=${accId}&startDate=${this.billingStartDate}&endDate=${this.billingEndDate}`;
+        const candId = e.currentTarget.dataset.id;
+        const url = `/apex/PxmPayrollPDF?candId=${candId}&startDate=${this.payrollStartDate}&endDate=${this.payrollEndDate}`;
         window.open(url, '_blank');
     }
 
     executeFinalization() {
-        const selectedIds = this.consolidatedClients.filter(c => c.selected).map(c => c.accountId);
+        const selectedIds = this.consolidatedCandidates.filter(c => c.selected).map(c => c.candidateId);
         this.isLoading = true;
-        executeMasterBillingRun({ accountIds: selectedIds, startDate: this.billingStartDate, endDate: this.billingEndDate })
+        executeMasterPayrollRun({ candidateIds: selectedIds, startDate: this.payrollStartDate, endDate: this.payrollEndDate })
         .then(message => {
             this.showToast('Batch Run Initiated', message, 'success');
-            this.consolidatedClients = this.consolidatedClients.filter(c => !c.selected);
-            if(this.consolidatedClients.length === 0) this.hasSearched = false; // Reset to initial state
+            this.consolidatedCandidates = this.consolidatedCandidates.filter(c => !c.selected);
+            if(this.consolidatedCandidates.length === 0) this.hasSearched = false;
         })
         .catch(error => this.showToast('Dispatch Blocked', this.extractErrorMessage(error), 'error'))
         .finally(() => this.isLoading = false);

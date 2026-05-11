@@ -12,7 +12,7 @@
                 </div>
                 <div>
                     <h2 class="header-title">History & Payments Ledger</h2>
-                    <p class="header-subtitle">Track the lifecycle of dispatched invoices and apply payments.</p>
+                    <p class="header-subtitle">Track the lifecycle of dispatched Payrolls and apply payments.</p>
                 </div>
             </div>
             <div class="header-right">
@@ -26,7 +26,7 @@
             <div class="saas-toolbar">
                 <div class="toolbar-instructions">
                     <lightning-icon icon-name="utility:search" size="x-small"></lightning-icon>
-                    <span class="slds-m-left_x-small">Find and manage historical invoices securely.</span>
+                    <span class="slds-m-left_x-small">Find and manage historical Payrolls securely.</span>
                 </div>
                 <div class="saas-search-input">
                     <lightning-input type="search" placeholder="Search Ledger..." variant="label-hidden" onchange={handleTrackedSearch}></lightning-input>
@@ -43,13 +43,12 @@
                 </div>
             </template>
 
-            <template if:true={hasData}>
+           <template if:true={hasData}>
                 <div class="saas-table-wrapper" style="border-radius: 8px 8px 0 0;">
                     <div class="saas-grid-header">
-                        <div class="grid-col flex-1">Invoice #</div>
-                        <div class="grid-col flex-2">Client Name</div>
-                        <div class="grid-col flex-1 text-right">Total Amount</div>
-                        <div class="grid-col flex-1 text-right">Balance Due</div>
+                        <div class="grid-col flex-1">Payroll #</div>
+                        <div class="grid-col flex-2">Candidate Name</div>
+                        <div class="grid-col flex-1 text-right">Gross Pay</div>
                         <div class="grid-col flex-1 text-center">Status</div>
                         <div class="grid-col action-col text-center">Action</div>
                     </div>
@@ -59,13 +58,10 @@
                             <div key={inv.Id} class="saas-grid-row">
                                 <div class="grid-col flex-1 font-metric">{inv.Name}</div>
                                 <div class="grid-col flex-2 client-name-col">
-                                    <strong>{inv.clientName}</strong>
-                                </div>
-                                <div class="grid-col flex-1 text-right font-metric">
-                                    <lightning-formatted-number value={inv.totalCharges} format-style="currency"></lightning-formatted-number>
+                                    <strong>{inv.candidateName}</strong>
                                 </div>
                                 <div class="grid-col flex-1 text-right font-metric text-brand">
-                                    <lightning-formatted-number value={inv.invoiceBalance} format-style="currency"></lightning-formatted-number>
+                                    <lightning-formatted-number value={inv.totalAmount} format-style="currency"></lightning-formatted-number>
                                 </div>
                                 <div class="grid-col flex-1 text-center">
                                     <span class={inv.pillClass}>{inv.status}</span>

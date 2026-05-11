@@ -2,31 +2,30 @@ import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
-import getTrackedInvoices from '@salesforce/apex/InvoiceConsoleController.getTrackedInvoices';
-import markInvoiceAsPaid from '@salesforce/apex/InvoiceConsoleController.markInvoiceAsPaid';
+import getTrackedPayroll from '@salesforce/apex/PayrollConsoleController.getTrackedPayroll';
+import markPayrollAsPaid from '@salesforce/apex/PayrollConsoleController.markPayrollAsPaid';
 
 const TRACKED_ACTIONS = [
     { label: 'View PDF Archive', name: 'view_pdf' },
     { label: 'Mark as Paid', name: 'mark_paid' }
 ];
 
-export default class InvoiceDispatchHub extends NavigationMixin(LightningElement) {
+export default class PayrollDispatchHub extends NavigationMixin(LightningElement) {
     @track isLoading = true;
     @track allTrackedData = [];
     @track filteredTrackedData = [];
 
     trackedColumns = [
-        { label: 'Invoice #', fieldName: 'Name', type: 'text', initialWidth: 140 },
-        { label: 'Client', fieldName: 'clientName', type: 'text' },
+        { label: 'Payroll #', fieldName: 'Name', type: 'text', initialWidth: 140 },
+        { label: 'Candidate', fieldName: 'candidateName', type: 'text' },
         { label: 'Generated On', fieldName: 'generatedDate', type: 'date', 
             typeAttributes: { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }, initialWidth: 160 },
         { label: 'Due Date', fieldName: 'dueDate', type: 'date-local', initialWidth: 120 },
-        { label: 'Total Amount', fieldName: 'totalCharges', type: 'currency', initialWidth: 140 },
-        { label: 'Balance Due', fieldName: 'invoiceBalance', type: 'currency', initialWidth: 140 },
+        { label: 'Total Amount', fieldName: 'totalAmount', type: 'currency', initialWidth: 140 },
+        { label: 'Net Pay', fieldName: 'totalAmount', type: 'currency', initialWidth: 140 },
         { label: 'Status', fieldName: 'status', type: 'text', initialWidth: 100, cellAttributes: { class: { fieldName: 'statusColor' } } },
         { type: 'action', typeAttributes: { rowActions: TRACKED_ACTIONS } }
     ];
-
     // --- PAGINATION STATE ---
     @track currentPage = 1;
     @track pageSize = 10; // Defaulting to 10!
@@ -40,7 +39,7 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
 
     // 🌟 NEW: Dynamic Range Text (e.g. "Showing 1-10 of 45")
     get recordRangeInfo() {
-        const total = this.filteredTrackedData?.length || 0;
+        const total = this.filteredTrackedData ?.length || 0;
         if (total === 0) return '0 Records';
         const start = ((this.currentPage - 1) * this.pageSize) + 1;
         const end = Math.min(this.currentPage * this.pageSize, total);
@@ -67,7 +66,7 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
     loadAllData() {
         this.isLoading = true;
         
-        getTrackedInvoices()
+        getTrackedPayroll()
             .then(result => {
                 this.allTrackedData = (result || []).map(row => {
                     let pillClass = 'saas-pill pill-neutral';
@@ -89,7 +88,7 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
     handleTrackedSearch(event) {
         const term = event.target.value.toLowerCase();
         this.filteredTrackedData = this.allTrackedData.filter(row => 
-            row.clientName?.toLowerCase().includes(term) || row.Name?.toLowerCase().includes(term) || row.status?.toLowerCase().includes(term)
+            row.candidateName?.toLowerCase().includes(term) || row.Name?.toLowerCase().includes(term) || row.status?.toLowerCase().includes(term)
         );
         this.currentPage = 1;
     }
@@ -109,11 +108,11 @@ export default class InvoiceDispatchHub extends NavigationMixin(LightningElement
                     state: { recordIds: row.fileId, selectedRecordId: row.fileId }
                 });
             } else {
-                this.showToast('Not Available', 'PDF document not found for this invoice.', 'info');
+                this.showToast('Not Available', 'PDF document not found for this payroll.', 'info');
             }
         } else if (actionName === 'mark_paid') {
             this.isLoading = true;
-            markInvoiceAsPaid({ invoiceKey: row.Id })
+            markPayrollAsPaid({ payrollKey: row.Id })
                 .then(message => {
                     this.showToast('Payment Applied', message, 'success');
                     this.loadAllData(); 

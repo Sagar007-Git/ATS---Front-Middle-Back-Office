@@ -1,0 +1,633 @@
+/* Enterprise SaaS styling for the billing workspace */
+:host {
+    display: block;
+    color: #0F172A;
+    font-family: "Salesforce Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    --saas-ink: #0F172A;
+    --saas-muted: #64748B;
+    --saas-border: #E2E8F0;
+    --saas-surface: #FFFFFF;
+    --saas-subtle: #F8FAFC;
+    --saas-accent: #1D4ED8;
+    --saas-success: #16A34A;
+}
+
+.saas-billing-workspace {
+    position: relative;
+    background: var(--saas-surface);
+    border: 1px solid var(--saas-border);
+    border-radius: 14px;
+    box-shadow: 0 18px 45px -35px rgba(15, 23, 42, 0.35), 0 6px 16px -12px rgba(15, 23, 42, 0.25);
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.saas-billing-workspace::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(900px 260px at -10% -20%, rgba(59, 130, 246, 0.12), transparent 60%),
+        radial-gradient(700px 260px at 110% 10%, rgba(16, 185, 129, 0.1), transparent 55%),
+        linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+
+.saas-billing-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 26px;
+    border-bottom: 1px solid var(--saas-border);
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    z-index: 10;
+}
+
+.billing-header-left { display: flex; align-items: center; gap: 16px; }
+
+.billing-icon-box {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(150deg, #EEF2FF 0%, #F8FAFC 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--saas-border);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.billing-icon-box lightning-icon {
+    --sds-c-icon-color-foreground-default: var(--saas-accent);
+}
+
+.billing-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--saas-ink);
+    margin: 0;
+}
+
+.billing-subtitle {
+    font-size: 13px;
+    color: var(--saas-muted);
+    margin-top: 4px;
+}
+
+.billing-header-controls { display: flex; align-items: center; gap: 16px; }
+
+.saas-date-picker-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    padding: 6px 12px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px -14px rgba(15, 23, 42, 0.5);
+}
+
+.saas-date-input {
+    --sds-c-input-radius-border: 10px;
+    --sds-c-input-color-background: #F8FAFC;
+    --sds-c-input-color-border: #CBD5E1;
+    --sds-c-input-color-border-focus: #2563EB;
+    --sds-c-input-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+    --sds-c-input-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.date-separator { font-size: 13px; color: #94A3B8; font-weight: 600; }
+
+.saas-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    border: 1px solid transparent;
+}
+
+.saas-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.saas-btn-primary {
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
+    color: #FFFFFF;
+    box-shadow: 0 10px 18px -16px rgba(37, 99, 235, 0.75);
+}
+
+.saas-btn-primary:hover { background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%); }
+
+.saas-btn-primary lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+.saas-billing-body {
+    position: relative;
+    padding: 18px 26px 26px 26px;
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+    z-index: 1;
+}
+
+.saas-empty-state {
+    padding: 54px 20px;
+    text-align: center;
+    color: var(--saas-muted);
+    background: #FFFFFF;
+    border: 1px dashed #CBD5E1;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px -28px rgba(15, 23, 42, 0.6);
+}
+
+.saas-empty-state h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.saas-icon-muted { --sds-c-icon-color-foreground-default: #CBD5E1; }
+
+.saas-grid-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    background: #F8FAFC;
+    border: 1px solid var(--saas-border);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--saas-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    box-shadow: inset 0 -1px 0 rgba(226, 232, 240, 0.8);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.saas-grid-rows {
+    border: 1px solid var(--saas-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: #FFFFFF;
+    overflow-y: auto;
+    max-height: 480px;
+}
+
+.saas-grid-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #E2E8F0;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    background: #FFFFFF;
+}
+
+.saas-grid-row:nth-child(even) {
+    background: #F8FAFC;
+}
+
+.saas-grid-row:last-child { border-bottom: none; }
+
+.saas-grid-row:hover {
+    background: #F1F5F9;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.saas-grid-row.selected {
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.08), rgba(255, 255, 255, 0.95));
+    border-left: 4px solid #1D4ED8;
+    padding-left: 20px;
+}
+
+.grid-col { padding: 0 8px; }
+.checkbox-col { width: 40px; display: flex; align-items: center;}
+.action-col { width: 80px; display: flex; justify-content: center; align-items: center; }
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.client-name-col { font-size: 15px; color: var(--saas-ink); font-weight: 600; }
+.font-metric { font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace; font-size: 15px; font-weight: 600; }
+.text-success { color: var(--saas-success); }
+.text-brand { color: var(--saas-accent); }
+
+.saas-pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.pill-neutral { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+.saas-preview-btn {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    height: 34px;
+    width: 34px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    box-shadow: 0 6px 12px -12px rgba(15, 23, 42, 0.55);
+}
+
+.saas-preview-btn:hover {
+    background: #E0F2FE;
+    border-color: #93C5FD;
+    transform: translateY(-1px);
+}
+
+.saas-preview-btn:hover lightning-icon { --sds-c-icon-color-foreground-default: #1D4ED8; }
+
+.saas-grid-header input[type="checkbox"],
+.saas-grid-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #1D4ED8;
+}
+
+.saas-floating-footer {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    padding: 12px 24px;
+    border-radius: 999px;
+    width: calc(100% - 64px);
+    max-width: 680px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: 0 18px 35px -20px rgba(15, 23, 42, 0.8);
+    z-index: 100;
+}
+
+.footer-left { display: flex; flex-direction: column; }
+
+.footer-count {
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.footer-meta {
+    color: #94A3B8;
+    font-size: 12px;
+}
+
+.saas-btn-success {
+    background: linear-gradient(135deg, #10B981 0%, #16A34A 100%);
+    color: #FFFFFF;
+    box-shadow: 0 10px 20px -16px rgba(16, 185, 129, 0.7);
+}
+
+.saas-btn-success:hover { background: linear-gradient(135deg, #059669 0%, #16A34A 100%); }
+
+.saas-btn-success lightning-icon { --sds-c-icon-color-foreground-default: #FFFFFF; }
+
+.pulse-btn {
+    animation: saasPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes saasPulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@media (max-width: 900px) {
+    .saas-billing-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--saas-border); background: #FFFFFF; z-index: 10; }
+    .billing-header-controls { flex-direction: column; align-items: flex-start; width: 100%; }
+    .saas-date-picker-group { width: 100%; justify-content: space-between; }
+}
+ 
+.billing-icon-box, .billing-subtitle, .hub-icon-box, .hub-subtitle { display: none !important; } 
+.billing-title, .hub-title { font-size: 18px !important; margin: 0 !important; font-weight: 700 !important; color: #0F172A !important; }
+/* =========================================================
+   ENTERPRISE FLATTENING PATCH (Removes Box-in-Box effect)
+   ========================================================= */
+
+/* 1. Remove borders, shadows, and backgrounds from outer wrappers */
+.saas-billing-workspace, 
+.saas-dispatch-workspace {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+.saas-billing-workspace::before, 
+.saas-dispatch-workspace::before {
+    display: none !important; /* Removes background gradient bubbles */
+}
+
+/* 2. Flatten and shrink the headers into a sleek single line */
+.saas-billing-header, 
+.saas-header {
+    background: transparent !important;
+    border-bottom: none !important;
+    padding: 0 0 16px 0 !important;
+}
+
+/* Hide the bulky child icons and subtitles */
+.billing-icon-box, 
+.header-icon, 
+.billing-subtitle, 
+.header-subtitle {
+    display: none !important;
+}
+
+/* Shrink the title font */
+.billing-title, 
+.header-title {
+    font-size: 18px !important;
+    color: #0F172A !important;
+}
+
+/* 3. Remove outer padding from the body so it spans full width */
+.saas-billing-body, 
+.saas-body {
+    padding: 0 !important;
+    background: transparent !important;
+}
+/* =========================================================
+   🌟 ENTERPRISE LAYOUT STRETCH (Flexbox Scroll-Lock Fix)
+   ========================================================= */
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-height: 0; /* Magic flexbox fix to prevent infinite growth */
+}
+
+.saas-billing-workspace, 
+.saas-dispatch-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-height: 0; 
+    overflow: hidden; /* Hard boundary so nothing bleeds out */
+}
+
+.saas-billing-body, 
+.saas-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1; 
+    min-height: 0; /* Crucial for letting child tables scroll */
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* For the Dispatch Hubs that use a table wrapper */
+.saas-table-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    border: 1px solid #E2E8F0;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: #FFFFFF;
+    box-shadow: none !important; /* Stripped heavy shadows for clean fit */
+}
+
+/* Freeze the Headers so they never shrink or scroll away */
+.saas-grid-header {
+    flex-shrink: 0 !important;
+}
+
+/* The actual scrollable row area */
+.saas-grid-rows {
+    flex: 1;
+    overflow-y: auto; /* Adds the scrollbar ONLY here */
+    min-height: 0;
+    background: #FFFFFF;
+    max-height: none !important; /* Overrides any previous hardcoded heights */
+}
+
+/* =========================================================
+   🌟 ENTERPRISE PAGINATION STYLING
+   ========================================================= */
+.saas-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    background: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 -4px 6px -4px rgba(15, 23, 42, 0.05);
+    flex-shrink: 0 !important; 
+    z-index: 20; 
+}
+
+.pagination-left { flex: 1; display: flex; justify-content: flex-start; align-items: center; }
+.pagination-center { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.pagination-controls { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+
+.pagination-record-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.page-size-label {
+    font-size: 13px;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.saas-page-select {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: #0F172A;
+    font-weight: 600;
+    background-color: #F8FAFC;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.saas-page-select:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.page-info {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    background: #F8FAFC;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid #E2E8F0;
+}
+
+.page-btn {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    padding: 6px 16px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #94A3B8;
+    color: #0F172A;
+}
+
+.page-btn:disabled {
+    background: #F1F5F9;
+    color: #94A3B8;
+    border-color: #E2E8F0;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* =========================================================
+   🌟 ENTERPRISE EMPTY STATE (Dual States + Full Height)
+   ========================================================= */
+.saas-empty-state {
+    flex: 1; /* Forces it to stretch from header to absolute bottom */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 400px;
+    background-color: #F8FAFC;
+    background-image: radial-gradient(#94A3B8 1px, transparent 1px);
+    background-size: 24px 24px;
+    box-shadow: inset 0 0 80px 30px #F8FAFC; /* Fades the dots at the edges */
+    border-radius: 0 0 12px 12px;
+}
+
+.empty-state-card {
+    background: #FFFFFF;
+    padding: 40px 56px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 0 0 1px #E2E8F0;
+    text-align: center;
+    max-width: 450px;
+    transform: translateY(-20px); /* Optically centers it */
+}
+
+.empty-state-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+}
+
+/* Color variations for the different states */
+.state-initial .empty-state-icon-wrapper {
+    background: #EEF2FF;
+    box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.3);
+}
+.state-initial lightning-icon { --sds-c-icon-color-foreground-default: #2563EB; }
+
+.state-no-results .empty-state-icon-wrapper {
+    background: #F1F5F9;
+    box-shadow: 0 4px 12px -4px rgba(100, 116, 139, 0.2);
+}
+.state-no-results lightning-icon { --sds-c-icon-color-foreground-default: #64748B; }
+
+.empty-state-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 0 0 8px 0;
+}
+
+.empty-state-card p {
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* =========================================================
+   🌟 SMART DATE BAR STYLING
+   ========================================================= */
+.smart-date-wrapper {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 4px 12px -8px rgba(15, 23, 42, 0.4);
+}
+
+.quick-date-pills {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 4px;
+}
+
+.date-pill {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.date-pill:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+.date-pill:active {
+    background: #E2E8F0;
+    transform: scale(0.97);
+}
+
+.date-divider {
+    width: 1px;
+    height: 24px;
+    background: #E2E8F0;
+    margin: 0 8px;
+}
+
+/* Ensure the traditional inputs sit cleanly next to the pills */
+.saas-date-picker-group {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 8px 0 0;
+}

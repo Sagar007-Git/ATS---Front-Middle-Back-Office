@@ -12,7 +12,7 @@
                 </div>
                 <div>
                     <h2 class="billing-title">Master Billing Run</h2>
-                    <p class="billing-subtitle">Consolidate approved time and expenses into Client Invoices.</p>
+                    <p class="billing-subtitle">Consolidate approved time and expenses into Candidate Payrolls.</p>
                 </div>
             </div>
 
@@ -28,9 +28,9 @@
                     <div class="date-divider"></div>
 
                     <div class="saas-date-picker-group">
-                        <lightning-input type="date" value={billingStartDate} onchange={handleStartChange} variant="label-hidden" class="saas-date-input" placeholder="Start Date"></lightning-input>
+                        <lightning-input type="date" value={payrollStartDate} onchange={handleStartChange} variant="label-hidden" class="saas-date-input" placeholder="Start Date"></lightning-input>
                         <span class="date-separator">to</span>
-                        <lightning-input type="date" value={billingEndDate} onchange={handleEndChange} variant="label-hidden" class="saas-date-input" placeholder="End Date"></lightning-input>
+                        <lightning-input type="date" value={payrollEndDate} onchange={handleEndChange} variant="label-hidden" class="saas-date-input" placeholder="End Date"></lightning-input>
                     </div>
                 </div>
 
@@ -49,7 +49,7 @@
                             <lightning-icon icon-name="standard:event" size="large"></lightning-icon>
                         </div>
                         <h3>Ready to Consolidate</h3>
-                        <p>Select a date range and click "Fetch Approved Data" to pull clients ready for billing.</p>
+                        <p>Select a date range and click "Fetch Approved Data" to generate Workforce Payrolls.</p>
                     </div>
                 </div>
             </template>
@@ -60,46 +60,45 @@
                         <div class="empty-state-icon-wrapper">
                             <lightning-icon icon-name="utility:search" size="large"></lightning-icon>
                         </div>
-                        <h3>No Unbilled Data Found</h3>
-                        <p>There are no approved timesheets or expenses for the selected date range.</p>
+                        <h3>No Unpaid Time Found</h3>
+                        <p>There are no approved timesheets for the selected date range.</p>
                     </div>
                 </div>
             </template>
 
-            <template if:true={hasBillingData}>
+            <template if:true={hasPayrollData}>
                 <div class="saas-grid-header">
                     <div class="grid-col checkbox-col">
                         <input type="checkbox" checked={isAllSelected} onchange={handleSelectAll} />
                     </div>
-                    <div class="grid-col flex-2">Client / Account</div>
+                    <div class="grid-col flex-2">Candidate / Account</div>
                     <div class="grid-col flex-1 text-center">Projects</div>
-                    <div class="grid-col flex-1 text-center">Candidates</div>
                     <div class="grid-col flex-1 text-right">Total Hours</div>
-                    <div class="grid-col flex-1 text-right">Invoice Total</div>
+                    <div class="grid-col flex-1 text-right">Payroll Total</div>
                     <div class="grid-col action-col text-center">Action</div>
                 </div>
 
                 <div class="saas-grid-rows">
-                    <template for:each={paginatedData} for:item="client">
-                        <div key={client.accountId} class={client.rowClass}>
+                    <template for:each={paginatedData} for:item="Candidate">
+                        <div key={Candidate.candidateId} class={Candidate.rowClass}>
                             <div class="grid-col checkbox-col">
-                                <input type="checkbox" checked={client.selected} data-id={client.accountId} onchange={handleSelectClient} />
+                                <input type="checkbox" checked={Candidate.selected} data-id={Candidate.candidateId} onchange={handleSelectCandidate} />
                             </div>
-                            <div class="grid-col flex-2 client-name-col">
-                                <strong>{client.accountName}</strong>
+                            <div class="grid-col flex-2 Candidate-name-col">
+                                <strong>{Candidate.candidateName}</strong>
                             </div>
-                            <div class="grid-col flex-1 text-center"><span class="saas-pill pill-neutral">{client.projectCount} Projects</span></div>
-                            <div class="grid-col flex-1 text-center"><span class="saas-pill pill-neutral">{client.candidateCount} Cands</span></div>
-                            <div class="grid-col flex-1 text-right font-metric">{client.totalHours} hr</div>
-                            <div class="grid-col flex-1 text-right font-metric text-brand">{client.totalAmountDisplay}</div>
+                            <div class="grid-col flex-1 text-center"><span class="saas-pill pill-neutral">{Candidate.projectCount} Projects</span></div>
+                            <div class="grid-col flex-1 text-right font-metric">{Candidate.totalHours} hr</div>
+                            <div class="grid-col flex-1 text-right font-metric text-brand">{Candidate.totalAmountDisplay}</div>
                             <div class="grid-col action-col text-center">
-                                <button class="saas-preview-btn" data-id={client.accountId} onclick={previewPDF} title="Preview PDF">
+                                <button class="saas-preview-btn" data-id={Candidate.candidateId} onclick={previewPDF} title="Preview PDF">
                                     <lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
                                 </button>
                             </div>
                         </div>
                     </template>
                 </div>
+
                 <div class="saas-pagination">
                     <div class="pagination-left">
                         <span class="pagination-record-count">{recordRangeInfo}</span>
@@ -123,15 +122,15 @@
             </template>
         </div>
 
-        <template if:true={hasSelectedClients}>
+        <template if:true={hasSelectedCandidates}>
             <div class="saas-floating-footer slds-fade-in-open">
                 <div class="footer-left">
-                    <span class="footer-count">{selectedCount} Clients Selected</span>
-                    <span class="footer-meta">Will lock records and finalize invoices.</span>
+                    <span class="footer-count">{selectedCount} Candidates Selected</span>
+                    <span class="footer-meta">Will lock records and finalize payrolls.</span>
                 </div>
                 <div class="footer-right">
                     <button class="saas-btn saas-btn-success pulse-btn" onclick={executeFinalization}>
-                        <lightning-icon icon-name="utility:lock" size="x-small" class="slds-m-right_xx-small"></lightning-icon> Generate & Dispatch Invoices
+                        <lightning-icon icon-name="utility:lock" size="x-small" class="slds-m-right_xx-small"></lightning-icon> Generate & Dispatch Payrolls
                     </button>
                 </div>
             </div>

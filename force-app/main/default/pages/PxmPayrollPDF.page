@@ -1,0 +1,168 @@
+<apex:page controller="PxmPayrollPDFController"
+           renderAs="pdf"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           applyHtmlTag="false"
+           applyBodyTag="false">
+
+<html>
+<head>
+    <style>
+        /* Strict CSS for Salesforce PDF Engine */
+        @page {
+            margin: 0.5in;
+            size: letter;
+        }
+        
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .invoice-wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .company-name { font-size: 18px; font-weight: bold; color: #003366; }
+        .company-address { font-size: 11px; color: #555; line-height: 1.6; margin-top: 4px; }
+        .invoice-title { font-size: 32px; font-weight: bold; color: #003366; text-align: right; letter-spacing: 2px; }
+
+        /* DIVIDER */
+        .divider { border: none; border-top: 2px solid #003366; margin: 15px 0; }
+
+        /* PAY TO + META */
+        .section-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .section-table td { vertical-align: top; padding: 0; }
+        .section-title { font-weight: bold; font-size: 13px; color: #003366; margin-bottom: 6px; text-transform: uppercase; }
+        .section-content { line-height: 1.6; font-size: 12px; }
+        .meta-label { color: #777; font-size: 10px; text-transform: uppercase; text-align: right; padding-right: 12px; }
+        .meta-value { font-weight: bold; font-size: 12px; text-align: right; color: #333; }
+
+        /* LINE ITEMS */
+        .line-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .line-table th { background-color: #003366; color: #ffffff; padding: 8px; font-size: 11px; text-align: left; }
+        .line-table th.text-right { text-align: right; }
+        .line-table td { padding: 8px; font-size: 11px; border-bottom: 1px solid #ddd; }
+        .project-header td { background-color: #e6f0fa; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; }
+        .project-footer td { background-color: #f9f9f9; font-weight: bold; color: #333; border-top: 1px solid #bbb; }
+        .text-right { text-align: right; }
+
+        /* TOTALS */
+        .totals-outer { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .totals-table { width: 100%; border-collapse: collapse; }
+        .totals-table td { padding: 6px 10px; font-size: 12px; border-bottom: 1px solid #eee; }
+        .total-label { color: #555; text-align: right; }
+        .total-value { text-align: right; font-weight: bold; color: #333; }
+        .grand-total-row td { background-color: #003366; color: #ffffff; font-weight: bold; font-size: 14px; padding: 10px; border-bottom: none; }
+
+        /* FOOTER */
+        .thankyou-banner { width: 100%; background-color: #003366; color: #ffffff; text-align: center; padding: 12px; font-size: 14px; font-weight: bold; margin-top: 30px; }
+        .footer { margin-top: 15px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-wrapper">
+
+        <table class="header-table">
+            <tr>
+                <td style="width:50%;">
+                    <div class="company-name">{!agencyName}</div>
+                    <div class="company-address">
+                        <apex:outputText value="{!agencyAddress}" escape="false" />
+                    </div>
+                </td>
+                <td style="width:50%;">
+                    <div class="invoice-title">PAYROLL STUB</div>
+                </td>
+            </tr>
+        </table>
+
+        <hr class="divider"/>
+
+        <table class="section-table">
+            <tr>
+                <td style="width:50%;">
+                    <div class="section-title">Pay To</div>
+                    <div class="section-content">
+                        <b><apex:outputText value="{!candidateName}"/></b><br/>
+                        <apex:outputText value="{!candidateEmail}" escape="false"/>
+                    </div>
+                </td>
+                <td style="width:50%;">
+                    <table style="float:right; border-collapse:collapse;">
+                        <tr><td class="meta-label">Payroll Stub No.</td><td class="meta-value"><apex:outputText value="{!payrollNumber}"/></td></tr>
+                        <tr><td class="meta-label">Date of Issue</td><td class="meta-value"><apex:outputText value="{!payrollDate}"/></td></tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <table class="line-table">
+            <thead>
+                <tr>
+                    <th style="width:15%;">Date</th>
+                    <th style="width:25%;">Project</th>
+                    <th style="width:25%;">Task / Desc</th>
+                    <th class="text-right" style="width:10%;">Pay Rate</th>
+                    <th class="text-right" style="width:10%;">Hours</th>
+                    <th class="text-right" style="width:15%;">Gross Pay</th>
+                </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!projectWrappers}" var="proj">
+                    <tr class="project-header">
+                        <td colspan="6">Project: {!proj.projectName}</td>
+                    </tr>
+                    <apex:repeat value="{!proj.timesheets}" var="ts">
+                        <tr>
+                            <td><apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!ts.Date__c}"/></apex:outputText></td>
+                            <td>{!proj.projectName}</td>
+                            <td>{!ts.Task__r.Name}</td>
+                            <td class="text-right"><apex:outputText value="{0, number, $#,##0.00}"><apex:param value="{!ts.Project_Resource__r.Pay_Rate__c}"/></apex:outputText></td>
+                            <td class="text-right">{!ts.Hours_Worked_Number_Format__c}</td>
+                            <td class="text-right"><apex:outputText value="{0, number, $#,##0.00}"><apex:param value="{!ts.Hours_Worked_Number_Format__c * ts.Project_Resource__r.Pay_Rate__c}"/></apex:outputText></td>
+                        </tr>
+                    </apex:repeat>
+                    <tr class="project-footer">
+                        <td colspan="5" class="text-right">Gross Subtotal for {!proj.projectName}:</td>
+                        <td class="text-right"><apex:outputText value="{0, number, $#,##0.00}"><apex:param value="{!proj.projectTotalAmount}"/></apex:outputText></td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+
+        <div style="clear:both;">
+            <table class="totals-outer">
+                <tr>
+                    <td style="width:55%;"></td>
+                    <td style="width:45%;">
+                        <table class="totals-table">
+                            <tr><td class="total-label">Gross Earnings:</td><td class="total-value"><apex:outputText value="{0, number, $#,##0.00}"><apex:param value="{!grandTotalAmount}"/></apex:outputText></td></tr>
+                            <tr><td class="total-label">Taxes Withheld:</td><td class="total-value">-$0.00</td></tr>
+                            <tr><td class="total-label">Deductions:</td><td class="total-value">-$0.00</td></tr>
+                            <tr class="grand-total-row"><td>Net Pay Amount:</td><td class="total-value"><apex:outputText value="{0, number, $#,##0.00}"><apex:param value="{!grandTotalAmount}"/></apex:outputText></td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="thankyou-banner">Thank you for your hard work!</div>
+        <div class="footer">This is an automatically generated payroll stub. For questions please contact HR.</div>
+
+    </div>
+
+</body>
+</html>
+</apex:page>
